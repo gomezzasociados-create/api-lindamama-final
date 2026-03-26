@@ -11,23 +11,26 @@
 
     <style>
         :root { --violeta-profundo: #100118; --violeta-tarjeta: #1c0229; --fucsia-neon: #ff00ff; --cyan-neon: #00e5ff; --blanco-puro: #ffffff; }
-        body { background-color: var(--violeta-profundo); font-family: 'Poppins', sans-serif; color: var(--blanco-puro); padding-bottom: 50px; }
+        body { background-color: var(--violeta-profundo); font-family: 'Poppins', sans-serif; color: var(--blanco-puro); padding-bottom: 50px; overflow-x: hidden; }
 
         .navbar-cyber { background: rgba(28, 2, 41, 0.95); border-bottom: 2px solid var(--fucsia-neon); box-shadow: 0 0 20px rgba(255, 0, 255, 0.4); backdrop-filter: blur(10px); }
         .navbar-brand { font-family: 'Playfair Display', serif; font-weight: 900; color: var(--blanco-puro) !important; text-shadow: 0 0 10px var(--fucsia-neon); letter-spacing: 1px; }
 
-        .nav-tabs { border-bottom: 1px solid rgba(0, 229, 255, 0.3); }
-        .nav-tabs .nav-link { color: #cccccc; border: none; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        /* Magia para las Pestañas */
+        .nav-tabs { border-bottom: 1px solid rgba(0, 229, 255, 0.3); flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; white-space: nowrap; padding-bottom: 5px; }
+        .nav-tabs::-webkit-scrollbar { height: 4px; }
+        .nav-tabs::-webkit-scrollbar-thumb { background: var(--cyan-neon); border-radius: 4px; }
+        .nav-tabs .nav-link { color: #cccccc; border: none; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; padding: 10px 15px; }
         .nav-tabs .nav-link:hover { color: var(--cyan-neon); }
         .nav-tabs .nav-link.active { background-color: transparent; color: var(--cyan-neon); border-bottom: 3px solid var(--cyan-neon); text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
 
-        .card-stat { background: linear-gradient(145deg, var(--violeta-tarjeta), #2a0342); border: 1px solid rgba(255, 0, 255, 0.2); border-radius: 15px; transition: 0.3s; }
+        .card-stat { background: linear-gradient(145deg, var(--violeta-tarjeta), #2a0342); border: 1px solid rgba(255, 0, 255, 0.2); border-radius: 15px; transition: 0.3s; height: 100%; }
         .card-stat:hover { transform: translateY(-5px); border-color: var(--cyan-neon); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
         .stat-icon { font-size: 2.5rem; color: var(--fucsia-neon); text-shadow: 0 0 15px var(--fucsia-neon); }
 
-        .table-cyber { background-color: var(--violeta-tarjeta); color: white; border-radius: 10px; overflow: hidden; }
-        .table-cyber th { background-color: #2a0342; color: var(--cyan-neon); border-bottom: 2px solid var(--fucsia-neon); text-transform: uppercase; }
-        .table-cyber td { border-color: rgba(255, 255, 255, 0.1); vertical-align: middle; background: transparent; color: white;}
+        .table-cyber { background-color: var(--violeta-tarjeta); color: white; border-radius: 10px; overflow: hidden; margin-bottom: 0; min-width: 600px; /* Evita que la tabla se apachurre demasiado */ }
+        .table-cyber th { background-color: #2a0342; color: var(--cyan-neon); border-bottom: 2px solid var(--fucsia-neon); text-transform: uppercase; font-size: 0.9rem; }
+        .table-cyber td { border-color: rgba(255, 255, 255, 0.1); vertical-align: middle; background: transparent; color: white; font-size: 0.9rem; }
         .table-cyber tbody tr:hover td { background-color: rgba(0, 229, 255, 0.05); }
 
         .btn-cyan { background: transparent; color: var(--cyan-neon); border: 1px solid var(--cyan-neon); transition: 0.3s; }
@@ -43,21 +46,35 @@
         .modal-content { background-color: #1c0229; border: 2px solid #00e5ff; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); color: white; border-radius: 15px; }
         .form-control { background: #100118; border: 1px solid #ff00ff; color: white; }
         .form-control:focus { background: #100118; color: white; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,0.5); }
+
+        /* 🔥 AJUSTES PARA CELULAR 🔥 */
+        @media (max-width: 768px) {
+            .navbar-brand { font-size: 1.1rem; }
+            .btn-nav-top { padding: 0.2rem 0.5rem; font-size: 0.8rem; }
+            .card-stat { padding: 1.5rem !important; }
+            .stat-icon { font-size: 2rem; }
+            .card-stat h2 { font-size: 1.8rem; }
+            .header-tab { flex-direction: column; gap: 10px; align-items: stretch !important; text-align: center; }
+            .btn-fucsia { width: 100%; }
+            .table-responsive { border-radius: 10px; border: 1px solid rgba(255,0,255,0.2); }
+            td.acciones-col { white-space: nowrap; } /* Mantiene los botones en una sola línea */
+        }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-cyber sticky-top">
-    <div class="container-fluid px-4">
-        <a class="navbar-brand" href="#"><i class="bi bi-stars me-2 text-info"></i>Linda Mamá | <span style="font-family: 'Poppins'; font-size: 1rem; color: var(--cyan-neon);">CENTRO DE MANDO</span></a>
-        <div>
-            <a href="/catalogo" class="btn btn-sm btn-outline-light me-2"><i class="bi bi-shop"></i> Ver Web</a>
-            <a href="/agenda" class="btn btn-sm btn-outline-light"><i class="bi bi-calendar3"></i> Agenda</a>
+<nav class="navbar navbar-expand navbar-cyber sticky-top">
+    <div class="container-fluid px-2 px-md-4">
+        <a class="navbar-brand" href="#"><i class="bi bi-stars me-1 text-info"></i>Linda Mamá <span class="d-none d-md-inline">| <span style="font-family: 'Poppins'; font-size: 1rem; color: var(--cyan-neon);">CENTRO DE MANDO</span></span></a>
+        <div class="d-flex gap-2">
+            <a href="/catalogo" class="btn btn-sm btn-outline-light btn-nav-top"><i class="bi bi-shop"></i> <span class="d-none d-md-inline">Web</span></a>
+            <a href="/agenda" class="btn btn-sm btn-outline-light btn-nav-top"><i class="bi bi-calendar3"></i> <span class="d-none d-md-inline">Agenda</span></a>
+            <a href="/pos" class="btn btn-sm btn-outline-light btn-nav-top"><i class="bi bi-calculator"></i> <span class="d-none d-md-inline">POS</span></a>
         </div>
     </div>
 </nav>
 
-<div class="container mt-4">
+<div class="container-fluid px-3 mt-3 mt-md-4">
     <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
         <li class="nav-item" role="presentation"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button"><i class="bi bi-speedometer2 me-2"></i>Dashboard</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="catalogo-tab" data-bs-toggle="tab" data-bs-target="#catalogo" type="button"><i class="bi bi-box-seam me-2"></i>Catálogo</button></li>
@@ -68,12 +85,12 @@
     <div class="tab-content" id="adminTabsContent">
 
         <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
+            <div class="row g-3 g-md-4 mb-4">
+                <div class="col-12 col-md-4">
                     <div class="card-stat p-4 d-flex align-items-center">
-                        <i class="bi bi-cash-stack stat-icon me-4"></i>
+                        <i class="bi bi-cash-stack stat-icon me-3 me-md-4"></i>
                         <div>
-                            <h5 class="text-muted mb-1">Ingresos Reales</h5>
+                            <h6 class="text-muted mb-1 fw-bold">Ingresos Reales</h6>
                             <h2 class="mb-0 fw-bold" style="color: var(--cyan-neon);"
                                 th:text="${'$' + #numbers.formatInteger(#aggregates.sum(citas.?[estado == 'CONFIRMADO'].![totalPagado]) ?: 0, 0, 'POINT')}">
                                 $0
@@ -82,11 +99,11 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="card-stat p-4 d-flex align-items-center">
-                        <i class="bi bi-calendar-event stat-icon me-4" style="color: #ff9800;"></i>
+                        <i class="bi bi-calendar-event stat-icon me-3 me-md-4" style="color: #ff9800;"></i>
                         <div>
-                            <h5 class="text-muted mb-1">Citas por Cobrar</h5>
+                            <h6 class="text-muted mb-1 fw-bold">Citas por Cobrar</h6>
                             <h2 class="mb-0 fw-bold"
                                 th:text="${citas.?[estado == 'RESERVADO'].size() + ' Pendientes'}">
                                 0
@@ -95,11 +112,11 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="card-stat p-4 d-flex align-items-center">
-                        <i class="bi bi-people stat-icon me-4" style="color: #28a745;"></i>
+                        <i class="bi bi-people stat-icon me-3 me-md-4" style="color: #28a745;"></i>
                         <div>
-                            <h5 class="text-muted mb-1">Clientes Registrados</h5>
+                            <h6 class="text-muted mb-1 fw-bold">Clientes Registrados</h6>
                             <h2 class="mb-0 fw-bold" th:text="${#lists.size(clientes)}">0</h2>
                         </div>
                     </div>
@@ -108,21 +125,21 @@
         </div>
 
         <div class="tab-pane fade" id="catalogo" role="tabpanel">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="fw-bold m-0" style="color: var(--cyan-neon);">Gestor de Servicios</h3>
+            <div class="d-flex justify-content-between align-items-center mb-3 header-tab">
+                <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">Gestor de Servicios</h4>
                 <button class="btn btn-fucsia px-4" onclick="abrirModalTratamiento()"><i class="bi bi-plus-lg me-2"></i>Nuevo Servicio</button>
             </div>
             <div class="table-responsive">
-                <table class="table table-cyber text-center">
-                    <thead><tr><th>Imagen</th><th>Nombre</th><th>Precio</th><th>Acciones</th></tr></thead>
+                <table class="table table-cyber text-center align-middle">
+                    <thead><tr><th>IMG</th><th>Nombre</th><th>Precio</th><th>Acciones</th></tr></thead>
                     <tbody>
                     <tr th:each="t : ${tratamientos}">
-                        <td><img th:src="${t.imagen}" width="50" height="50" style="border-radius:5px; object-fit: cover;"></td>
-                        <td class="fw-bold" th:text="${t.nombre}">Nombre</td>
+                        <td><img th:src="${t.imagen}" width="45" height="45" style="border-radius:5px; object-fit: cover;"></td>
+                        <td class="fw-bold text-start" th:text="${t.nombre}">Nombre</td>
                         <td class="fw-bold text-info" th:text="'$' + ${#numbers.formatDecimal(t.precio, 0, 'POINT', 0, 'POINT')}">$0</td>
-                        <td>
-                            <button class="btn btn-sm btn-cyan me-1" th:data-id="${t.id}" th:data-nombre="${t.nombre}" th:data-precio="${t.precio}" th:data-cantidad="${t.cantidad}" th:data-imagen="${t.imagen}" th:data-descripcion="${t.descripcion}" onclick="editarServicio(this)"><i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" th:onclick="'borrarServicio(' + ${t.id} + ')'"><i class="bi bi-trash"></i></button>
+                        <td class="acciones-col">
+                            <button class="btn btn-sm btn-cyan me-1 mb-1 mb-md-0" th:data-id="${t.id}" th:data-nombre="${t.nombre}" th:data-precio="${t.precio}" th:data-cantidad="${t.cantidad}" th:data-imagen="${t.imagen}" th:data-descripcion="${t.descripcion}" onclick="editarServicio(this)"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger mb-1 mb-md-0" th:onclick="'borrarServicio(' + ${t.id} + ')'"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
                     </tbody>
@@ -131,28 +148,28 @@
         </div>
 
         <div class="tab-pane fade" id="citas" role="tabpanel">
-            <h3 class="fw-bold mb-3" style="color: var(--cyan-neon);">Últimas Reservas (Web & POS)</h3>
+            <h4 class="fw-bold mb-3 text-center text-md-start" style="color: var(--cyan-neon);">Últimas Reservas</h4>
             <div class="table-responsive">
-                <table class="table table-cyber">
+                <table class="table table-cyber align-middle">
                     <thead><tr><th>Cliente</th><th>Fecha Cita</th><th>Servicio</th><th>Monto</th><th>Estado</th><th>Acciones</th></tr></thead>
                     <tbody>
                     <tr th:each="c : ${citas}"
                         th:style="${c.estado == 'RESERVADO'} ? 'background-color: rgba(255, 152, 0, 0.08);' : ''">
-                        <td>
+                        <td class="text-nowrap">
                             <span class="fw-bold" th:text="${c.cliente != null ? c.cliente.nombre : 'Cliente Web'}">Nombre</span><br>
-                            <small><i class="bi bi-whatsapp"></i> <span th:text="${c.cliente != null ? c.cliente.telefono : '---'}">Tel</span></small>
+                            <small><i class="bi bi-whatsapp text-success"></i> <span th:text="${c.cliente != null ? c.cliente.telefono : '---'}">Tel</span></small>
                         </td>
-                        <td class="text-white" th:text="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'dd/MM HH:mm') : 'Por definir'}">Fecha</td>
+                        <td class="text-white text-nowrap" th:text="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'dd/MM HH:mm') : 'Por definir'}">Fecha</td>
                         <td th:text="${c.nombreTratamiento}">Servicio</td>
                         <td class="fw-bold" style="color: var(--fucsia-neon);" th:text="'$' + ${#numbers.formatInteger(c.totalPagado, 0, 'POINT')}">$0</td>
                         <td>
                             <span class="badge" th:classappend="${c.estado == 'RESERVADO'} ? 'badge-reservado' : 'badge-confirmado'"
-                                  th:text="${c.estado == 'RESERVADO'} ? '⏱️ PENDIENTE' : '✅ PAGADO'">Estado</span>
+                                  th:text="${c.estado == 'RESERVADO'} ? 'PENDIENTE' : 'PAGADO'">Estado</span>
                         </td>
-                        <td>
-                            <button class="btn btn-sm btn-success me-1" title="Aprobar" th:onclick="'confirmarCita(' + ${c.id} + ')'"><i class="bi bi-check-lg"></i></button>
-                            <button class="btn btn-sm btn-primary me-1" title="Reagendar" th:onclick="'abrirModalReagendar(' + ${c.id} + ')'"><i class="bi bi-clock-history"></i></button>
-                            <button class="btn btn-sm btn-danger" title="Cancelar" th:onclick="'cancelarCita(' + ${c.id} + ')'"><i class="bi bi-x-lg"></i></button>
+                        <td class="acciones-col">
+                            <button class="btn btn-sm btn-success me-1 mb-1 mb-md-0" title="Aprobar" th:onclick="'confirmarCita(' + ${c.id} + ')'"><i class="bi bi-check-lg"></i></button>
+                            <button class="btn btn-sm btn-primary me-1 mb-1 mb-md-0" title="Reagendar" th:onclick="'abrirModalReagendar(' + ${c.id} + ')'"><i class="bi bi-clock-history"></i></button>
+                            <button class="btn btn-sm btn-danger mb-1 mb-md-0" title="Cancelar" th:onclick="'cancelarCita(' + ${c.id} + ')'"><i class="bi bi-x-lg"></i></button>
                         </td>
                     </tr>
                     </tbody>
@@ -161,20 +178,20 @@
         </div>
 
         <div class="tab-pane fade" id="crm" role="tabpanel">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="fw-bold m-0" style="color: var(--cyan-neon);">Base de Datos de Clientes</h3>
+            <div class="d-flex justify-content-between align-items-center mb-3 header-tab">
+                <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">Base de Clientes</h4>
                 <button class="btn btn-fucsia px-4" onclick="abrirModalCliente()"><i class="bi bi-person-plus-fill me-2"></i>Nuevo Cliente</button>
             </div>
             <div class="table-responsive">
-                <table class="table table-cyber">
+                <table class="table table-cyber align-middle">
                     <thead><tr><th>Nombre</th><th>WhatsApp</th><th>Acciones</th></tr></thead>
                     <tbody>
                     <tr th:each="cli : ${clientes}">
-                        <td class="fw-bold text-white" th:text="${cli.nombre}">Nombre</td>
+                        <td class="fw-bold text-white text-nowrap" th:text="${cli.nombre}">Nombre</td>
                         <td th:text="${cli.telefono}">Tel</td>
-                        <td>
-                            <button class="btn btn-sm btn-cyan me-1" th:data-id="${cli.id}" th:data-nombre="${cli.nombre}" th:data-telefono="${cli.telefono}" th:data-correo="${cli.correo}" th:data-cumpleanos="${cli.cumpleanos}" th:data-notas="${cli.notasMedicas}" th:data-historial="${cli.historialCompras}" onclick="editarCliente(this)"><i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" th:onclick="'borrarCliente(' + ${cli.id} + ')'"><i class="bi bi-trash"></i></button>
+                        <td class="acciones-col">
+                            <button class="btn btn-sm btn-cyan me-1 mb-1 mb-md-0" th:data-id="${cli.id}" th:data-nombre="${cli.nombre}" th:data-telefono="${cli.telefono}" th:data-correo="${cli.correo}" th:data-cumpleanos="${cli.cumpleanos}" th:data-notas="${cli.notasMedicas}" th:data-historial="${cli.historialCompras}" onclick="editarCliente(this)"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger mb-1 mb-md-0" th:onclick="'borrarCliente(' + ${cli.id} + ')'"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
                     </tbody>
@@ -199,7 +216,7 @@
 </div>
 
 <div class="modal fade" id="modalTratamiento" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header"><h5 class="modal-title fw-bold" style="color: var(--cyan-neon);" id="tituloModalTratamiento">Añadir Servicio</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
@@ -211,13 +228,13 @@
                     <div class="mb-3"><label class="form-label text-info fw-bold">Descripción Corta</label><textarea class="form-control" id="descripcionTratamiento" rows="3"></textarea></div>
                 </form>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-fucsia" onclick="guardarTratamiento()">Guardar Servicio</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-fucsia w-100" onclick="guardarTratamiento()">Guardar Servicio</button></div>
         </div>
     </div>
 </div>
 
 <div class="modal fade" id="modalCliente" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header"><h5 class="modal-title fw-bold" style="color: var(--cyan-neon);" id="tituloModalCliente">Perfil Cliente</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
@@ -229,7 +246,7 @@
                     <div class="mb-3"><label class="form-label text-info fw-bold">Notas Médicas</label><textarea class="form-control" id="cliNotas" rows="2"></textarea></div>
                 </form>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-fucsia" onclick="guardarCliente()">Guardar en CRM</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-fucsia w-100" onclick="guardarCliente()">Guardar en CRM</button></div>
         </div>
     </div>
 </div>

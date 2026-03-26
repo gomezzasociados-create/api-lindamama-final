@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Agenda Cyber-Spa - Linda Mamá</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda VIP - Linda Mamá Spa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -20,11 +21,14 @@
             --mp-blue: #009ee3;
             --blanco-puro: #ffffff;
         }
-        body { background-color: var(--violeta-profundo); font-family: 'Poppins', sans-serif; color: var(--blanco-puro); padding: 30px 20px; margin: 0; }
+        body { background-color: var(--violeta-profundo); font-family: 'Poppins', sans-serif; color: var(--blanco-puro); padding: 30px 20px; margin: 0; overflow-x: hidden;}
+
         .header-agenda { border-bottom: 2px solid var(--fucsia-neon); padding-bottom: 20px; margin-bottom: 30px; box-shadow: 0 10px 15px -10px var(--fucsia-brillo); }
         .titulo-agenda { font-family: 'Playfair Display', serif; font-weight: 900; color: var(--blanco-puro); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--fucsia-neon), 0 0 20px var(--fucsia-neon); margin: 0; }
+
         .btn-cyber { background: transparent; color: var(--cyan-neon); border: 2px solid var(--cyan-neon); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 10px rgba(0,229,255,0.3); transition: 0.3s; }
         .btn-cyber:hover { background: var(--cyan-neon); color: var(--violeta-profundo); box-shadow: 0 0 20px var(--cyan-brillo); }
+
         #calendario { background: var(--violeta-tarjeta); padding: 20px; border-radius: 15px; border: 2px solid var(--fucsia-neon); box-shadow: 0 0 25px rgba(255, 0, 255, 0.3); }
         .fc-theme-standard td, .fc-theme-standard th { border-color: rgba(255, 0, 255, 0.2) !important; }
         .fc-col-header-cell { background-color: #2a0342; padding: 10px 0; }
@@ -33,29 +37,45 @@
         .fc-button-primary { background: linear-gradient(135deg, var(--fucsia-neon) 0%, #c01a7c 100%) !important; border: none !important; font-weight: 700 !important; text-transform: uppercase !important; box-shadow: 0 0 10px var(--fucsia-brillo); transition: 0.3s !important; }
         .fc-toolbar-title { color: var(--cyan-neon); font-weight: 800 !important; text-shadow: 0 0 10px rgba(0,229,255,0.4); text-transform: uppercase; }
 
-        /* Estilo de los bloques de eventos */
-        .fc-event { border: none !important; color: #100118 !important; font-weight: 700; padding: 2px 5px; border-radius: 6px; font-size: 0.85rem; }
-        .fc-event-main { white-space: normal !important; } /* Permite que el texto se vea en varias líneas */
+        /* Estilo de los bloques de eventos (Modo Público) */
+        .fc-event { border: 1px solid #ff0055 !important; background-color: rgba(255, 0, 85, 0.1) !important; color: #ff0055 !important; font-weight: 800; padding: 4px; border-radius: 6px; font-size: 0.9rem; text-align: center; pointer-events: none; /* Evita que le den clic a una hora ocupada */ }
+        .fc-event-main { white-space: normal !important; display: flex; align-items: center; justify-content: center; height: 100%;}
 
         .spinner-mp { width: 1.5rem; height: 1.5rem; border-width: 0.2em; display: none; margin-right: 10px; }
         @keyframes latido { 0% { box-shadow: 0 0 10px rgba(255, 0, 85, 0.2); } 50% { box-shadow: 0 0 25px rgba(255, 0, 85, 0.6); } 100% { box-shadow: 0 0 10px rgba(255, 0, 85, 0.2); } }
+
+        /* 🔥 AJUSTES PARA CELULAR 🔥 */
+        @media (max-width: 768px) {
+            body { padding: 15px 10px; }
+            .header-agenda { flex-direction: column; gap: 15px; text-align: center; }
+            .titulo-agenda { font-size: 1.8rem; }
+            #calendario { padding: 10px; }
+            .fc-toolbar { flex-direction: column; gap: 12px; }
+            .fc-toolbar-title { font-size: 1.3rem !important; }
+            .fc-button { padding: 8px 12px !important; font-size: 0.85rem !important; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container-fluid">
     <div class="header-agenda d-flex justify-content-between align-items-center">
-        <h2 class="titulo-agenda">📅 Agenda de Citas</h2>
+        <h2 class="titulo-agenda">📅 Reserva tu Cita</h2>
         <div>
-            <a href="/catalogo" class="btn btn-cyber me-3"><i class="bi bi-cart3"></i> Ver Catálogo</a>
-            <a href="/admin" class="btn btn-outline-light"><i class="bi bi-speedometer2"></i> Admin</a>
+            <a href="/catalogo" class="btn btn-cyber"><i class="bi bi-arrow-left me-2"></i>Volver al Catálogo</a>
         </div>
     </div>
+
+    <div class="alert alert-info bg-transparent border-info text-white text-center mb-4" style="border-radius: 15px; box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);">
+        <i class="bi bi-info-circle me-2" style="color: var(--cyan-neon);"></i>
+        Toca en cualquier espacio en blanco para agendar tu hora. Los bloques rojos ya están ocupados.
+    </div>
+
     <div id="calendario"></div>
 </div>
 
 <div class="modal fade" id="modalReserva" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content" style="background-color: #1c0229; border: 2px solid #00e5ff; box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); color: white; border-radius: 15px;">
             <div class="modal-header" style="border-bottom: 1px solid rgba(0,229,255,0.3);">
                 <h5 class="modal-title fw-bold" style="color: #00e5ff;">Confirma tu Cita VIP</h5>
@@ -68,7 +88,7 @@
                 <div class="p-3 mb-4 text-center" style="background: rgba(255, 0, 85, 0.1); border: 2px solid #ff0055; border-radius: 10px; animation: latido 2s infinite;">
                     <i class="bi bi-stopwatch" style="color: #ff0055; font-size: 1.8rem;"></i>
                     <span style="color: white; font-weight: 700; font-size: 0.95rem; margin-left: 10px;">
-                        Bloquearemos tu hora por <span style="color: #ff0055;">10 minutos</span> para completar el pago.
+                        Bloquearemos tu hora por <span style="color: #ff0055;">10 minutos</span> para el pago.
                     </span>
                 </div>
                 <div class="mb-3">
@@ -99,8 +119,8 @@
                 </form>
             </div>
             <div class="modal-footer" style="border-top: 1px solid rgba(0,229,255,0.3);">
-                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn d-flex align-items-center justify-content-center" id="btn-procesar-reserva" style="background: linear-gradient(135deg, var(--mp-blue) 0%, #005f8f 100%); color: white; font-weight: 800; width: 60%;">
+                <button type="button" class="btn btn-outline-light w-100 mb-2 d-md-none" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn d-flex align-items-center justify-content-center w-100 w-md-auto" id="btn-procesar-reserva" style="background: linear-gradient(135deg, var(--mp-blue) 0%, #005f8f 100%); color: white; font-weight: 800; padding: 12px;">
                     <div class="spinner-border spinner-mp text-light" role="status" id="spinner-pago"></div>
                     <span id="texto-btn-pago"><i class="bi bi-credit-card me-2"></i> Pagar Seguro</span>
                 </button>
@@ -111,40 +131,38 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Detectar si es un celular
+        var isMobile = window.innerWidth < 768;
+
         var calendarEl = document.getElementById('calendario');
         var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'timeGridWeek',
+            // Si es celular, muestra solo un día. Si es PC, muestra la semana.
+            initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
             locale: 'es',
-            headerToolbar: { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' },
-            slotMinTime: '08:00:00', slotMaxTime: '20:00:00', allDaySlot: false, nowIndicator: true,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                // Cambiar botones según la pantalla
+                right: isMobile ? 'timeGridDay' : 'timeGridWeek,timeGridDay'
+            },
+            slotMinTime: '08:00:00',
+            slotMaxTime: '20:00:00',
+            allDaySlot: false,
+            nowIndicator: true,
             buttonText: { today: 'Hoy', week: 'Semana', day: 'Día' },
 
-            // LÓGICA DE EVENTOS (CLIENTE + SERVICIO)
+            // LÓGICA DE EVENTOS (CENSURADO PARA PÚBLICO)
             events: function(info, successCallback, failureCallback) {
                 fetch('/api/citas')
                     .then(res => res.json())
                     .then(data => {
                         let eventos = data.map(c => {
                             if (!c.fechaHora) return null;
-
-                            let esConfirmado = (c.estado === 'PAGADO' || c.estado === 'CONFIRMADO');
-                            let color = esConfirmado ? '#00e5ff' : '#ff9800';
-
-                            // Obtenemos los nombres para el título
-                            let nombreCliente = c.cliente ? c.cliente.nombre : 'Cliente';
-                            let servicio = c.nombreTratamiento ? c.nombreTratamiento : 'Servicio';
-
-                            // Título combinado: ✅ Nombre - Servicio o ⏱️ Nombre - Servicio (RESERVADO)
-                            let titulo = esConfirmado
-                                ? '✅ ' + nombreCliente + ' | ' + servicio
-                                : '⏱️ ' + nombreCliente + ' - ' + servicio + ' (RESERVADO)';
-
+                            // A la clienta no le importa quién va, solo que está ocupado.
                             return {
-                                title: titulo,
+                                title: '⛔ OCUPADO',
                                 start: c.fechaHora,
-                                backgroundColor: color,
-                                borderColor: color,
-                                textColor: '#100118'
+                                display: 'block' // Hace que se vea como un bloque sólido
                             };
                         }).filter(e => e !== null);
                         successCallback(eventos);
@@ -192,7 +210,6 @@
         if(!nombre || !telefono) return alert("Por favor, ingresa tu Nombre y WhatsApp");
         if(carrito.length === 0) return alert("El catálogo está vacío. Elige un servicio primero.");
 
-        // LIMPIEZA DE FECHA PARA EL BACKEND JAVA (Solo YYYY-MM-DDTHH:mm:ss)
         if(fecha.length > 19) fecha = fecha.substring(0, 19);
 
         let total = 0;
@@ -203,7 +220,6 @@
         document.getElementById('spinner-pago').style.display = 'inline-block';
         document.getElementById('texto-btn-pago').innerText = 'Conectando...';
 
-        // ENVÍO DE DATOS AL BACKEND
         fetch('/api/pagos/crear-preferencia', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -212,7 +228,7 @@
                 precio: monto,
                 nombre: nombre,
                 telefono: telefono,
-                fechaAgendamiento: fecha // Coincide con PagoRestController
+                fechaAgendamiento: fecha
             })
         })
         .then(res => res.text())

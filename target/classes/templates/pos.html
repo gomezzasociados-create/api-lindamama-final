@@ -2,14 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linda Mamá Spa - POS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         body { background-color: #121212; color: #e0e0e0; font-family: 'Poppins', sans-serif; overflow-x: hidden; }
 
         /* Contenedor Principal */
         .pos-container { height: 100vh; padding: 20px; }
+
+        /* Contenedor de Servicios con Scroll */
+        .contenedor-servicios { max-height: 65vh; overflow-y: auto; overflow-x: hidden; }
 
         /* Estilo de las Tarjetas de Tratamiento */
         .card-servicio {
@@ -18,17 +22,17 @@
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
-            height: 160px;
+            height: 140px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 15px;
+            padding: 10px;
         }
-        .card-servicio:hover {
+        .card-servicio:hover, .card-servicio:active {
             border-color: #ff00ff;
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(255, 0, 255, 0.3);
             background: #252525;
         }
@@ -53,14 +57,14 @@
             border-left: 4px solid #ff00ff;
             position: sticky;
             top: 20px;
+            display: flex;
+            flex-direction: column;
         }
 
-        .btn-fucsia { background-color: #ff00ff; border: none; color: white; font-weight: bold; transition: 0.3s; }
-        .btn-fucsia:hover { background-color: #cc00cc; transform: scale(1.02); }
-        .btn-outline-fucsia { border: 1px solid #ff00ff; color: #ff00ff; background: transparent; transition: 0.3s; }
-        .btn-outline-fucsia:hover { background-color: rgba(255, 0, 255, 0.1); color: #ff00ff; }
+        .btn-fucsia { background: linear-gradient(135deg, #ff00ff 0%, #c01a7c 100%); border: none; color: white; font-weight: 800; transition: 0.3s; box-shadow: 0 4px 15px rgba(255,0,255,0.3); }
+        .btn-fucsia:hover, .btn-fucsia:active { transform: scale(1.02); box-shadow: 0 6px 20px rgba(255,0,255,0.6); }
 
-        .item-carrito { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 10px 0; font-size: 0.9rem; }
+        .item-carrito { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 12px 0; font-size: 0.95rem; }
 
         #lista-busqueda { position: absolute; z-index: 1000; width: 100%; background: #2d2d2d; border-radius: 0 0 10px 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .cliente-opcion { padding: 12px; cursor: pointer; border-bottom: 1px solid #3d3d3d; }
@@ -68,37 +72,48 @@
 
         /* Inputs oscuros */
         .input-dark { background-color: #2a2a2a; border: 1px solid #444; color: white; }
-        .input-dark:focus { background-color: #2a2a2a; color: white; border-color: #ff00ff; box-shadow: none; }
+        .input-dark:focus { background-color: #2a2a2a; color: white; border-color: #ff00ff; box-shadow: 0 0 5px rgba(255,0,255,0.5); }
         .input-dark:disabled { background-color: #1a1a1a; color: #777; border-color: #333; }
 
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #1a1a1a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #444; }
+        ::-webkit-scrollbar-thumb { background: #ff00ff; border-radius: 10px; }
+
+        /* 🔥 MAGIA PARA CELULARES 🔥 */
+        @media (max-width: 768px) {
+            body { padding-bottom: 20px; }
+            .pos-container { height: auto; padding: 10px; }
+            .contenedor-servicios { max-height: 40vh; border-bottom: 1px solid #333; padding-bottom: 15px; } /* Más cortito para que se vea el carrito */
+            .card-servicio { height: auto; min-height: 110px; padding: 8px; }
+            .card-servicio h5 { font-size: 0.85rem; }
+            .card-servicio .precio { font-size: 1rem; }
+            .carrito { height: auto; position: relative; top: 0; border-left: none; border-top: 4px solid #ff00ff; margin-top: 20px; padding: 15px; }
+            #items-pos { max-height: 200px; } /* Límite para el carrito en móvil */
+        }
     </style>
 </head>
 <body>
 
 <div class="container-fluid pos-container">
     <div class="row">
-        <div class="col-md-7 col-lg-8 px-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 style="font-weight: 600;">✨ Linda Mamá POS</h2>
-                <span class="badge bg-dark border border-secondary p-2">Terminal 01</span>
+        <div class="col-md-7 col-lg-8 px-2 px-md-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 style="font-weight: 800; color: #fff;">✨ Punto de Venta</h3>
+                <span class="badge bg-dark border border-secondary p-2 d-none d-md-block">Terminal 01</span>
             </div>
 
-            <div class="position-relative mb-4">
-                <label class="form-label text-secondary small">BUSCAR CLIENTA REGISTRADA</label>
+            <div class="position-relative mb-3">
+                <label class="form-label text-secondary small fw-bold">BUSCAR CLIENTA REGISTRADA</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-search">🔍</i></span>
-                    <input type="text" id="input-buscador" class="form-control form-control-lg bg-dark text-white border-secondary"
-                           placeholder="Buscar por nombre o celular..." onkeyup="buscarCliente()">
+                    <span class="input-group-text bg-dark border-secondary text-secondary">🔍</span>
+                    <input type="text" id="input-buscador" class="form-control bg-dark text-white border-secondary"
+                           placeholder="Buscar por nombre..." onkeyup="buscarCliente()">
                 </div>
                 <div id="lista-busqueda"></div>
             </div>
 
-            <div class="row overflow-auto pe-2" style="max-height: 65vh;">
-                <div class="col-md-6 col-lg-4 mb-3" th:each="s : ${servicios}">
+            <div class="row contenedor-servicios pe-2 mx-0">
+                <div class="col-6 col-md-6 col-lg-4 mb-3 px-1" th:each="s : ${servicios}">
                     <div class="card card-servicio"
                          th:data-id="${s.id}"
                          th:data-nombre="${s.nombre}"
@@ -111,56 +126,56 @@
             </div>
         </div>
 
-        <div class="col-md-5 col-lg-4">
-            <div class="carrito d-flex flex-column shadow-lg">
+        <div class="col-md-5 col-lg-4 mt-3 mt-md-0">
+            <div class="carrito shadow-lg">
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0 text-fucsia" style="color:#ff00ff;">📋 Datos de la Venta</h5>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="limpiarCliente()" id="btn-limpiar" style="display:none; font-size: 0.7rem;">
+                    <h5 class="mb-0 fw-bold" style="color:#ff00ff;">🛒 Carrito</h5>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="limpiarCliente()" id="btn-limpiar" style="display:none; font-size: 0.75rem;">
                         Limpiar Clienta
                     </button>
                 </div>
 
-                <div class="p-3 mb-3" style="background: #252525; border-radius: 10px; border: 1px dashed #444;">
+                <div class="p-3 mb-3" style="background: #252525; border-radius: 10px; border: 1px dashed #555;">
                     <div class="mb-2">
-                        <label class="form-label small text-secondary mb-1">NOMBRE COMPLETO <span class="text-danger">*</span></label>
+                        <label class="form-label small text-secondary fw-bold mb-1">NOMBRE COMPLETO <span class="text-danger">*</span></label>
                         <input type="text" id="cliente-nombre" class="form-control form-control-sm input-dark" placeholder="Ej: María Gómez">
                     </div>
                     <div class="row g-2">
                         <div class="col-6">
-                            <label class="form-label small text-secondary mb-1">TELÉFONO (WhatsApp)</label>
+                            <label class="form-label small text-secondary fw-bold mb-1">WHATSAPP</label>
                             <input type="text" id="cliente-telefono" class="form-control form-control-sm input-dark" placeholder="+569...">
                         </div>
                         <div class="col-6">
-                            <label class="form-label small text-secondary mb-1">CORREO</label>
+                            <label class="form-label small text-secondary fw-bold mb-1">CORREO</label>
                             <input type="email" id="cliente-correo" class="form-control form-control-sm input-dark" placeholder="@">
                         </div>
                     </div>
                     <input type="hidden" id="cliente-id" value="">
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label small text-secondary mb-1">FECHA Y HORA DEL SERVICIO</label>
+                <div class="mb-2">
+                    <label class="form-label small text-secondary fw-bold mb-1">FECHA Y HORA</label>
                     <input type="datetime-local" id="fecha-servicio" class="form-control form-control-sm input-dark">
                 </div>
 
                 <hr class="border-secondary my-2">
 
-                <div id="items-pos" style="flex-grow: 1; overflow-y: auto; min-height: 100px;">
+                <div id="items-pos" style="flex-grow: 1; overflow-y: auto;">
                     <div class="text-center text-secondary small mt-4">
-                        Selecciona servicios para agregar a la cuenta
+                        Toca los servicios para agregarlos aquí
                     </div>
                 </div>
 
                 <hr class="border-secondary my-2">
 
-                <div class="d-flex justify-content-between align-items-center mb-3 px-2">
-                    <span class="h6 mb-0 text-secondary">TOTAL A COBRAR</span>
-                    <span id="total-final" class="h3 mb-0" style="color: #ff00ff; font-weight: bold;">$0</span>
+                <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+                    <span class="h6 mb-0 text-secondary fw-bold">TOTAL</span>
+                    <span id="total-final" class="h2 mb-0" style="color: #ff00ff; font-weight: 900;">$0</span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small text-secondary mb-1">MÉTODO DE PAGO</label>
+                    <label class="form-label small text-secondary fw-bold mb-1">MÉTODO DE PAGO</label>
                     <select id="metodo-pago" class="form-select input-dark">
                         <option value="EFECTIVO">💵 Efectivo (Caja)</option>
                         <option value="TARJETA">💳 Tarjeta (Transbank)</option>
@@ -169,8 +184,8 @@
                     </select>
                 </div>
 
-                <button class="btn btn-fucsia w-100 py-3 rounded text-uppercase" onclick="confirmarVenta()">
-                    Procesar Venta
+                <button class="btn btn-fucsia w-100 py-3 mt-auto rounded text-uppercase" onclick="confirmarVenta()">
+                    Cobrar Ahora
                 </button>
             </div>
         </div>
@@ -180,14 +195,12 @@
 <script>
     let carrito = [];
 
-    // Poner la fecha actual por defecto en el calendario
     window.onload = () => {
         const ahora = new Date();
         ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
         document.getElementById('fecha-servicio').value = ahora.toISOString().slice(0,16);
     };
 
-    // FUNCIÓN DEL BUSCADOR
     function buscarCliente() {
         const query = document.getElementById('input-buscador').value;
         if (query.length < 2) { document.getElementById('lista-busqueda').innerHTML = ''; return; }
@@ -197,7 +210,6 @@
             .then(data => {
                 let html = '';
                 data.forEach(c => {
-                    // Pasamos los datos completos al hacer clic
                     html += `<div class="cliente-opcion" onclick="seleccionarCliente(${c.id}, '${c.nombre}', '${c.telefono || ''}', '${c.correo || ''}')">
                                 <strong>${c.nombre}</strong> <br> <small class="text-muted">${c.telefono || 'Sin teléfono'}</small>
                              </div>`;
@@ -207,26 +219,21 @@
             .catch(e => console.error("Error buscando:", e));
     }
 
-    // CUANDO SELECCIONAN A ALGUIEN DEL BUSCADOR
     function seleccionarCliente(id, nombre, telefono, correo) {
-        // Llenar casillas
         document.getElementById('cliente-id').value = id;
         document.getElementById('cliente-nombre').value = nombre;
         document.getElementById('cliente-telefono').value = telefono;
         document.getElementById('cliente-correo').value = correo;
 
-        // Bloquear casillas (porque ya existe en BD)
         document.getElementById('cliente-nombre').disabled = true;
         document.getElementById('cliente-telefono').disabled = true;
         document.getElementById('cliente-correo').disabled = true;
 
-        // Limpiar buscador y mostrar botón de limpiar
         document.getElementById('lista-busqueda').innerHTML = '';
         document.getElementById('input-buscador').value = '';
         document.getElementById('btn-limpiar').style.display = 'block';
     }
 
-    // PARA VOLVER A ESCRIBIR MANUALMENTE
     function limpiarCliente() {
         document.getElementById('cliente-id').value = "";
         document.getElementById('cliente-nombre').value = "";
@@ -241,7 +248,6 @@
         document.getElementById('cliente-nombre').focus();
     }
 
-    // LÓGICA DEL CARRITO
     function capturarServicio(elemento) {
         const id = elemento.getAttribute('data-id');
         const nombre = elemento.getAttribute('data-nombre');
@@ -253,7 +259,7 @@
     function renderizarCarrito() {
         const div = document.getElementById('items-pos');
         if (carrito.length === 0) {
-            div.innerHTML = '<div class="text-center text-secondary small mt-4">Selecciona servicios para agregar a la cuenta</div>';
+            div.innerHTML = '<div class="text-center text-secondary small mt-4">Toca los servicios para agregarlos aquí</div>';
             document.getElementById('total-final').innerText = "$0";
             return;
         }
@@ -277,7 +283,6 @@
         renderizarCarrito();
     }
 
-    // ENVIAR VENTA AL BACKEND
     function confirmarVenta() {
         if (carrito.length === 0) return alert("⚠️ Agregue al menos un servicio al carrito.");
 
@@ -287,8 +292,6 @@
         const fecha = document.getElementById('fecha-servicio').value;
         if (!fecha) return alert("⚠️ Seleccione una fecha para la cita.");
 
-        // Construir el objeto de venta.
-        // Si cliente-id está vacío, el backend debe entender que tiene que crear el cliente con estos datos.
         const venta = {
             clienteId: document.getElementById('cliente-id').value || null,
             nuevoClienteNombre: nombreCliente,
@@ -301,7 +304,6 @@
             estado: document.getElementById('metodo-pago').value === 'MERCADO_PAGO' ? 'RESERVADO' : 'CONFIRMADO'
         };
 
-        // Deshabilitar botón para evitar doble clic
         const btn = document.querySelector('.btn-fucsia');
         btn.disabled = true;
         btn.innerText = "Procesando...";
@@ -314,7 +316,6 @@
         .then(res => res.text())
         .then(data => {
             if (data.startsWith('http')) {
-                // Redirige al link de Mercado Pago
                 window.location.href = data;
             } else {
                 alert("🎉 Venta registrada correctamente en el sistema.");
@@ -324,7 +325,7 @@
         .catch(err => {
             alert("Ocurrió un error al procesar la venta.");
             btn.disabled = false;
-            btn.innerText = "Procesar Venta";
+            btn.innerText = "Cobrar Ahora";
             console.error(err);
         });
     }
