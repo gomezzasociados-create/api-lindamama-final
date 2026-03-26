@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo - Linda Mamá Spa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --violeta-profundo: #100118;
+            --violeta-tarjeta: #1c0229;
+            --fucsia-neon: #ff00ff;
+            --fucsia-brillo: rgba(255, 0, 255, 0.8);
+            --cyan-neon: #00e5ff;
+            --blanco-puro: #ffffff;
+            --texto-muted: #cccccc;
+        }
+
+        body { background-color: var(--violeta-profundo); color: var(--blanco-puro); font-family: 'Poppins', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+
+        h1.titulo-principal {
+            font-family: 'Playfair Display', serif; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 3px;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 40px #ff007f, 0 0 80px #ff007f; margin-top: 30px;
+        }
+
+        .titulo-categoria {
+            font-size: 2.2rem; margin-top: 40px; margin-bottom: 30px; font-weight: 800; color: var(--cyan-neon);
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.6); text-transform: uppercase; letter-spacing: 1.5px;
+            border-bottom: 2px solid var(--cyan-neon); padding-bottom: 10px; display: inline-block;
+        }
+
+        header { text-align: center; padding: 50px 20px; background: radial-gradient(circle, #2a0342 0%, #100118 70%); position: relative; }
+        .img-logo { max-width: 160px; position: relative; z-index: 5; animation: contornoNeon 5s infinite alternate; }
+
+        @keyframes contornoNeon {
+            0% { filter: drop-shadow(0 0 15px #ff00ff); }
+            50% { filter: drop-shadow(0 0 25px #00e5ff); }
+            100% { filter: drop-shadow(0 0 15px #ff1493); }
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .grid-catalogo { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; margin-bottom: 40px; }
+
+        .card-servicio {
+            background-color: var(--violeta-tarjeta); border-radius: 15px; overflow: hidden; border: 2px solid transparent;
+            transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; display: flex; flex-direction: column; cursor: pointer; position: relative;
+            height: 100%;
+        }
+
+        .card-servicio:hover { transform: translateY(-8px) scale(1.02); border-color: var(--fucsia-neon); box-shadow: 0 0 25px 8px var(--fucsia-brillo); }
+
+        .card-img-container { width: 100%; height: 200px; overflow: hidden; position: relative; }
+        .img-servicio { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .card-servicio:hover .img-servicio { transform: scale(1.1); }
+
+        .card-body { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+        .card-title { font-size: 1.2rem; margin: 0 0 15px; font-weight: 700; }
+        .card-precio { font-size: 1.8rem; font-weight: 800; color: var(--fucsia-neon); margin: 0 0 20px; text-shadow: 0 0 15px var(--fucsia-brillo); letter-spacing: -1px; }
+
+        .card-description-collapse {
+            display: none; font-size: 0.9rem; color: var(--texto-muted); line-height: 1.6; padding: 0 20px 20px 20px;
+            background-color: var(--violeta-tarjeta); white-space: pre-line;
+        }
+        .card-description-collapse.show { display: block; }
+
+        .btn-spa {
+            background: linear-gradient(135deg, var(--fucsia-neon) 0%, #c01a7c 100%); color: white; border: none; font-weight: 800;
+            padding: 15px 25px; border-radius: 10px; width: 100%; cursor: pointer; transition: 0.3s ease; text-transform: uppercase; letter-spacing: 1.5px; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(255, 0, 255, 0.4);
+            margin-top: auto;
+        }
+        .btn-spa:hover { box-shadow: 0 6px 20px 10px var(--fucsia-brillo); transform: translateY(-2px); }
+
+        #carrito-flotante {
+            position: fixed; top: 20px; right: 20px; width: 400px; max-height: 90vh; overflow-y: auto; z-index: 1000;
+            display: none; border-radius: 15px; background-color: rgba(28, 2, 41, 0.98); border: 2px solid var(--fucsia-neon); box-shadow: 0 0 30px 8px var(--fucsia-brillo); backdrop-filter: blur(10px);
+        }
+        .cart-title { font-size: 1.6rem; margin: 0; font-weight: 800; }
+        .cart-badge { font-size: 1.3rem; padding: 8px 15px; background: #100118; border-radius: 50px;}
+        .cart-item-name { font-size: 1.1rem; color: #fff; font-weight: 600; }
+        .cart-item-price { font-size: 1.3rem; color: var(--fucsia-neon); font-weight: 800; }
+        .cart-total-text { font-size: 1.8rem; font-weight: 800; color: #fff; }
+        .cart-btn-agendar { font-size: 1.2rem; padding: 18px; border-radius: 12px; }
+
+        @media (max-width: 768px) {
+            h1.titulo-principal { font-size: 2rem !important; }
+            .titulo-categoria { font-size: 1.5rem; text-align: center; display: block; }
+            .grid-catalogo { grid-template-columns: 1fr; gap: 20px; }
+            header { padding: 30px 10px; }
+            #carrito-flotante { top: auto; bottom: 0; right: 0; width: 100%; border-radius: 20px 20px 0 0; max-height: 70vh; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <img src="https://res.cloudinary.com/doi0o3hlr/image/upload/v1774235486/Gemini_Generated_Image_nk1ek1nk1ek1nk1e_-_Editado_u6nqd4.png" class="img-logo" alt="Logo Linda Mamá Spa">
+    </div>
+    <h1 class="titulo-principal" style="font-size: 3rem;">Catálogo Linda Mamá Spa</h1>
+</header>
+
+<div class="container">
+
+    <h2 class="titulo-categoria">Packs VIP (Método Crys 7T)</h2>
+    <div class="grid-catalogo">
+        <div th:each="pack : ${packs}" th:if="${pack.nombre != null and #strings.containsIgnoreCase(pack.nombre, 'Pack')}" class="card-packs-wrapper">
+            <div class="card-servicio">
+                <div class="card-img-container" onclick="toggleDescription(this)">
+                    <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Pack VIP">
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title Poppins" th:text="${pack.nombre}">Nombre</h4>
+                    <div class="mt-auto">
+                        <p class="card-precio Poppins">$<span th:text="${pack.precio != null ? #numbers.formatDecimal(pack.precio, 0, 'COMMA', 0, 'POINT') : '0'}">0</span></p>
+                        <button class="btn-spa Poppins btn-agregar" th:attr="data-nombre=${pack.nombre}, data-precio=${pack.precio}">Añadir a Reserva</button>
+                    </div>
+                </div>
+                <div class="card-description-collapse Poppins" th:text="${pack.descripcion}">Descripción colapsada...</div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="titulo-categoria">Sesiones Individuales</h2>
+    <div class="grid-catalogo">
+        <div th:each="pack : ${packs}" th:unless="${pack.nombre != null and #strings.containsIgnoreCase(pack.nombre, 'Pack')}" class="card-servicio-wrapper">
+            <div class="card-servicio">
+                <div class="card-img-container" onclick="toggleDescription(this)">
+                    <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Sesión">
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title Poppins" th:text="${pack.nombre}">Nombre</h4>
+                    <div class="mt-auto">
+                        <p class="card-precio Poppins">$<span th:text="${pack.precio != null ? #numbers.formatDecimal(pack.precio, 0, 'COMMA', 0, 'POINT') : '0'}">0</span></p>
+                        <button class="btn-spa Poppins btn-agregar" th:attr="data-nombre=${pack.nombre}, data-precio=${pack.precio}">Añadir a Reserva</button>
+                    </div>
+                </div>
+                <div class="card-description-collapse Poppins" th:text="${pack.descripcion}">Descripción colapsada...</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="carrito-flotante">
+    <div style="background-color: var(--fucsia-neon); padding: 20px; display: flex; justify-content: space-between; align-items: center; border-top-left-radius: 12px; border-top-right-radius: 12px;">
+        <h5 class="cart-title text-white Poppins">🛒 Tu Reserva</h5>
+        <span class="cart-badge text-white Poppins" id="contador-carrito">0</span>
+    </div>
+    <div style="padding: 20px;">
+        <ul id="lista-carrito" style="list-style: none; padding: 0; margin-bottom: 25px;"></ul>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <span class="cart-total-text Poppins">Total:</span>
+            <span class="cart-total-text Poppins" style="color: var(--fucsia-neon); text-shadow: 0 0 10px var(--fucsia-brillo);">$<span id="total-carrito">0</span></span>
+        </div>
+        <button id="btn-agendar" class="btn-spa cart-btn-agendar w-100 Poppins">📅 Elegir Fecha y Hora</button>
+    </div>
+</div>
+
+<script>
+    let carrito = JSON.parse(localStorage.getItem('spaCarrito')) || [];
+
+    function toggleDescription(element) {
+        const card = element.closest('.card-servicio');
+        const descriptionCollapse = card.querySelector('.card-description-collapse');
+        descriptionCollapse.classList.toggle('show');
+    }
+
+    function actualizarCarritoUI() {
+        const lista = document.getElementById('lista-carrito');
+        const totalSpan = document.getElementById('total-carrito');
+        const contador = document.getElementById('contador-carrito');
+        const carritoUI = document.getElementById('carrito-flotante');
+
+        lista.innerHTML = ''; let total = 0;
+
+        if (carrito.length === 0) { carritoUI.style.display = 'none'; }
+        else {
+            carritoUI.style.display = 'block';
+            carrito.forEach((item, index) => {
+                total += parseFloat(item.precio);
+                lista.innerHTML += `
+                    <li style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span class="cart-item-name Poppins" style="flex: 1; padding-right: 15px;">${item.nombre}</span>
+                        <div style="display: flex; align-items: center;">
+                            <span class="cart-item-price Poppins me-3">$${Number(item.precio).toLocaleString('es-CL')}</span>
+                            <button class="btn btn-danger" style="border-radius: 50%; width: 35px; height: 35px; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; padding: 0;" onclick="eliminarDelCarrito(${index})">×</button>
+                        </div>
+                    </li>`;
+            });
+        }
+        totalSpan.innerText = total.toLocaleString('es-CL');
+        contador.innerText = carrito.length;
+        localStorage.setItem('spaCarrito', JSON.stringify(carrito));
+    }
+
+    document.querySelectorAll('.btn-agregar').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const item = { nombre: this.getAttribute('data-nombre'), precio: this.getAttribute('data-precio') };
+            carrito.push(item); actualizarCarritoUI();
+            const textoOriginal = this.innerText; this.innerText = "¡Añadido! ✔️";
+            this.style.background = "#28a745"; this.style.boxShadow = "0 0 20px #28a745";
+            setTimeout(() => { this.innerText = textoOriginal; this.style.background = ""; this.style.boxShadow = ""; }, 1000);
+        });
+    });
+
+    window.eliminarDelCarrito = function(index) { carrito.splice(index, 1); actualizarCarritoUI(); };
+    document.getElementById('btn-agendar').addEventListener('click', () => { window.location.href = '/agenda'; });
+    actualizarCarritoUI();
+</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reserva - Linda Mamá Spa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
+    <style>
+        :root { --rosa: #ff007f; --violeta: #b800ff; --oscuro: #0a0510; }
+        body { background-color: var(--oscuro); font-family: 'Montserrat', sans-serif; color: white; }
+        .hero { text-align: center; padding: 40px; border-bottom: 2px solid var(--rosa); margin-bottom: 30px; }
+        .card-servicio { background: rgba(255,255,255,0.05); border: 1px solid var(--violeta); padding: 20px; border-radius: 15px; cursor: pointer; transition: 0.3s; }
+        .card-servicio:hover { border-color: var(--rosa); transform: translateY(-5px); }
+        .seccion { display: none; }
+        #calendario { background: white; color: black; padding: 20px; border-radius: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1 class="fw-bold">GOMEZ <span style="color: var(--rosa)">SYSTEMS</span></h1>
+    <p>Portal de Reservas Inteligente</p>
+</div>
+
+<div class="container mb-5">
+    <div id="paso-seleccion" class="row g-4">
+        <h3 class="text-center mb-4">1. Elige tu tratamiento</h3>
+        <div class="col-md-6" onclick="confirmarServicio('Limpieza Facial', 45000, 1)">
+            <div class="card-servicio text-center">
+                <h4>Limpieza Facial</h4>
+                <p class="text-muted">1 Sesión - $45.000</p>
+            </div>
+        </div>
+        <div class="col-md-6" onclick="confirmarServicio('Pack Levantamiento', 120000, 10)">
+            <div class="card-servicio text-center">
+                <h4>Pack Levantamiento</h4>
+                <p class="text-muted">10 Sesiones - $120.000</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="paso-pago" class="seccion text-center">
+        <h3>2. Realiza tu Abono</h3>
+        <div class="p-5 border border-info rounded-3 mt-4">
+            <h4 id="resumen-servicio"></h4>
+            <p>Para desbloquear la agenda, abona ahora:</p>
+            <h2 class="text-success" id="monto-abono"></h2>
+            <button class="btn btn-lg btn-primary mt-3" onclick="procesarPagoSimulado()">PAGAR AHORA</button>
+        </div>
+    </div>
+
+    <div id="paso-agenda" class="seccion">
+        <h3 class="text-center text-success mb-4">✅ Pago Confirmado. Elige tu horario:</h3>
+        <div id="calendario"></div>
+    </div>
+</div>
+
+<script>
+    let currentOrderId = "";
+    let servicioElegido = "";
+
+    async function confirmarServicio(nombre, precio, sesiones) {
+        servicioElegido = nombre;
+        // Creamos la orden pendiente en la base de datos
+        const res = await fetch('/api/ventas/iniciar', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                nombreTratamiento: nombre,
+                totalSesiones: sesiones,
+                montoTotal: precio,
+                montoAbonado: precio * 0.20 // Abono del 20%
+            })
+        });
+        const data = await res.json();
+        currentOrderId = data.orderId;
+
+        document.getElementById('resumen-servicio').innerText = nombre;
+        document.getElementById('monto-abono').innerText = "$" + (precio * 0.20);
+        document.getElementById('paso-seleccion').style.display = 'none';
+        document.getElementById('paso-pago').style.display = 'block';
+    }
+
+    async function procesarPagoSimulado() {
+        alert("Redirigiendo a Pasarela de Pagos...");
+
+        // Simulamos que la pasarela nos devuelve después de pagar
+        // Aquí el script empieza a preguntar al servidor si ya se pagó
+        const res = await fetch('/api/ventas/verificar/' + currentOrderId);
+        const data = await res.json();
+
+        if(data.statusPago === "PAGADO") {
+            document.getElementById('paso-pago').style.display = 'none';
+            document.getElementById('paso-agenda').style.display = 'block';
+            renderizarCalendario();
+        }
+    }
+
+    function renderizarCalendario() {
+        var calendarEl = document.getElementById('calendario');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            locale: 'es',
+            slotMinTime: '09:00:00',
+            slotMaxTime: '20:00:00',
+            dateClick: async function(info) {
+                if(confirm("¿Reservar para el " + info.dateStr + "?")) {
+                    await fetch('/api/citas', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            nombreTratamiento: servicioElegido,
+                            fechaHora: info.dateStr
+                        })
+                    });
+                    alert("¡Cita agendada con éxito! Te esperamos.");
+                    window.location.reload();
+                }
+            }
+        });
+        calendar.render();
+    }
+</script>
+</body>
+</html>

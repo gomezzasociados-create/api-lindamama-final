@@ -1,0 +1,17 @@
+{
+  "name": "Comando Central - Gómez Systems",
+  "short_name": "Spa Admin",
+  "description": "Gestión profesional y control de ventas - Linda Mamá Spa",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#d63384",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

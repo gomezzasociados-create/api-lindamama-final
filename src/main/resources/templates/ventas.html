@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gomez Systems - Ventas y Paquetes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root { --rosa-neon: #ff007f; --violeta-neon: #b800ff; --fondo-oscuro: #0a0510; }
+        body { background-color: var(--fondo-oscuro); font-family: 'Montserrat', sans-serif; color: white; padding: 20px; }
+        .header-ventas { border-bottom: 2px solid var(--rosa-neon); padding-bottom: 15px; margin-bottom: 30px; }
+        .panel { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 0, 127, 0.3); border-radius: 15px; padding: 25px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); }
+        .form-control, .form-select { background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(184, 0, 255, 0.4); color: white; }
+        .form-control:focus, .form-select:focus { background-color: rgba(255, 255, 255, 0.15); border-color: var(--rosa-neon); color: white; box-shadow: 0 0 10px rgba(255, 0, 127, 0.3); }
+        .btn-gomez { background: linear-gradient(45deg, var(--rosa-neon), var(--violeta-neon)); border: none; color: white; font-weight: bold; }
+        .table-dark { background-color: transparent; }
+        .table-dark th { color: var(--rosa-neon); border-bottom: 2px solid var(--violeta-neon); }
+
+        /* Para que las opciones del select se vean bien */
+        option { background-color: var(--fondo-oscuro); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="header-ventas d-flex justify-content-between align-items-center">
+        <h2>💰 Caja y Paquetes - Linda Mamá Spa</h2>
+        <a href="/admin" class="btn btn-outline-light"><i class="bi bi-arrow-left"></i> Volver al Centro de Mando</a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="panel">
+                <h4 style="color: var(--rosa-neon);"><i class="bi bi-cart-plus-fill me-2"></i>Registrar Venta</h4>
+                <form id="formVenta">
+                    <div class="mb-3">
+                        <label class="small fw-bold">CLIENTA</label>
+                        <select id="selectCliente" class="form-select" required>
+                            <option value="">Cargando clientas...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">TRATAMIENTO</label>
+                        <input type="text" id="inputTratamiento" class="form-control" placeholder="Ej: Pack 10 Levantamiento" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="small fw-bold">TOTAL SESIONES</label>
+                            <input type="number" id="inputSesiones" class="form-control" value="1" min="1" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="small fw-bold">VALOR TOTAL ($)</label>
+                            <input type="number" id="inputTotal" class="form-control" placeholder="100000" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold" style="color: #00ff88;">MONTO ABONADO ($)</label>
+                        <input type="number" id="inputAbono" class="form-control" placeholder="20000" required>
+                    </div>
+                    <button type="submit" class="btn btn-gomez w-100 mt-2">
+                        <i class="bi bi-check-circle me-2"></i>Confirmar Venta
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="panel">
+                <h4 style="color: var(--violeta-neon);"><i class="bi bi-card-checklist me-2"></i>Paquetes Activos</h4>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                        <tr>
+                            <th>Clienta</th>
+                            <th>Tratamiento</th>
+                            <th>Sesiones Restantes</th>
+                            <th>Deuda Pendiente</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaPaquetes">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Cargar las clientas en la lista desplegable
+    async function cargarClientasDropdown() {
+        const res = await fetch('/api/clientes');
+        const clientas = await res.json();
+        const select = document.getElementById('selectCliente');
+
+        select.innerHTML = '<option value="">-- Seleccione una clienta --</option>';
+        clientas.forEach(c => {
+            select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+        });
+    }
+
+    // 2. Cargar los paquetes comprados en la tabla
+    async function cargarPaquetes() {
+        const res = await fetch('/api/ventas');
+        const paquetes = await res.json();
+        const tabla = document.getElementById('tablaPaquetes');
+        tabla.innerHTML = '';
+
+        paquetes.forEach(p => {
+            const deuda = p.montoTotal - p.montoAbonado;
+            const badgeDeuda = deuda > 0 ? `<span class="badge bg-danger">$${deuda} pendiente</span>` : `<span class="badge bg-success">Pagado</span>`;
+            const nombreClienta = p.cliente ? p.cliente.nombre : 'Sin nombre';
+
+            tabla.innerHTML += `
+                <tr>
+                    <td class="fw-bold">${nombreClienta}</td>
+                    <td>${p.nombreTratamiento}</td>
+                    <td><h3><span class="badge bg-info">${p.sesionesRestantes} / ${p.totalSesiones}</span></h3></td>
+                    <td>${badgeDeuda}</td>
+                </tr>
+            `;
+        });
+    }
+
+    // 3. Guardar una nueva venta
+    document.getElementById('formVenta').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const clienteId = document.getElementById('selectCliente').value;
+        const datosVenta = {
+            nombreTratamiento: document.getElementById('inputTratamiento').value,
+            totalSesiones: parseInt(document.getElementById('inputSesiones').value),
+            montoTotal: parseFloat(document.getElementById('inputTotal').value),
+            montoAbonado: parseFloat(document.getElementById('inputAbono').value)
+        };
+
+        await fetch(`/api/ventas/${clienteId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosVenta)
+        });
+
+        document.getElementById('formVenta').reset();
+        cargarPaquetes();
+    });
+
+    // Iniciar
+    cargarClientasDropdown();
+    cargarPaquetes();
+</script>
+
+</body>
+</html>

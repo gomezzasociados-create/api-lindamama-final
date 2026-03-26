@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gomez Systems - CRM & Kardex</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --rosa-neon: #ff007f;
+            --violeta-neon: #b800ff;
+            --fondo-oscuro: #0a0510;
+            --tarjeta-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background-color: var(--fondo-oscuro);
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            padding: 20px;
+        }
+
+        .header-crm {
+            border-bottom: 2px solid var(--violeta-neon);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .header-crm h2 {
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 0 10px var(--violeta-neon);
+        }
+
+        .panel-kardex {
+            background: var(--tarjeta-bg);
+            border: 1px solid rgba(184, 0, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            height: 100%;
+        }
+
+        .panel-kardex h4 {
+            color: var(--rosa-neon);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(184, 0, 255, 0.4);
+            color: white;
+        }
+
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--rosa-neon);
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+        }
+
+        .btn-gomez {
+            background: linear-gradient(45deg, var(--violeta-neon), var(--rosa-neon));
+            border: none;
+            color: white;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-gomez:hover {
+            box-shadow: 0 0 15px var(--rosa-neon);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .table-dark {
+            background-color: transparent;
+        }
+        .table-dark th {
+            color: var(--violeta-neon);
+            border-bottom: 2px solid var(--rosa-neon);
+        }
+        .table-dark td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="header-crm d-flex justify-content-between align-items-center">
+        <h2>👥 CRM & Kardex - Linda Mamá Spa</h2>
+        <a href="/admin" class="btn btn-outline-light"><i class="bi bi-arrow-left"></i> Volver al Centro de Mando</a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="panel-kardex">
+                <h4><i class="bi bi-person-plus-fill me-2"></i>Nueva Clienta</h4>
+                <form id="formularioClienta">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">NOMBRE COMPLETO</label>
+                        <input type="text" id="inputNombre" class="form-control" placeholder="Ej: Camila Rojas" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">TELÉFONO (WHATSAPP)</label>
+                        <input type="tel" id="inputTelefono" class="form-control" placeholder="+56 9 ..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">NOTAS MÉDICAS / KARDEX</label>
+                        <textarea id="inputNotas" class="form-control" rows="4" placeholder="Alergias, sensibilidad en la piel, cirugías previas..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-gomez w-100 mt-2">
+                        <i class="bi bi-save me-2"></i>Guardar Ficha
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="panel-kardex">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="mb-0"><i class="bi bi-list-ul me-2"></i>Directorio Activo</h4>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Notas</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaClientas">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Función para ir a la base de datos, traer las clientas y pintarlas en la tabla
+    async function cargarClientas() {
+        const respuesta = await fetch('/api/clientes'); // Llama al Controlador
+        const clientas = await respuesta.json(); // Convierte los datos
+
+        const tabla = document.getElementById('tablaClientas');
+        tabla.innerHTML = ''; // Limpiar tabla antes de llenarla
+
+        // Recorrer cada clienta y crear una fila en la tabla
+        clientas.forEach(clienta => {
+            tabla.innerHTML += `
+                <tr>
+                    <td>${clienta.id}</td>
+                    <td class="fw-bold">${clienta.nombre}</td>
+                    <td>${clienta.telefono}</td>
+                    <td>${clienta.notasMedicas || '-'}</td>
+                </tr>
+            `;
+        });
+    }
+
+    // 2. Función para atrapar el clic en el botón "Guardar Ficha"
+    document.getElementById('formularioClienta').addEventListener('submit', async function(evento) {
+        evento.preventDefault(); // Evita que la página se recargue
+
+        // Armamos el paquete con los datos que escribiste
+        const nuevaClienta = {
+            nombre: document.getElementById('inputNombre').value,
+            telefono: document.getElementById('inputTelefono').value,
+            notasMedicas: document.getElementById('inputNotas').value
+        };
+
+        // Enviamos el paquete al Controlador (POST)
+        await fetch('/api/clientes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevaClienta)
+        });
+
+        // Limpiamos las cajas de texto y volvemos a cargar la tabla para ver a la nueva clienta
+        document.getElementById('formularioClienta').reset();
+        cargarClientas();
+    });
+
+    // 3. Cuando la página carga por primera vez, ejecutar la función para traer los datos
+    cargarClientas();
+</script>
+
+</body>
+</html>
