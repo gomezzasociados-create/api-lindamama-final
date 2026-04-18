@@ -99,10 +99,12 @@ public class SociaViewController {
     }
 
     @ExceptionHandler(Exception.class)
-    @ResponseBody
-    public String handleException(Exception e) {
+    public org.springframework.web.servlet.ModelAndView handleException(Exception e) {
+        org.springframework.web.servlet.ModelAndView mav = new org.springframework.web.servlet.ModelAndView("error_debug");
+        mav.addObject("errorMessage", "Error crítico en el portal de socias: " + e.getMessage());
         java.io.StringWriter sw = new java.io.StringWriter();
         e.printStackTrace(new java.io.PrintWriter(sw));
-        return "<h1>OCURRIÓ UN ERROR CRÍTICO</h1><pre>" + sw.toString() + "</pre>";
+        mav.addObject("errorStack", sw.toString());
+        return mav;
     }
 }
