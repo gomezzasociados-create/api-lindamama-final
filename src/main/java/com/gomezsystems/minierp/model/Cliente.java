@@ -22,8 +22,11 @@ public class Cliente {
     private String historialCompras;
 
     // NUEVO: Aquí guardaremos la Ficha Antropométrica completa comprimida
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String kardexJson;
+
+    // --- NUEVO CAMPO PARA FIADOS/CREDITOS ---
+    private Double deudaActiva = 0.0;
 
     public Cliente() {}
 
@@ -51,4 +54,7 @@ public class Cliente {
 
     public String getKardexJson() { return kardexJson; }
     public void setKardexJson(String kardexJson) { this.kardexJson = kardexJson; }
+
+    public Double getDeudaActiva() { return deudaActiva; }
+    public void setDeudaActiva(Double deudaActiva) { this.deudaActiva = deudaActiva; }
 }

@@ -21,9 +21,16 @@ public class Cita {
     private LocalDateTime fechaHora;
     private String estado; // PENDIENTE, CONFIRMADA, RESERVADO, etc.
 
+    @ManyToOne
+    @JoinColumn(name = "socia_id")
+    private Socia socia; // La masajista elegida
+
     // CAMPOS ADICIONALES PARA EL POS
-    private Integer totalPagado;
-    private String metodoPago; // EFECTIVO, TARJETA, MERCADO_PAGO
+    private Integer totalPagado; 
+    private Double montoTotal;   // Precio total del servicio
+    private Double montoPagado;  // Suma de lo abonado hasta ahora
+    private String metodoPago; 
+
     private String numeroOrden;
 
     // 🔥 NUEVO: El cronómetro para saber cuándo caduca la reserva (10 min) 🔥
@@ -51,11 +58,20 @@ public class Cita {
     public Integer getTotalPagado() { return totalPagado; }
     public void setTotalPagado(Integer totalPagado) { this.totalPagado = totalPagado; }
 
+    public Double getMontoTotal() { return montoTotal; }
+    public void setMontoTotal(Double montoTotal) { this.montoTotal = montoTotal; }
+
+    public Double getMontoPagado() { return montoPagado; }
+    public void setMontoPagado(Double montoPagado) { this.montoPagado = montoPagado; }
+
     public String getMetodoPago() { return metodoPago; }
     public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
 
     public String getNumeroOrden() { return numeroOrden; }
     public void setNumeroOrden(String numeroOrden) { this.numeroOrden = numeroOrden; }
+
+    public Socia getSocia() { return socia; }
+    public void setSocia(Socia socia) { this.socia = socia; }
 
     // 🔥 GETTER Y SETTER DEL NUEVO CAMPO 🔥
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }

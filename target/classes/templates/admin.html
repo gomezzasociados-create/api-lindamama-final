@@ -2,12 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#d63384">
+    <link rel="manifest" href="/manifest.json">
+    <script src="/pwa-init.js"></script>
     <title>Centro de Mando - Linda Mamá Spa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root { --violeta-profundo: #100118; --violeta-tarjeta: #1c0229; --fucsia-neon: #ff00ff; --cyan-neon: #00e5ff; --blanco-puro: #ffffff; }
@@ -37,6 +41,17 @@
 
         #app-dashboard { display: none; animation: fadeIn 1s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* FLAMA CALIENTE PARA OFERTAS */
+        .flama-caliente {
+            animation: arder 1.2s infinite alternate;
+            border: 2px solid #ff4500 !important;
+            box-shadow: 0 0 15px #ff4500, 0 0 30px #ffa500, inset 0 0 10px #ff0000 !important;
+        }
+        @keyframes arder {
+            0% { box-shadow: 0 0 10px #ff4500, inset 0 0 5px #ff4500; }
+            100% { box-shadow: 0 0 25px #ff8c00, 0 0 40px #ff4500, inset 0 0 15px #ff0000; border-color: #ff8c00 !important; }
+        }
 
         /* HEADER Y TABS */
         .navbar-cyber { background: rgba(28, 2, 41, 0.95); border-bottom: 2px solid var(--fucsia-neon); box-shadow: 0 0 20px rgba(255, 0, 255, 0.4); backdrop-filter: blur(10px); }
@@ -85,6 +100,26 @@
         .finanzas-card { background: rgba(0, 229, 255, 0.05); border: 1px solid var(--cyan-neon); border-radius: 10px; padding: 15px; }
         .finanzas-total { font-size: 2rem; font-weight: 900; text-shadow: 0 0 15px rgba(0,229,255,0.5); }
 
+        /* GRID CARDS STYLES */
+        .grid-card { background: rgba(28, 2, 41, 0.8); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 12px; padding: 15px; transition: 0.3s; height: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+        .grid-card:hover { border-color: var(--cyan-neon); box-shadow: 0 5px 20px rgba(0, 229, 255, 0.2); transform: translateY(-3px); }
+        .card-avatar { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--fucsia-neon); }
+        .card-title-cp { font-weight: 800; color: var(--cyan-neon); font-size: 1.1rem; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .card-actions { margin-top: auto; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); display: flex; gap: 5px; flex-wrap: wrap; }
+        .info-pill { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 4px 10px; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.1); display: inline-flex; align-items: center; gap: 5px; }
+
+        /* RECEIPT PRINTING */
+        #print-area { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; font-family: monospace; font-size: 12px; padding: 10px; }
+            .no-print { display: none !important; }
+            .print-title { font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 10px; }
+            .print-divider { border-top: 1px dashed black; margin: 10px 0; }
+            .print-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        }
+
         @media (max-width: 768px) {
         .navbar-brand { font-size: 1.1rem; }
         .btn-nav-top { padding: 0.2rem 0.5rem; font-size: 0.8rem; }
@@ -94,7 +129,6 @@
         .header-tab { flex-direction: column; gap: 10px; align-items: stretch !important; text-align: center; }
         .btn-fucsia { width: 100%; }
         .table-responsive { border-radius: 10px; border: 1px solid rgba(255,0,255,0.2); }
-        td.acciones-col { white-space: nowrap; }
         .welcome-text { font-size: 2.2rem; }
         }
     </style>
@@ -112,9 +146,9 @@
         <h3 class="fw-bold mb-1" style="color: var(--cyan-neon); font-family: 'Playfair Display';">Linda Mamá Spa</h3>
         <p class="text-white mb-4 opacity-50 small text-uppercase tracking-wider">Centro de Mando Administrativo</p>
 
-        <input type="password" id="input-pin" class="admin-pin-input" maxlength="4" placeholder="••••" onkeypress="if(event.key === 'Enter') validarAcceso(event)">
+        <input type="password" id="input-pin" class="admin-pin-input" maxlength="4" placeholder="••••" onkeypress="if(event.key === 'Enter') validarAcceso(event)"/>
 
-        <button class="btn btn-admin-login w-100 py-3 fs-6 rounded-pill" onclick="validarAcceso(event)">
+        <button type="button" class="btn btn-admin-login w-100 py-3 fs-6 rounded-pill" onclick="validarAcceso(event)">
             INGRESAR AL SISTEMA <i class="bi bi-arrow-right-short fs-4 align-middle"></i>
         </button>
     </div>
@@ -146,92 +180,385 @@
             <li class="nav-item"><button class="nav-link" id="catalogo-tab" data-bs-toggle="tab" data-bs-target="#catalogo" type="button" onclick="reproducirClick()"><i class="bi bi-box-seam me-2"></i>Catálogo</button></li>
             <li class="nav-item"><button class="nav-link" id="citas-tab" data-bs-toggle="tab" data-bs-target="#citas" type="button" onclick="reproducirClick()"><i class="bi bi-journal-check me-2"></i>Citas y Pagos</button></li>
             <li class="nav-item"><button class="nav-link" id="crm-tab" data-bs-toggle="tab" data-bs-target="#crm" type="button" onclick="reproducirClick()"><i class="bi bi-people-fill me-2"></i>CRM Clientes</button></li>
+            <li class="nav-item"><button class="nav-link" id="tesoreria-tab" data-bs-toggle="tab" data-bs-target="#tesoreria" type="button" onclick="reproducirClick()"><i class="bi bi-safe-fill me-2"></i>Tesorería y Caja</button></li>
+            <li class="nav-item"><button class="nav-link" id="socias-tab" data-bs-toggle="tab" data-bs-target="#socias" type="button" onclick="reproducirClick()"><i class="bi bi-person-badge me-2"></i>Gestión de Socias</button></li>
         </ul>
 
         <div class="tab-content" id="adminTabsContent">
 
             <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">
+                        Panel de Control Principal
+                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Bienvenida al Centro de Mando. Aquí tienes una visión general de la facturación, el efectivo disponible en caja y las reservas pendientes de hoy.')"></i>
+                    </h4>
+                    <span class="badge bg-fucsia-contrast px-3 py-2 text-white" style="animation: latido 2s infinite; border: 1px solid var(--fucsia-neon);">🔥 SISTEMA EN LÍNEA</span>
+                </div>
+                
                 <div class="row g-3 g-md-4 mb-4">
-                    <div class="col-12 col-md-4"><div class="card-stat p-4 d-flex align-items-center"><i class="bi bi-cash-stack stat-icon me-3 me-md-4"></i><div><h6 class="text-muted mb-1 fw-bold">Ingresos Reales</h6><h2 id="monto-ingresos" class="mb-0 fw-bold" style="color: var(--cyan-neon);" th:text="${'$' + #numbers.formatInteger(#aggregates.sum(citas.?[estado == 'CONFIRMADO'].![totalPagado]) ?: 0, 0, 'POINT')}">$0</h2></div></div></div>
-                    <div class="col-12 col-md-4"><div class="card-stat p-4 d-flex align-items-center"><i class="bi bi-calendar-event stat-icon me-3 me-md-4" style="color: #ff9800;"></i><div><h6 class="text-muted mb-1 fw-bold">Citas por Cobrar</h6><h2 class="mb-0 fw-bold" th:text="${citas.?[estado == 'RESERVADO'].size() + ' Pendientes'}">0</h2></div></div></div>
-                    <div class="col-12 col-md-4"><div class="card-stat p-4 d-flex align-items-center"><i class="bi bi-people stat-icon me-3 me-md-4" style="color: #28a745;"></i><div><h6 class="text-muted mb-1 fw-bold">Clientes Registrados</h6><h2 class="mb-0 fw-bold" th:text="${#lists.size(clientes)}">0</h2></div></div></div>
+                    <!-- TARJETA 1 -->
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-stat p-3 p-md-4 d-flex align-items-center position-relative overflow-hidden" style="border-left: 4px solid var(--fucsia-neon);">
+                            <div class="position-absolute" style="right: -20px; bottom: -20px; opacity: 0.1; font-size: 7rem;"><i class="bi bi-graph-up-arrow"></i></div>
+                            <i class="bi bi-wallet2 stat-icon me-3 me-md-4" style="color: var(--fucsia-neon); filter: drop-shadow(0 0 10px rgba(255,0,255,0.6));"></i>
+                            <div>
+                                <h6 class="text-white-50 mb-1 fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.8rem;">Facturación Histórica</h6>
+                                <h2 id="monto-ingresos" class="mb-0 fw-bold" style="color: white; text-shadow: 0 0 10px rgba(255,255,255,0.3);" 
+                                    th:text="${'$' + #numbers.formatInteger(ingresosTotales ?: 0, 0, 'POINT')}">$0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- TARJETA 2 -->
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-stat p-3 p-md-4 d-flex align-items-center position-relative overflow-hidden" style="border-left: 4px solid var(--cyan-neon);">
+                            <div class="position-absolute" style="right: -20px; bottom: -20px; opacity: 0.1; font-size: 7rem;"><i class="bi bi-wallet2"></i></div>
+                            <i class="bi bi-cash-stack stat-icon me-3 me-md-4" style="color: var(--cyan-neon); filter: drop-shadow(0 0 10px rgba(0,229,255,0.6));"></i>
+                            <div class="w-100">
+                                <h6 class="text-white-50 mb-1 fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.8rem;">Caja Turno Actual (Efectivo)</h6>
+                                <h2 id="dash-caja-actual" class="mb-0 fw-bold" style="color: var(--cyan-neon);">Cargando...</h2>
+                                <div class="mt-2 pt-2 border-top border-secondary d-flex justify-content-between" style="font-size: 0.75rem;">
+                                    <span class="text-white-50"><i class="bi bi-bank me-1"></i> Transf: <b id="dash-resumen-transf" class="text-white">$0</b></span>
+                                    <span class="text-white-50"><i class="bi bi-credit-card me-1"></i> MP/Tarj: <b id="dash-resumen-tarj" class="text-white">$0</b></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TARJETA 3 -->
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-stat p-3 p-md-4 d-flex align-items-center position-relative overflow-hidden" style="border-left: 4px solid #ff9800;">
+                            <div class="position-absolute" style="right: -20px; bottom: -20px; opacity: 0.1; font-size: 7rem;"><i class="bi bi-hourglass-split"></i></div>
+                            <i class="bi bi-calendar-event stat-icon me-3 me-md-4" style="color: #ff9800; filter: drop-shadow(0 0 10px rgba(255,152,0,0.6));"></i>
+                            <div>
+                                <h6 class="text-white-50 mb-1 fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.8rem;">Reservas por Cobrar</h6>
+                                <h2 class="mb-0 fw-bold" style="color: #ff9800;" th:text="${(citas != null ? citas.?[estado == 'RESERVADO']?.size() : 0) + ' Pendientes'}">0 Pendientes</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TARJETA 4 -->
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-stat p-3 p-md-4 d-flex align-items-center position-relative overflow-hidden" style="border-left: 4px solid #28a745;">
+                            <div class="position-absolute" style="right: -20px; bottom: -20px; opacity: 0.1; font-size: 7rem;"><i class="bi bi-people"></i></div>
+                            <i class="bi bi-people-fill stat-icon me-3 me-md-4" style="color: #28a745; filter: drop-shadow(0 0 10px rgba(40,167,69,0.6));"></i>
+                            <div>
+                                <h6 class="text-white-50 mb-1 fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.8rem;">Pacientes CRM</h6>
+                                <h2 class="mb-0 fw-bold text-white" th:text="${clientes != null ? #lists.size(clientes) : 0}">0</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TARJETA 5 -->
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-stat p-3 p-md-4 d-flex align-items-center position-relative overflow-hidden" style="border-left: 4px solid #9c27b0;">
+                            <div class="position-absolute" style="right: -20px; bottom: -20px; opacity: 0.1; font-size: 7rem;"><i class="bi bi-bag-heart"></i></div>
+                            <i class="bi bi-stars stat-icon me-3 me-md-4" style="color: #9c27b0; filter: drop-shadow(0 0 10px rgba(156,39,176,0.6));"></i>
+                            <div>
+                                <h6 class="text-white-50 mb-1 fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.8rem;">Servicios Activos</h6>
+                                <h2 class="mb-0 fw-bold text-white" th:text="${#lists.size(tratamientos)}">0</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TARJETA 6 -->
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card-stat p-3 p-md-4 d-flex align-items-center position-relative overflow-hidden" style="border-left: 4px solid #ffeb3b; background: linear-gradient(145deg, rgba(28,2,41,1) 0%, rgba(255,235,59,0.05) 100%);">
+                            <div class="position-absolute" style="right: -20px; bottom: -20px; opacity: 0.1; font-size: 7rem; color: #ffeb3b;"><i class="bi bi-fire"></i></div>
+                            <i class="bi bi-fire stat-icon me-3 me-md-4" style="color: #ffeb3b; filter: drop-shadow(0 0 10px rgba(255,235,59,0.8)); animation: latido 1s infinite;"></i>
+                            <div>
+                                <h6 class="text-white-50 mb-1 fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.8rem;">Ofertas Calientes</h6>
+                                <h2 class="mb-0 fw-bold text-warning" th:text="${#lists.size(tratamientos.?[enPromocion])} + ' Activas'">0 Activas</h2>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="catalogo" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3 header-tab">
-                    <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">Gestor de Servicios</h4>
+                    <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">
+                        Gestor de Servicios
+                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Aquí gestionas tus productos y masajes. Puedes crear nuevos servicios, importar listas desde un Excel CSV, o aplicar ofertas con el botón Nueva Promo para encender las flamas dinámicas.')"></i>
+                    </h4>
                     <div class="d-flex gap-2">
+                        <button class="btn btn-outline-danger px-3 fw-bold" onclick="borradoMasivoCatalogo()" title="Borrar absolutamente todo el Catálogo"><i class="bi bi-trash3-fill me-2"></i>Reset Masivo</button>
+                        <button class="btn btn-outline-info px-3 fw-bold" onclick="new bootstrap.Modal(document.getElementById('modalImportarCSV')).show();" title="Subir archivo CSV con servicios">
+                            <i class="bi bi-cloud-arrow-up-fill me-2"></i>Importar CSV
+                        </button>
                         <button class="btn btn-warning px-3 fw-bold" onclick="abrirModalPromo(event)"><i class="bi bi-tag-fill me-2"></i>Nueva Promo</button>
                         <button class="btn btn-fucsia px-4" onclick="abrirModalTratamiento(event)"><i class="bi bi-plus-lg me-2"></i>Nuevo Servicio</button>
                     </div>
                 </div>
-                <div class="table-responsive"><table class="table table-cyber text-center align-middle"><thead><tr><th>IMG</th><th>Nombre</th><th>Precio</th><th>Acciones</th></tr></thead><tbody><tr th:each="t : ${tratamientos}"><td><img th:src="${t.imagen}" width="45" height="45" style="border-radius:5px; object-fit: cover;"></td>
-                    <td class="fw-bold text-start">
-                        <span th:text="${t.nombre}">Nombre</span>
-                        <span th:if="${t.enPromocion}" class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem; box-shadow: 0 0 5px rgba(255,193,7,0.5); animation: latido 1.5s infinite;">OFERTA</span>
-                    </td>
-                    <td class="fw-bold text-info">
-                        <th:block th:if="${t.enPromocion}">
-                            <del class="text-white-50 small" th:text="'$' + ${#numbers.formatDecimal(t.precio, 0, 'POINT', 0, 'POINT')}"></del><br>
-                            <span class="text-warning" th:text="'$' + ${#numbers.formatDecimal(t.precioPromo, 0, 'POINT', 0, 'POINT')}"></span>
-                        </th:block>
-                        <th:block th:unless="${t.enPromocion}">
-                            <span th:text="'$' + ${#numbers.formatDecimal(t.precio, 0, 'POINT', 0, 'POINT')}">$0</span>
-                        </th:block>
-                    </td>
-                    <td class="acciones-col">
-                        <button class="btn btn-sm btn-cyan me-1 mb-1 mb-md-0"
-                                th:data-id="${t.id}" th:data-nombre="${t.nombre}" th:data-precio="${t.precio}"
-                                th:data-cantidad="${t.cantidad}" th:data-imagen="${t.imagen}" th:data-descripcion="${t.descripcion}"
-                                th:data-en-promocion="${t.enPromocion}" th:data-precio-promo="${t.precioPromo}"
-                                th:data-inicio-promo="${t.fechaInicioPromo}" th:data-fin-promo="${t.fechaFinPromo}"
-                                onclick="editarServicio(this)"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-sm btn-outline-danger mb-1 mb-md-0" th:onclick="'borrarServicio(' + ${t.id} + ')'"><i class="bi bi-trash"></i></button>
-                    </td></tr></tbody></table></div>
+                <div class="accordion" id="accordionCatalogo">
+                    <!-- ACORDEÓN SESIONES -->
+                    <div class="accordion-item" style="background: transparent; border: 1px solid var(--cyan-neon); margin-bottom: 15px; border-radius: 10px; overflow: hidden;">
+                        <h2 class="accordion-header" id="headingSesiones">
+                            <button class="accordion-button fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSesiones" aria-expanded="true" aria-controls="collapseSesiones" style="background: var(--violeta-tarjeta); color: var(--cyan-neon); border-bottom: 1px solid rgba(0,229,255,0.3);">
+                                <i class="bi bi-person-heart me-2"></i> SESIONES INDIVIDUALES Y PRODUCTOS
+                            </button>
+                        </h2>
+                        <div id="collapseSesiones" class="accordion-collapse collapse show" aria-labelledby="headingSesiones">
+                            <div class="accordion-body" style="background: rgba(0,0,0,0.4); max-height: 50vh; overflow-y: auto; overflow-x: hidden;">
+                                <div class="row g-3">
+                                    <!-- LOOP SESIONES -->
+                                    <div class="col-12 col-md-6 col-lg-4" th:each="t : ${tratamientos}" th:if="${t.cantidad == null or t.cantidad == '' or t.cantidad == '1' or t.cantidad == '1 sesión' or t.cantidad == '1 sesion' or t.cantidad == '1 sesión(es)'}">
+                                        <div class="grid-card transition-all" th:classappend="${t.enPromocion} ? 'flama-caliente' : ''">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <img th:src="${t.imagen}" class="card-avatar me-3" style="border-radius: 10px;">
+                                                <div>
+                                                    <h6 class="card-title-cp text-truncate" style="max-width: 180px;" th:text="${t.nombre}">Nombre</h6>
+                                                    <span th:if="${t.enPromocion}" class="badge bg-warning text-dark" style="font-size: 0.65rem; box-shadow: 0 0 5px rgba(255,193,7,0.5); animation: latido 1.5s infinite;">OFERTA</span>
+                                                    <span th:unless="${t.enPromocion}" class="badge bg-secondary" style="font-size: 0.65rem;">REGULAR</span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-3 px-2 py-2" style="background: rgba(0,0,0,0.3); border-radius: 8px;">
+                                                <div class="text-center w-50 border-end border-secondary">
+                                                    <small class="text-info d-block" style="font-size:0.7rem;">PRECIO BASE</small>
+                                                    <del th:if="${t.enPromocion}" class="text-white-50 fw-bold" th:text="'$' + ${#numbers.formatDecimal(t.precio, 0, 'POINT', 0, 'POINT')}"></del>
+                                                    <span th:unless="${t.enPromocion}" class="fw-bold text-white" th:text="'$' + ${#numbers.formatDecimal(t.precio, 0, 'POINT', 0, 'POINT')}"></span>
+                                                </div>
+                                                <div class="text-center w-50">
+                                                    <small class="text-warning d-block" style="font-size:0.7rem;">PROMO</small>
+                                                    <span th:if="${t.enPromocion}" class="fw-bold text-warning" th:text="'$' + ${#numbers.formatDecimal(t.precioPromo, 0, 'POINT', 0, 'POINT')}"></span>
+                                                    <span th:unless="${t.enPromocion}" class="text-white-50">--</span>
+                                                </div>
+                                            </div>
+                                            <div class="card-actions justify-content-end">
+                                                <button class="btn btn-sm btn-cyan flex-grow-1"
+                                                        th:data-id="${t.id}" th:data-nombre="${t.nombre}" th:data-precio="${t.precio}"
+                                                        th:data-cantidad="${t.cantidad}" th:data-imagen="${t.imagen}" th:data-descripcion="${t.descripcion}"
+                                                        th:data-en-promocion="${t.enPromocion}" th:data-precio-promo="${t.precioPromo}"
+                                                        th:data-inicio-promo="${t.fechaInicioPromo}" th:data-fin-promo="${t.fechaFinPromo}"
+                                                        onclick="editarServicio(this)"><i class="bi bi-pencil me-1"></i>Editar</button>
+                                                <button class="btn btn-sm btn-outline-danger" th:onclick="'borrarServicio(' + ${t.id} + ')'"><i class="bi bi-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- FINAL LOOP SESIONES -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ACORDEÓN PACKS -->
+                    <div class="accordion-item" style="background: transparent; border: 1px solid var(--fucsia-neon); border-radius: 10px; overflow: hidden;">
+                        <h2 class="accordion-header" id="headingPacks">
+                            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePacks" aria-expanded="false" aria-controls="collapsePacks" style="background: var(--violeta-tarjeta); color: var(--fucsia-neon); border-bottom: 1px solid rgba(255,0,255,0.3);">
+                                <i class="bi bi-box2-heart me-2"></i> PACKS DE TRATAMIENTO
+                            </button>
+                        </h2>
+                        <div id="collapsePacks" class="accordion-collapse collapse" aria-labelledby="headingPacks">
+                            <div class="accordion-body" style="background: rgba(0,0,0,0.4); max-height: 50vh; overflow-y: auto; overflow-x: hidden;">
+                                <div class="row g-3">
+                                    <!-- LOOP PACKS -->
+                                    <div class="col-12 col-md-6 col-lg-4" th:each="t : ${tratamientos}" th:unless="${t.cantidad == null or t.cantidad == '' or t.cantidad == '1' or t.cantidad == '1 sesión' or t.cantidad == '1 sesion' or t.cantidad == '1 sesión(es)'}">
+                                        <div class="grid-card transition-all" th:classappend="${t.enPromocion} ? 'flama-caliente' : ''">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <img th:src="${t.imagen}" class="card-avatar me-3" style="border-radius: 10px;">
+                                                <div>
+                                                    <h6 class="card-title-cp text-truncate" style="max-width: 180px;" th:text="${t.nombre}">Nombre</h6>
+                                                    <span th:if="${t.enPromocion}" class="badge bg-warning text-dark" style="font-size: 0.65rem; box-shadow: 0 0 5px rgba(255,193,7,0.5); animation: latido 1.5s infinite;">OFERTA</span>
+                                                    <span class="badge text-white ms-1" style="font-size: 0.65rem; background: var(--fucsia-neon);" th:text="${t.cantidad}">Pack</span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-3 px-2 py-2" style="background: rgba(0,0,0,0.3); border-radius: 8px;">
+                                                <div class="text-center w-50 border-end border-secondary">
+                                                    <small class="text-info d-block" style="font-size:0.7rem;">PRECIO BASE</small>
+                                                    <del th:if="${t.enPromocion}" class="text-white-50 fw-bold" th:text="'$' + ${#numbers.formatDecimal(t.precio, 0, 'POINT', 0, 'POINT')}"></del>
+                                                    <span th:unless="${t.enPromocion}" class="fw-bold text-white" th:text="'$' + ${#numbers.formatDecimal(t.precio, 0, 'POINT', 0, 'POINT')}"></span>
+                                                </div>
+                                                <div class="text-center w-50">
+                                                    <small class="text-warning d-block" style="font-size:0.7rem;">PROMO</small>
+                                                    <span th:if="${t.enPromocion}" class="fw-bold text-warning" th:text="'$' + ${#numbers.formatDecimal(t.precioPromo, 0, 'POINT', 0, 'POINT')}"></span>
+                                                    <span th:unless="${t.enPromocion}" class="text-white-50">--</span>
+                                                </div>
+                                            </div>
+                                            <div class="card-actions justify-content-end">
+                                                <button class="btn btn-sm btn-cyan flex-grow-1"
+                                                        th:data-id="${t.id}" th:data-nombre="${t.nombre}" th:data-precio="${t.precio}"
+                                                        th:data-cantidad="${t.cantidad}" th:data-imagen="${t.imagen}" th:data-descripcion="${t.descripcion}"
+                                                        th:data-en-promocion="${t.enPromocion}" th:data-precio-promo="${t.precioPromo}"
+                                                        th:data-inicio-promo="${t.fechaInicioPromo}" th:data-fin-promo="${t.fechaFinPromo}"
+                                                        onclick="editarServicio(this)"><i class="bi bi-pencil me-1"></i>Editar</button>
+                                                <button class="btn btn-sm btn-outline-danger" th:onclick="'borrarServicio(' + ${t.id} + ')'"><i class="bi bi-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- FINAL LOOP PACKS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="tab-pane fade" id="citas" role="tabpanel">
-                <h4 class="fw-bold mb-3 text-center text-md-start" style="color: var(--cyan-neon);">Últimas Reservas</h4>
-                <div class="table-responsive"><table class="table table-cyber align-middle"><thead><tr><th>Cliente</th><th>Fecha Cita</th><th>Servicio</th><th>Monto</th><th>Estado</th><th>Acciones</th></tr></thead><tbody><tr th:each="c : ${citas}" th:style="${c.estado == 'RESERVADO'} ? 'background-color: rgba(255, 152, 0, 0.08);' : ''"><td class="text-nowrap"><span class="fw-bold" th:text="${c.cliente != null ? c.cliente.nombre : 'Cliente Web'}">Nombre</span><br><small><i class="bi bi-whatsapp text-success"></i> <span th:text="${c.cliente != null ? c.cliente.telefono : '---'}">Tel</span></small></td><td class="text-white text-nowrap" th:text="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'dd/MM HH:mm') : 'Por definir'}">Fecha</td><td th:text="${c.nombreTratamiento}">Servicio</td><td class="fw-bold" style="color: var(--fucsia-neon);" th:text="'$' + ${#numbers.formatInteger(c.totalPagado, 0, 'POINT')}">$0</td><td><span class="badge" th:classappend="${c.estado == 'RESERVADO'} ? 'badge-reservado' : 'badge-confirmado'" th:text="${c.estado == 'RESERVADO'} ? 'PENDIENTE' : 'PAGADO'">Estado</span></td>
+                <h4 class="fw-bold mb-3 text-center text-md-start" style="color: var(--cyan-neon);">
+                    Últimas Reservas
+                    <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Este es tu libro de citas. Puedes confirmar pagos para que el dinero entre a la caja fuerte, reagendar horarios o cancelar citas definitivamente con los botones laterales.')"></i>
+                </h4>
+                <div class="row g-3" style="max-height: 70vh; overflow-y: auto; overflow-x: hidden;">
+                    <div class="col-12 col-md-6 col-lg-4" th:each="c : ${citas}">
+                        <div class="grid-card" th:style="${c.estado == 'RESERVADO'} ? 'border-color: #ff9800 !important;' : ''">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="card-title-cp" th:text="${c.cliente != null ? c.cliente.nombre : 'Cliente Web'}">Nombre</h6>
+                                    <small class="text-white-50"><i class="bi bi-telephone text-success"></i> <span th:text="${c.cliente != null ? c.cliente.telefono : '---'}">Tel</span></small>
+                                </div>
+                                <span class="badge" th:classappend="${c.estado == 'RESERVADO'} ? 'badge-reservado' : 'badge-confirmado'" th:text="${c.estado == 'RESERVADO'} ? 'PENDIENTE' : 'PAGADO'">Estado</span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="info-pill mb-1 w-100"><i class="bi bi-box-seam text-info"></i> <span th:text="${c.nombreTratamiento}" class="text-truncate">Servicio</span></div>
+                                <div class="info-pill mb-1 w-100" th:if="${c.socia != null}"><i class="bi bi-person-hearts" style="color:var(--fucsia-neon);"></i> <span th:text="${c.socia.nombre}" class="text-truncate">Profesional</span></div>
+                                <div class="info-pill w-100"><i class="bi bi-calendar-check text-info"></i> <span th:text="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'dd/MM/yy HH:mm') : 'Por definir'}">Fecha</span></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3 p-2 rounded" style="background: rgba(255,0,255,0.05); border: 1px dashed var(--fucsia-neon);">
+                                <small class="text-white-50">Total Pagado:</small>
+                                <strong class="fs-5" style="color: var(--fucsia-neon);" th:text="'$' + ${#numbers.formatInteger(c.totalPagado, 0, 'POINT')}">$0</strong>
+                            </div>
 
-                    <td class="acciones-col">
-                        <button class="btn btn-sm btn-success me-1 mb-1 mb-md-0" title="Aprobar" th:onclick="'confirmarCita(' + ${c.id} + ')'"><i class="bi bi-check-lg"></i></button>
-                        <button class="btn btn-sm btn-primary me-1 mb-1 mb-md-0" title="Reagendar" th:onclick="'abrirModalReagendar(' + ${c.id} + ')'"><i class="bi bi-clock-history"></i></button>
-
-                        <button th:if="${c.cliente != null}" class="btn btn-sm me-1 mb-1 mb-md-0 text-dark fw-bold" style="background-color: #25D366; border-color: #25D366; box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);" title="Confirmar por WhatsApp" th:data-telefono="${c.cliente.telefono}" th:data-nombre="${c.cliente.nombre}" th:data-fecha="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'dd/MM HH:mm') : 'Por definir'}" th:data-servicio="${c.nombreTratamiento}" onclick="enviarWhatsAppConfirmacion(this)">
-                            <i class="bi bi-whatsapp"></i>
-                        </button>
-
-                        <button class="btn btn-sm btn-danger mb-1 mb-md-0" title="Cancelar" th:onclick="'cancelarCita(' + ${c.id} + ')'"><i class="bi bi-x-lg"></i></button>
-                    </td>
-
-                </tr></tbody></table></div>
+                            <div class="card-actions justify-content-center">
+                                <button class="btn btn-sm btn-success flex-grow-1" title="Aprobar" th:onclick="'confirmarCita(' + ${c.id} + ')'"><i class="bi bi-check-lg"></i></button>
+                                <button class="btn btn-sm btn-primary flex-grow-1" title="Reagendar" th:onclick="'abrirModalReagendar(' + ${c.id} + ')'"><i class="bi bi-clock-history"></i></button>
+                                <button class="btn btn-sm btn-info flex-grow-1 text-dark fw-bold" title="Confirmación WhatsApp" th:data-nombre="${c.cliente != null ? c.cliente.nombre : ''}" th:data-telefono="${c.cliente != null ? c.cliente.telefono : ''}" th:data-fecha="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'yyyy-MM-dd HH:mm') : ''}" th:data-servicio="${c.nombreTratamiento}" onclick="enviarWhatsAppCita(this)"><i class="bi bi-whatsapp"></i></button>
+                                <button class="btn btn-sm btn-danger flex-grow-1" title="Cancelar" th:onclick="'cancelarCita(' + ${c.id} + ')'"><i class="bi bi-x-lg"></i></button>
+                            </div>
+                            <div class="card-actions mt-2 pt-2 justify-content-center border-top-0">
+                                <button th:if="${c.cliente != null}" class="btn btn-sm text-dark fw-bold w-100 mb-1" style="background-color: #25D366; border-color: #25D366; box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);" title="Confirmar por WhatsApp" th:data-telefono="${c.cliente.telefono}" th:data-nombre="${c.cliente.nombre}" th:data-fecha="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'dd/MM HH:mm') : 'Por definir'}" th:data-servicio="${c.nombreTratamiento}" th:data-monto="${c.totalPagado}" onclick="enviarWhatsAppConfirmacion(this)">
+                                    <i class="bi bi-whatsapp"></i> Enviar Recibo Wap
+                                </button>
+                                <button class="btn btn-sm btn-outline-info w-100" 
+                                        th:data-cliente="${c.cliente != null ? c.cliente.nombre : 'Cliente'}"
+                                        th:data-servicio="${c.nombreTratamiento}"
+                                        th:data-total="${c.totalPagado}"
+                                        th:data-fecha="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'dd/MM/yyyy HH:mm') : '---'}"
+                                        th:data-id="${c.id}"
+                                        onclick="imprimirTicketCliente(this.getAttribute('data-cliente'), this.getAttribute('data-servicio'), this.getAttribute('data-total'), this.getAttribute('data-fecha'), this.getAttribute('data-id'))">
+                                    <i class="bi bi-printer"></i> Imprimir Comprobante
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="tab-pane fade" id="crm" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3 header-tab">
-                    <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">Base de Clientes</h4>
+                    <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">
+                        Base de Clientes
+                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Bienvenida al CRM. Aquí puedes crear nuevas fichas de clientes y acceder a su Kardex Clínico detallado para ver su peso, medidas corporales y evolución antropométrica.')"></i>
+                    </h4>
                     <button class="btn btn-fucsia px-4" onclick="abrirModalCliente(event)"><i class="bi bi-person-plus-fill me-2"></i>Nuevo Cliente</button>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-cyber align-middle">
-                        <thead><tr><th>Nombre</th><th>WhatsApp</th><th>Acciones</th></tr></thead>
-                        <tbody>
-                        <tr th:each="cli : ${clientes}">
-                            <td class="fw-bold text-white text-nowrap" th:text="${cli.nombre}">Nombre</td>
-                            <td th:text="${cli.telefono}">Tel</td>
-                            <td class="acciones-col">
+                <div class="row g-3" style="max-height: 70vh; overflow-y: auto; overflow-x: hidden;">
+                    <div class="col-12 col-md-6 col-lg-4" th:each="cli : ${clientes}">
+                        <div class="grid-card">
+                            <i class="bi bi-person-bounding-box position-absolute opacity-25" style="font-size: 4rem; right: 20px; top: 10px; color: var(--cyan-neon); z-index: 0;"></i>
+                            <div class="position-relative z-1 mb-3">
+                                <h6 class="card-title-cp" style="font-size: 1.2rem;" th:text="${cli.nombre}">Nombre</h6>
+                                <p class="mb-1 text-white-50"><i class="bi bi-whatsapp text-success me-1"></i> <span th:text="${cli.telefono}">Tel</span></p>
+                            </div>
+                            
+                            <div class="position-relative z-1 mb-3">
                                 <input type="hidden" th:id="'kjson-' + ${cli.id}" th:value="${cli.kardexJson}">
-                                <button class="btn btn-sm btn-fucsia me-1 mb-1 mb-md-0" title="Ficha Médica (Kardex)" th:data-id="${cli.id}" th:data-nombre="${cli.nombre}" th:data-telefono="${cli.telefono}" th:data-correo="${cli.correo}" th:data-cumpleanos="${cli.cumpleanos}" th:data-notas="${cli.notasMedicas}" th:data-historial="${cli.historialCompras}" onclick="abrirKardex(this)"><i class="bi bi-file-medical"></i> KARDEX</button>
-                                <button class="btn btn-sm btn-cyan me-1 mb-1 mb-md-0" title="Editar Básico" th:data-id="${cli.id}" th:data-nombre="${cli.nombre}" th:data-telefono="${cli.telefono}" th:data-correo="${cli.correo}" th:data-cumpleanos="${cli.cumpleanos}" th:data-notas="${cli.notasMedicas}" th:data-historial="${cli.historialCompras}" onclick="editarCliente(this)"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-danger mb-1 mb-md-0" th:onclick="'borrarCliente(' + ${cli.id} + ')'"><i class="bi bi-trash"></i></button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                                <button class="btn btn-sm btn-info w-100 fw-bold mb-2 text-dark" style="letter-spacing: 1px" title="Agendar Nueva Cita" th:data-id="${cli.id}" th:data-nombre="${cli.nombre}" onclick="abrirModalAgendarNuevo(this)">
+                                    <i class="bi bi-calendar-plus fs-6 align-middle me-2"></i> AGENDAR CITA
+                                </button>
+                                <button class="btn btn-sm btn-fucsia w-100 fw-bold" style="letter-spacing: 2px" title="Ficha Médica (Kardex)" th:data-id="${cli.id}" th:data-nombre="${cli.nombre}" th:data-telefono="${cli.telefono}" th:data-correo="${cli.correo}" th:data-cumpleanos="${cli.cumpleanos}" th:data-notas="${cli.notasMedicas}" th:data-historial="${cli.historialCompras}" onclick="abrirKardex(this)">
+                                    <i class="bi bi-file-medical-fill fs-5 align-middle me-2"></i> ABRIR KARDEX
+                                </button>
+                            </div>
+
+                            <div class="card-actions justify-content-between position-relative z-1">
+                                <button class="btn btn-sm btn-cyan flex-grow-1 me-2" title="Editar Básico" th:data-id="${cli.id}" th:data-nombre="${cli.nombre}" th:data-telefono="${cli.telefono}" th:data-correo="${cli.correo}" th:data-cumpleanos="${cli.cumpleanos}" th:data-notas="${cli.notasMedicas}" th:data-historial="${cli.historialCompras}" onclick="editarCliente(this)"><i class="bi bi-pencil me-1"></i> Perfil Básico</button>
+                                <button class="btn btn-sm btn-outline-danger" th:onclick="'borrarCliente(' + ${cli.id} + ')'"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <div class="tab-pane fade" id="tesoreria" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-4 header-tab">
+                    <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">
+                        <i class="bi bi-safe-fill"></i> Auditoría de Tesorería
+                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('En el panel de auditoría puedes revisar todos los gastos y los reportes de cierre Z generados al terminar cada turno. Puedes auditar el efectivo neto presionando Ver Caja Fuerte.')"></i>
+                    </h4>
+                    <button class="btn btn-outline-info fw-bold px-4" onclick="verEstadoCajaAdmin(event)" style="box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);">
+                        <i class="bi bi-eye-fill me-2"></i>Ver Caja del Turno Actual
+                    </button>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <h6 class="fw-bold text-danger mb-3 border-bottom border-danger pb-2"><i class="bi bi-arrow-down-circle-fill"></i> Historial de Gastos (Egresos)</h6>
+                        <div class="row g-2" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;">
+                            <div class="col-12" th:each="e : ${egresos}">
+                                <div class="grid-card p-2 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-white-50 d-block" th:text="${#temporals.format(e.fechaHora, 'dd/MM HH:mm')}">Fecha</small>
+                                        <span class="text-white text-truncate d-inline-block" style="max-width: 150px;" th:text="${e.descripcion}">Motivo</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-danger" th:text="'-$' + ${#numbers.formatInteger(e.monto, 0, 'POINT')}">$0</div>
+                                        <span class="badge bg-secondary" style="font-size: 0.6rem;" th:text="${e.metodoSalida}">Tipo</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 text-center" th:if="${#lists.isEmpty(egresos)}">
+                                <span class="text-muted small py-3">No hay egresos registrados.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <h6 class="fw-bold text-info mb-3 border-bottom border-info pb-2"><i class="bi bi-file-earmark-bar-graph-fill"></i> Historial de Cierres (Reportes Z)</h6>
+                        <div class="row g-2" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;">
+                            <div class="col-12 col-lg-6" th:each="cz : ${cortes}">
+                                <div class="grid-card p-3">
+                                    <div class="d-flex justify-content-between border-bottom border-info pb-2 mb-2">
+                                        <span class="text-white-50 small">Cierre Z</span>
+                                        <span class="fw-bold text-white" th:text="${#temporals.format(cz.fechaGeneracion, 'dd/MM/yy HH:mm')}">Fecha</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small class="text-white-50">Ventas:</small>
+                                        <span class="text-success fw-bold" th:text="${cz.totalEfectivo != null ? '$' + #numbers.formatInteger(cz.totalEfectivo, 0, 'POINT') : '$0'}">$0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small class="text-white-50">Gastos:</small>
+                                        <span class="text-danger fw-bold" th:text="${cz.totalEgresos != null ? '-$' + #numbers.formatInteger(cz.totalEgresos, 0, 'POINT') : '$0'}">$0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2 pt-2 border-top border-secondary">
+                                        <small class="fw-bold text-info">NETO:</small>
+                                        <span class="fw-bold" style="color: var(--cyan-neon); font-size: 1.1rem;" th:text="${cz.efectivoEsperadoCajon != null ? '$' + #numbers.formatInteger(cz.efectivoEsperadoCajon, 0, 'POINT') : '$0'}">$0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 text-center" th:if="${#lists.isEmpty(cortes)}">
+                                <span class="text-muted small py-3">No hay Cierres Z registrados aún.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA PESTAÑA: SOCIAS AFILIADAS -->
+            <div class="tab-pane fade" id="socias" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3 header-tab">
+                    <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">
+                        Gestión de Socias (Max 10)
+                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Aquí controlas el personal del Spa. Puedes configurar los porcentajes de comisión para cada socia y generar sus liquidaciones diarias automáticas para enviarlas por Whatsapp.')"></i>
+                    </h4>
+                    <button class="btn btn-fucsia px-4" onclick="abrirModalSocia(event)"><i class="bi bi-person-plus-fill me-2"></i>Añadir Socia</button>
+                </div>
+                <div class="row g-3" id="grid-socias" style="max-height: 70vh; overflow-y: auto; overflow-x: hidden;">
+                    <div class="col-12 text-center text-muted p-3">Cargando socias...</div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -240,7 +567,10 @@
             <div class="modal-content">
                 <div class="modal-header border-bottom border-info">
                     <div>
-                        <h4 class="modal-title fw-bold m-0" style="color: var(--cyan-neon);"><i class="bi bi-clipboard2-pulse"></i> Ficha de Evaluación Antropométrica</h4>
+                        <h4 class="modal-title fw-bold m-0" style="color: var(--cyan-neon);">
+                            <i class="bi bi-clipboard2-pulse"></i> Ficha de Evaluación Antropométrica
+                            <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Esta es la ficha clínica integral. Puedes navegar entre las pestañas para registrar hábitos, medidas corporales, sesiones realizadas y el estado de cuenta financiero del paciente.')"></i>
+                        </h4>
                         <p class="m-0 text-white opacity-75" id="lblKardexNombre">Cliente: ...</p>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -463,11 +793,29 @@
                                     </div>
 
                                     <div class="p-3 border border-secondary rounded" style="background: rgba(28, 2, 41, 0.5);">
-                                        <h6 class="fw-bold mb-3" style="color: var(--fucsia-neon);"><i class="bi bi-plus-circle"></i> Registrar Nuevo Abono</h6>
-                                        <div class="mb-2"><label class="small text-info">Fecha del Pago</label><input type="date" id="f-fecha-pago" class="form-control form-control-sm"></div>
-                                        <div class="mb-2"><label class="small text-info">Monto Abonado ($)</label><input type="number" id="f-monto-pago" class="form-control form-control-sm" placeholder="Ej: 50000"></div>
-                                        <div class="mb-3"><label class="small text-info">Método / Nota</label><input type="text" id="f-nota-pago" class="form-control form-control-sm" placeholder="Efectivo, Transferencia..."></div>
-                                        <button class="btn btn-fucsia w-100" onclick="registrarPago(event)"><i class="bi bi-cash"></i> Agregar Pago al Historial</button>
+                                        <h6 class="fw-bold mb-3" style="color: var(--fucsia-neon);"><i class="bi bi-plus-circle"></i> Registrar Nuevo Cobro/Abono</h6>
+                                        <div class="mb-2">
+                                            <label class="small text-info">Monto a Cobrar ($)</label>
+                                            <input type="number" id="f-monto-pago" class="form-control form-control-sm" placeholder="Ej: 50000">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="small text-info">Especialista (Para Comisión)</label>
+                                            <select id="f-socia-pago" class="form-select form-select-sm">
+                                                <option value="">Sin profesional asignada</option>
+                                                <!-- Cargado por JS -->
+                                            </select>
+                                        </div>
+                                        <div class="mb-2"><label class="small text-info">Nota / Concepto</label><input type="text" id="f-nota-pago" class="form-control form-control-sm" placeholder="Abono o Saldo de Cita..."></div>
+                                        
+                                        <label class="small text-info d-block mb-2">Método de Pago:</label>
+                                        <div class="d-grid gap-2">
+                                            <div class="row g-1">
+                                                <div class="col-6"><button class="btn btn-sm btn-outline-success w-100 py-2" onclick="registrarPagoDirecto(event, 'EFECTIVO')"><i class="bi bi-cash"></i> Efectivo</button></div>
+                                                <div class="col-6"><button class="btn btn-sm btn-outline-info w-100 py-2" onclick="registrarPagoDirecto(event, 'DEBITO')"><i class="bi bi-credit-card"></i> Débito</button></div>
+                                                <div class="col-6 mt-1"><button class="btn btn-sm btn-outline-primary w-100 py-2" onclick="registrarPagoDirecto(event, 'TRANSFERENCIA')"><i class="bi bi-bank"></i> Transf.</button></div>
+                                                <div class="col-6 mt-1"><button class="btn btn-sm btn-outline-warning w-100 py-2" onclick="registrarPagoDirecto(event, 'CREDITO')"><i class="bi bi-credit-card-2-front"></i> Crédito</button></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -492,6 +840,7 @@
 
                     <div>
                         <button type="button" class="btn btn-success fw-bold px-4" onclick="enviarReporteKardexWhatsApp()"><i class="bi bi-whatsapp"></i> Enviar Ficha al Paciente</button>
+                        <button type="button" class="btn btn-secondary fw-bold px-3 ms-2" onclick="imprimirKardexRecibo()"><i class="bi bi-printer"></i> Imprimir Recibo</button>
                     </div>
 
                     <div class="d-flex gap-2">
@@ -513,11 +862,37 @@
 
     <div class="modal fade" id="modalReagendar" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold" style="color: var(--cyan-neon);">Reagendar Cita</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="reagendarCitaId"><label class="form-label text-info fw-bold">Nueva Fecha y Hora:</label><input type="datetime-local" id="nuevaFechaInput" class="form-control"></div><div class="modal-footer"><button type="button" class="btn btn-cyan w-100 fw-bold" onclick="ejecutarReagendamiento(event)">Confirmar Cambio</button></div></div></div></div>
 
+    <div class="modal fade" id="modalAgendarNuevo" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title fw-bold" style="color: var(--cyan-neon);">Reservar Cita</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" id="agendarNuevoClienteId">
+                    <div class="mb-3 text-center">
+                        <strong id="agendarNuevoClienteNombre" class="text-fucsia"></strong>
+                    </div>
+                    <label class="form-label text-info fw-bold">Servicio:</label>
+                    <input type="text" id="agendarNuevoServicio" class="form-control mb-3" placeholder="Ej. Depilación" required>
+                    <label class="form-label text-info fw-bold">Profesional / Socia:</label>
+                    <select id="agendarNuevoSociaSelect" class="form-select mb-3">
+                        <option value="">Sin profesional asignada</option>
+                    </select>
+                    <label class="form-label text-info fw-bold">Fecha y Hora:</label>
+                    <input type="datetime-local" id="agendarNuevoFecha" class="form-control">
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-info w-100 fw-bold text-dark" onclick="ejecutarAgendarNuevo(event)">Crear Reserva</button></div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="modalTratamiento" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold" style="color: var(--cyan-neon);" id="tituloModalTratamiento">Añadir Servicio</h5>
+                    <h5 class="modal-title fw-bold" style="color: var(--cyan-neon);" id="tituloModalTratamiento">
+                        Añadir Servicio
+                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Define el nombre del servicio, su precio y cantidad de sesiones. Si activas la promoción, el sistema lo destacará con una flama dinámica en el catálogo.')"></i>
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="formTratamiento" onsubmit="guardarTratamiento(event)">
@@ -562,9 +937,212 @@
                 </form>
             </div>
         </div>
+    </div> <!-- Cierre correcto de modalTratamiento -->
+
+    <div class="modal fade" id="modalImportarCSV" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" style="color: var(--cyan-neon);"><i class="bi bi-filetype-csv"></i> Importación Masiva de Servicios</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-cloud-upload-fill text-info" style="font-size: 3rem;"></i>
+                        <h6 class="text-white mt-2">Selecciona tus archivos PACKS o SESIONES</h6>
+                        <p class="text-white-50 small">El sistema inyectará automáticamente los servicios en PostgreSQL respetando el formato de Linda Mamá Spa.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-info fw-bold">Archivo CSV</label>
+                        <input type="file" id="modalCsvFileInput" class="form-control" accept=".csv">
+                    </div>
+
+                    <div class="alert alert-info border-info p-2" style="background: rgba(0, 229, 255, 0.05); font-size: 0.75rem;">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Asegúrate de que el archivo tenga los encabezados originales: <b>TRATAMIENTO, PRECIO SESION, IMAGEN, etc.</b>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cyan w-100 fw-bold" onclick="iniciarCargaMascaraEnModal()">
+                        <i class="bi bi-save2 me-2"></i>Cargar y Guardar en Base de Datos
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="modal fade" id="modalCliente" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold" style="color: var(--cyan-neon);" id="tituloModalCliente">Perfil Cliente Básico</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formCliente"><input type="hidden" id="clienteId"><div class="mb-3"><label class="form-label text-info fw-bold">Nombre Completo</label><input type="text" class="form-control" id="cliNombre" required></div><div class="row"><div class="col-6 mb-3"><label class="form-label text-info fw-bold">WhatsApp</label><input type="text" class="form-control" id="cliTelefono"></div><div class="col-6 mb-3"><label class="form-label text-info fw-bold">Cumpleaños</label><input type="date" class="form-control" id="cliCumple"></div></div><div class="mb-3"><label class="form-label text-info fw-bold">Email</label><input type="email" class="form-control" id="cliCorreo"></div><div class="mb-3"><label class="form-label text-info fw-bold">Notas de Recepción</label><textarea class="form-control" id="cliNotas" rows="2"></textarea></div></form></div><div class="modal-footer"><button type="button" class="btn btn-fucsia w-100" onclick="guardarCliente(event)">Guardar Básico</button></div></div></div></div>
+
+    <div class="modal fade" id="modalCajaAdmin" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center p-3">
+                <div class="modal-header border-0 pb-0 justify-content-center">
+                    <h5 class="fw-bold m-0" style="color: var(--cyan-neon);"><i class="bi bi-safe-fill"></i> Caja Fuerte Actual</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-4">Turno en curso (Aún sin Corte Z)</p>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-white opacity-75 small">Entradas Efectivo:</span>
+                        <span id="admin-caja-efectivo" class="fw-bold text-success">$0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 pb-2 border-bottom border-secondary">
+                        <span class="text-white opacity-75 small">Gastos Caja Chica:</span>
+                        <span id="admin-caja-egresos" class="fw-bold text-danger">-$0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 pb-2 border-bottom border-secondary">
+                        <span class="fw-bold text-info">EFECTIVO FÍSICO:</span>
+                        <span id="admin-caja-neto" class="fw-bold fs-5" style="color: var(--cyan-neon); text-shadow: 0 0 10px rgba(0,229,255,0.5);">$0</span>
+                    </div>
+                    <h6 class="text-start fw-bold mt-2 text-warning mb-2">Desglose de Comisiones a Pagar:</h6>
+                    <div id="admin-caja-socias" class="text-start small text-warning mb-2">
+                    </div>
+                    <div class="d-flex justify-content-between pt-2 border-top border-warning">
+                        <span class="fw-bold text-white small">NETO PARA EL SPA:</span>
+                        <span id="admin-caja-spa" class="fw-bold fs-6 text-white">$0</span>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-light w-100" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PARA SOCIA -->
+    <div class="modal fade" id="modalSocia" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" style="color: var(--cyan-neon);" id="tituloModalSocia">
+                        Perfil de Socia
+                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Registra a tu colaboradora definiendo su porcentaje de comisión y sus credenciales de acceso. Recuerda que el sistema calculará automáticamente sus pagos diarios.')"></i>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formSocia" onsubmit="guardarSocia(event)">
+                    <div class="modal-body">
+                        <input type="hidden" id="sociaId">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-info fw-bold">Nombre</label>
+                                <input type="text" class="form-control" id="sociaNombre" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-info fw-bold">Teléfono / WhatsApp</label>
+                                <input type="text" class="form-control" id="sociaTelefono" placeholder="Ej: 56912345678">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-info fw-bold">Especialidad Corta</label>
+                            <input type="text" class="form-control" id="sociaEspec" placeholder="Ej: Especialista en reductivos">
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-info fw-bold">Comisión Spa (%)</label>
+                                <input type="number" class="form-control" id="sociaPorcSpa" min="0" max="100" value="50" onchange="document.getElementById('sociaPorcSocia').value = 100 - this.value">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-info fw-bold">Comisión Socia (%)</label>
+                                <input type="number" class="form-control" id="sociaPorcSocia" min="0" max="100" value="50" disabled>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-info fw-bold">Foto URL</label>
+                            <input type="url" class="form-control" id="sociaFoto">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-info fw-bold">Biografía y Descripción</label>
+                            <textarea class="form-control" id="sociaDesc" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-warning fw-bold"><i class="bi bi-person-fill"></i> Usuario Acceso</label>
+                                <input type="text" class="form-control border-warning" id="sociaUser" placeholder="Ej: maria.spa">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label text-warning fw-bold"><i class="bi bi-key-fill"></i> Clave Acceso</label>
+                                <input type="password" class="form-control border-warning" id="sociaPass" placeholder="••••">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-fucsia w-100">Guardar Socia</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LIQUIDACIÓN DE COMISIONES -->
+    <div class="modal fade" id="modalLiquidacion" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" style="color: var(--cyan-neon);">
+                        <i class="bi bi-cash-coin"></i> Liquidar Comisiones: <span id="lblNombreSociaLiquidacion"></span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-4 text-center">
+                        <small class="text-white-50 d-block">SALDO TOTAL PENDIENTE</small>
+                        <h2 class="fw-bold" id="lblSaldoPendienteLiquidacion" style="color: var(--fucsia-neon);">$0</h2>
+                    </div>
+
+                    <h6 class="fw-bold text-info border-bottom pb-2 mb-3"><i class="bi bi-receipt"></i> Detalle de Ventas</h6>
+                    <div class="table-responsive mb-4" style="max-height: 200px;">
+                        <table class="table table-cyber table-sm text-center">
+                            <thead><tr><th>Fecha</th><th>Servicio</th><th>Comisión</th></tr></thead>
+                            <tbody id="tablaPendientesLiquidacion"></tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="fw-bold text-info border-bottom pb-2 mb-3"><i class="bi bi-clock-history"></i> Pagos Recientes</h6>
+                    <div id="historialPagosLiquidacion" class="mb-4" style="max-height: 150px; overflow-y: auto;"></div>
+
+                    <hr class="opacity-10">
+                    
+                    <div class="mb-3">
+                        <label class="form-label small text-white-50">Medio de Pago</label>
+                        <select id="metodoPagoLiquidacion" class="form-select input-dark">
+                            <option value="EFECTIVO">Efectivo</option>
+                            <option value="TRANSFERENCIA">Transferencia</option>
+                            <option value="OTRO">Otro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-white-50">Comentarios (Opcional)</label>
+                        <textarea id="comentariosLiquidacion" class="form-control input-dark" rows="2" placeholder="Ej: Pago quincenal de comisiones"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-fucsia w-100 py-2 fw-bold" onclick="procesarPagoSocia()">
+                        <i class="bi bi-check-circle me-1"></i> REGISTRAR PAGO Y LIQUIDAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ENTORNO DE IMPRESIÓN (OCULTO EN PANTALLA) -->
+    <div id="print-area">
+        <div style="text-align: center; margin-bottom: 15px;">
+            <h3 style="margin: 0;">LINDA MAMÁ SPA</h3>
+            <p style="margin: 0; font-size: 10px;">Comprobante de Operación</p>
+            <div class="print-divider"></div>
+        </div>
+        <div id="print-content"></div>
+        <div class="print-divider"></div>
+        <div style="text-align: center; margin-top: 20px;">
+            <p style="margin: 0;">Firma de Conformidad</p>
+            <br><br>
+            <p style="margin: 0;">_______________________</p>
+            <p style="font-size: 10px; margin-top: 5px;">Sistema MiniERP by Gomez Systems</p>
+        </div>
+    </div>
 
 </div>
 <script>
@@ -603,57 +1181,56 @@
     let rolActual = "";
 
     function validarAcceso(event) {
-    const pin = document.getElementById('input-pin').value.trim();
+        const pin = document.getElementById('input-pin').value.trim();
 
-    if (pin === '7777') {
-    usuarioActual = "Crisley Paredes";
-    rolActual = "PROPIETARIA";
-    } else if (pin === '1010') {
-    usuarioActual = "Janneth";
-    rolActual = "ADMINISTRADORA";
-    } else {
-    // Error visual y sonoro
-    reproducirError();
-    const loginBox = document.getElementById('login-box');
-    loginBox.classList.add('shake-error');
-    setTimeout(() => loginBox.classList.remove('shake-error'), 400);
-    return;
-    }
+        if (pin === '7777') {
+            usuarioActual = "Crisley Paredes";
+            rolActual = "PROPIETARIA";
+        } else if (pin === '1010') {
+            usuarioActual = "Janneth";
+            rolActual = "ADMINISTRADORA";
+        } else {
+            // Error visual y sonoro
+            reproducirError();
+            const loginBox = document.getElementById('login-box');
+            loginBox.classList.add('shake-error');
+            setTimeout(() => loginBox.classList.remove('shake-error'), 400);
+            return;
+        }
 
-    // Éxito en el login
-    sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
-    localStorage.setItem('spa_usuario', usuarioActual);
+        // Éxito en el login
+        sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
+        localStorage.setItem('spa_usuario', usuarioActual);
 
-    // Pantalla de Bienvenida Waooo
-    document.getElementById('login-screen').style.display = 'none';
-    const welcomeScreen = document.getElementById('welcome-screen');
-    welcomeScreen.style.display = 'flex';
+        // Pantalla de Bienvenida Waooo
+        document.getElementById('login-screen').style.display = 'none';
+        const welcomeScreen = document.getElementById('welcome-screen');
+        welcomeScreen.style.display = 'flex';
 
-    const primerNombre = usuarioActual.split(' ')[0];
-    document.getElementById('welcome-message').innerText = "¡Bienvenida " + primerNombre + "!";
+        const primerNombre = usuarioActual.split(' ')[0];
+        document.getElementById('welcome-message').innerText = "¡Bienvenida " + primerNombre + "!";
 
-    // SALUDO DE VOZ (SÍNTESIS DE VOZ NATIVA)
-    if ('speechSynthesis' in window) {
-    const mensajeVoz = new SpeechSynthesisUtterance("Bienvenida " + primerNombre + ". Iniciando panel de administración.");
-    mensajeVoz.lang = 'es-ES'; // Idioma español
-    mensajeVoz.rate = 1.0; // Velocidad normal
-    window.speechSynthesis.speak(mensajeVoz);
-    }
+        // SALUDO DE VOZ (SÍNTESIS DE VOZ NATIVA)
+        if ('speechSynthesis' in window) {
+            const mensajeVoz = new SpeechSynthesisUtterance("Bienvenida " + primerNombre + ". Iniciando panel de administración.");
+            mensajeVoz.lang = 'es-ES'; // Idioma español
+            window.speechSynthesis.speak(mensajeVoz);
+        }
 
-    // Transición automática al panel en 2.5 segundos
-    setTimeout(() => {
-    sfxWaooo.currentTime = 0; sfxWaooo.play().catch(()=>{}); // Suena mágico al entrar
-    welcomeScreen.style.display = 'none';
-    document.getElementById('app-dashboard').style.display = 'block';
-    document.getElementById('etiqueta-usuario').innerHTML = `<i class="bi bi-person-circle"></i> ${usuarioActual}`;
+        // Transición automática al panel en 2.5 segundos
+        setTimeout(() => {
+            sfxWaooo.currentTime = 0; sfxWaooo.play().catch(()=>{}); // Suena mágico al entrar
+            welcomeScreen.style.display = 'none';
+            document.getElementById('app-dashboard').style.display = 'block';
+            document.getElementById('etiqueta-usuario').innerHTML = `<i class="bi bi-person-circle"></i> ${usuarioActual}`;
 
-    if (rolActual === "ADMINISTRADORA") {
-    let ingresosEl = document.getElementById('monto-ingresos');
-    ingresosEl.innerText = "$****";
-    ingresosEl.classList.remove('text-cyan-neon');
-    ingresosEl.style.color = "#888";
-    }
-    }, 2500);
+            if (rolActual === "ADMINISTRADORA") {
+                let ingresosEl = document.getElementById('monto-ingresos');
+                ingresosEl.innerText = "$****";
+                ingresosEl.classList.remove('text-cyan-neon');
+                ingresosEl.style.color = "#888";
+            }
+        }, 2500);
     }
 
     // ==========================================
@@ -661,31 +1238,56 @@
     // ==========================================
     let visitasKardexTemporal = [];
     let pagosKardexTemporal = [];
+    let ventasRealesKardex = []; // Nuevo: para abonos/pagos reales de la base de datos
+    let modalKardexInst = null;
 
     function abrirKardex(btn) {
-    reproducirClick();
-    const id = btn.getAttribute('data-id');
-    const nombre = btn.getAttribute('data-nombre');
+        reproducirClick();
+        const id = btn.getAttribute('data-id');
+        const nombre = btn.getAttribute('data-nombre');
 
-    document.getElementById('k-cli-id').value = id; document.getElementById('k-cli-nombre').value = nombre;
-    document.getElementById('k-cli-telefono').value = btn.getAttribute('data-telefono') || '';
-    document.getElementById('k-cli-correo').value = btn.getAttribute('data-correo') || '';
-    document.getElementById('k-cli-cumple').value = btn.getAttribute('data-cumpleanos') || '';
-    document.getElementById('k-cli-notas').value = btn.getAttribute('data-notas') || '';
-    document.getElementById('k-cli-hist').value = btn.getAttribute('data-historial') || '';
+        document.getElementById('k-cli-id').value = id;
+        document.getElementById('k-cli-nombre').value = nombre;
+        document.getElementById('k-cli-telefono').value = btn.getAttribute('data-telefono') || '';
+        document.getElementById('lblKardexNombre').innerText = "Cliente: " + nombre;
 
-    document.getElementById('lblKardexNombre').innerText = "Cliente: " + nombre;
+        // Poblar selector de socias en finanzas
+        const selectSocia = document.getElementById('f-socia-pago');
+        if (selectSocia) {
+            selectSocia.innerHTML = '<option value="">Sin profesional asignada</option>';
+            fetch('/api/socias')
+                .then(res => res.json())
+                .then(socias => {
+                    socias.forEach(s => {
+                        if(s.activa) selectSocia.innerHTML += `<option value="${s.id}">${s.nombre}</option>`;
+                    });
+                });
+        }
 
-    limpiarFormKardex();
+        limpiarFormKardex();
 
-    const jsonStr = document.getElementById('kjson-' + id).value;
-    if(jsonStr && jsonStr.trim() !== '') {
-    try { llenarFormKardex(JSON.parse(jsonStr)); } catch(e) { console.error("Error JSON:", e); }
-    }
+        const jsonStr = document.getElementById('kjson-' + id).value;
+        if(jsonStr && jsonStr.trim() !== '') {
+            try { llenarFormKardex(JSON.parse(jsonStr)); } catch(e) { console.error("Error JSON:", e); }
+        }
 
-    dibujarTablaVisitas();
-    dibujarTablaPagos();
-    new bootstrap.Modal(document.getElementById('modalKardex')).show();
+        dibujarTablaVisitas();
+
+        // 🔥 NUEVO: Cargar ventas reales (abonos, reservas, etc) de la BD 🔥
+        ventasRealesKardex = [];
+        fetch(`/api/pos/ventas/cliente/${id}`)
+            .then(res => res.json())
+            .then(ventas => {
+                ventasRealesKardex = ventas;
+                dibujarTablaPagos(); // Redibujar con los datos reales
+            })
+            .catch(err => {
+                console.error("Error cargando abonos reales:", err);
+                dibujarTablaPagos();
+            });
+
+        if(!modalKardexInst) modalKardexInst = new bootstrap.Modal(document.getElementById('modalKardex'));
+        modalKardexInst.show();
     }
 
     // --- LÓGICA: DESCUENTO Y REGISTRO AUTOMÁTICO ---
@@ -743,21 +1345,51 @@
     }
 
     // --- LÓGICA: FINANZAS Y ABONOS ---
-    function registrarPago(event) {
-    const monto = parseFloat(document.getElementById('f-monto-pago').value);
-    if(!monto || monto <= 0) { reproducirError(); return alert("Ingrese un monto válido"); }
+    function registrarPagoDirecto(event, medio) {
+        const monto = parseFloat(document.getElementById('f-monto-pago').value);
+        if(!monto || monto <= 0) { reproducirError(); return alert("Ingrese un monto válido"); }
+        
+        const sociaId = document.getElementById('f-socia-pago').value;
+        const nota = document.getElementById('f-nota-pago').value || 'Abono/Cobro Kardex';
+        const clienteId = document.getElementById('k-cli-id').value;
 
-    activarEfectoWaooo(event);
+        if(!confirm(`¿Confirmar cobro de $${monto} vía ${medio}?`)) return;
 
-    const fecha = document.getElementById('f-fecha-pago').value || new Date().toISOString().split('T')[0];
-    let nota = document.getElementById('f-nota-pago').value || 'Abono General';
-    nota += ` (Recibió: ${usuarioActual})`;
+        activarEfectoWaooo(event);
 
-    pagosKardexTemporal.push({ id: Date.now(), fecha: fecha, monto: monto, nota: nota });
+        // 1. REGISTRO REAL EN CAJA (API POS)
+        const payloadVenta = {
+            clienteId: parseInt(clienteId),
+            totalPagado: monto,
+            metodoPago: medio,
+            nombreTratamiento: nota,
+            sociaId: sociaId ? parseInt(sociaId) : null
+        };
 
-    document.getElementById('f-monto-pago').value = '';
-    document.getElementById('f-nota-pago').value = '';
-    dibujarTablaPagos();
+        fetch('/api/pos/venta-directa', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payloadVenta)
+        })
+        .then(res => {
+            if(!res.ok) throw new Error("Error en el servidor");
+            
+            // 2. REGISTRO EN EL HISTORIAL VISUAL DEL KARDEX
+            const fecha = new Date().toISOString().split('T')[0];
+            const notaFinal = `${nota} (${medio}) - Aplicó: ${usuarioActual}`;
+            pagosKardexTemporal.push({ id: Date.now(), fecha: fecha, monto: monto, nota: notaFinal });
+
+            document.getElementById('f-monto-pago').value = '';
+            document.getElementById('f-nota-pago').value = '';
+            dibujarTablaPagos();
+            
+            // Sugerir guardar la ficha para perpetuar el historial visual
+            console.log("Venta real registrada. Recuerda guardar el Kardex.");
+        })
+        .catch(err => {
+            reproducirError();
+            alert("Error al registrar el pago en caja: " + err.message);
+        });
     }
 
     function borrarPago(id) {
@@ -769,34 +1401,72 @@
     }
 
     function dibujarTablaPagos() {
-    const tbody = document.getElementById('tabla-pagos');
-    tbody.innerHTML = '';
-    let totalAbonado = 0;
+        const tbody = document.getElementById('tabla-pagos');
+        tbody.innerHTML = '';
+        let totalAbonado = 0;
 
-    if(pagosKardexTemporal.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" class="text-muted small">No hay pagos registrados</td></tr>';
-    } else {
-    pagosKardexTemporal.forEach(p => {
-    totalAbonado += p.monto;
-    tbody.innerHTML += `<tr>
-    <td class="small">${p.fecha}</td>
-    <td class="fw-bold text-success">$${p.monto.toLocaleString('es-CL')}</td>
-    <td class="small">${p.nota}</td>
-    <td><button class="btn btn-sm text-danger py-0 px-1" onclick="borrarPago(${p.id})"><i class="bi bi-trash"></i></button></td>
-    </tr>`;
-    });
-    }
+        // Combinar registros manuales con ventas reales de la base de datos
+        const manuales = pagosKardexTemporal || [];
+        const reales = (ventasRealesKardex || []).map(v => ({
+            id: v.id,
+            fecha: v.fechaHora ? v.fechaHora.split('T')[0] : '---',
+            monto: v.totalPagado,
+            nota: `Venta POS: ${v.detalle || 'Venta'} (${v.tipoPago || 'Efectivo'})`,
+            esReal: true,
+            estado: v.estado
+        }));
 
-    const totalPack = parseFloat(document.getElementById('f-total-pack').value) || 0;
-    const deuda = totalPack - totalAbonado;
+        // Unificar para visualización
+        const todos = [...manuales, ...reales].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
 
-    document.getElementById('f-lbl-abonado').innerText = '$' + totalAbonado.toLocaleString('es-CL');
-    const lblDeuda = document.getElementById('f-lbl-deuda');
-    lblDeuda.innerText = '$' + deuda.toLocaleString('es-CL');
+        if(todos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-muted small text-center">No hay pagos registrados</td></tr>';
+        } else {
+            todos.forEach(p => {
+                let icono = '';
+                let txClass = 'text-success';
+                
+                if(p.esReal) {
+                    if(p.estado === 'RESERVADO') {
+                        icono = '<i class="bi bi-hourglass-split text-warning" title="Intento Web No Pagado"></i> ';
+                        p.nota += ' (Web - No Pagado)';
+                        txClass = 'text-warning';
+                    } else if(p.estado === 'PENDIENTE') {
+                        icono = '<i class="bi bi-clock-history text-danger" title="Venta POS Fiada"></i> ';
+                        p.nota += ' (Fiado/Pendiente)';
+                        txClass = 'text-danger';
+                    } else {
+                        icono = '<i class="bi bi-safe-fill text-cyan-neon" title="Venta Real Registrada en POS"></i> ';
+                        totalAbonado += (p.monto || 0);
+                    }
+                } else {
+                    icono = '<i class="bi bi-pencil-square text-white-50" title="Registro Manual en Ficha"></i> ';
+                    totalAbonado += (p.monto || 0);
+                }
+                
+                const btnAccion = p.esReal 
+                    ? `<button class="btn btn-sm text-secondary py-0 px-1" onclick="alert('Este pago está registrado en el historial de caja. Para anularlo, debe eliminarse de tesorería.')"><i class="bi bi-lock"></i></button>`
+                    : `<button class="btn btn-sm text-danger py-0 px-1" onclick="borrarPago(${p.id})"><i class="bi bi-trash"></i></button>`;
 
-    if(deuda > 0) lblDeuda.className = "fs-5 fw-bold text-danger";
-    else if (deuda === 0 && totalPack > 0) lblDeuda.className = "fs-5 fw-bold text-success";
-    else lblDeuda.className = "fs-5 fw-bold text-info";
+                tbody.innerHTML += `<tr>
+                    <td class="small">${p.fecha}</td>
+                    <td class="fw-bold ${txClass}">${icono}$${(p.monto || 0).toLocaleString('es-CL')}</td>
+                    <td class="small">${p.nota}</td>
+                    <td>${btnAccion}</td>
+                </tr>`;
+            });
+        }
+
+        const totalPack = parseFloat(document.getElementById('f-total-pack').value) || 0;
+        const deuda = totalPack - totalAbonado;
+
+        document.getElementById('f-lbl-abonado').innerText = '$' + totalAbonado.toLocaleString('es-CL');
+        const lblDeuda = document.getElementById('f-lbl-deuda');
+        lblDeuda.innerText = '$' + deuda.toLocaleString('es-CL');
+
+        if(deuda > 0) lblDeuda.className = "fs-5 fw-bold text-danger";
+        else if (deuda === 0 && totalPack > 0) lblDeuda.className = "fs-5 fw-bold text-success";
+        else lblDeuda.className = "fs-5 fw-bold text-info";
     }
 
     // --- LÓGICA: GUARDAR EN BASE DE DATOS ---
@@ -959,7 +1629,6 @@
     document.querySelectorAll('#modalKardex input[type="checkbox"]').forEach(c => c.checked = false);
 
     document.getElementById('k-fecha-creacion').value = new Date().toISOString().split('T')[0];
-    document.getElementById('f-fecha-pago').value = new Date().toISOString().split('T')[0];
     }
 
     // ==========================================
@@ -970,6 +1639,91 @@
     function ejecutarReagendamiento(event) { activarEfectoWaooo(event); const id = document.getElementById('reagendarCitaId').value; const fecha = document.getElementById('nuevaFechaInput').value; if(!fecha) return alert("Selecciona fecha"); setTimeout(() => fetch(`/api/admin/citas/reagendar/${id}?nuevaFecha=${fecha}`, {method:'POST'}).then(res => { if(res.ok) window.location.reload(); else alert("Error al reagendar"); }), 800); }
     function confirmarCita(id) { sfxWaooo.currentTime = 0; sfxWaooo.play().catch(()=>{}); if(confirm("¿Confirmar pago y aprobar?")) { fetch('/api/admin/citas/confirmar/'+id, {method:'POST'}).then(()=>window.location.reload()); } }
     function cancelarCita(id) { reproducirError(); if(confirm("¿Eliminar cita definitivamente?")) { fetch('/api/admin/citas/cancelar/'+id, {method:'POST'}).then(()=>window.location.reload()); } }
+
+    let modalAgendarNuevoCRM;
+    function abrirModalAgendarNuevo(btn) {
+        const id = btn.getAttribute("data-id");
+        const nombre = btn.getAttribute("data-nombre");
+        reproducirClick();
+        document.getElementById('agendarNuevoClienteId').value = id;
+        document.getElementById('agendarNuevoClienteNombre').innerText = nombre;
+        document.getElementById('agendarNuevoServicio').value = '';
+        document.getElementById('agendarNuevoFecha').value = '';
+
+        // Poblar select de socias
+        const select = document.getElementById('agendarNuevoSociaSelect');
+        select.innerHTML = '<option value="">Sin profesional asignada</option>';
+        fetch('/api/socias').then(res => res.json()).then(socias => {
+            socias.forEach(s => {
+                if(s.activa) select.innerHTML += `<option value="${s.id}">${s.nombre}</option>`;
+            });
+        });
+
+        modalAgendarNuevoCRM = new bootstrap.Modal(document.getElementById('modalAgendarNuevo'));
+        modalAgendarNuevoCRM.show();
+    }
+
+    function ejecutarAgendarNuevo(event) {
+        activarEfectoWaooo(event);
+        const cliId = document.getElementById('agendarNuevoClienteId').value;
+        const servicio = document.getElementById('agendarNuevoServicio').value;
+        let fecha = document.getElementById('agendarNuevoFecha').value;
+        const sociaId = document.getElementById('agendarNuevoSociaSelect').value;
+        
+        if (!fecha || !servicio) return alert("⚠️ Debe ingresar el servicio y la fecha para agendar.");
+        // Ajuste temporal para compatibilidad de Cita backend (LocalDateTime string length max 19)
+        if (fecha.length === 16) fecha += ":00";
+        if (fecha.length > 19) fecha = fecha.substring(0, 19);
+
+        const nuevaCita = {
+            cliente: { id: cliId },
+            nombreTratamiento: servicio,
+            fechaHora: fecha,
+            estado: "AGENDADA"
+        };
+        if (sociaId) {
+            nuevaCita.socia = { id: parseInt(sociaId) };
+        }
+
+        fetch('/api/citas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevaCita)
+        }).then(res => {
+            if (res.ok) window.location.reload();
+            else { alert("Error al agendar la cita"); reproducirError(); }
+        }).catch(err => {
+            console.error(err);
+            alert("Error de conexión al guardar la cita.");
+        });
+    }
+
+    function enviarWhatsAppCita(btn) {
+        reproducirClick();
+        const nombre = btn.getAttribute('data-nombre');
+        const telefono = btn.getAttribute('data-telefono');
+        const fechaRaw = btn.getAttribute('data-fecha');
+        const servicio = btn.getAttribute('data-servicio');
+        
+        if (!telefono || telefono === '---' || telefono.trim() === '') {
+            return alert("⚠️ Este cliente no tiene número de teléfono registrado.");
+        }
+        
+        let numeroLimpio = telefono.replace(/\D/g, '');
+        if (numeroLimpio.length === 9) { numeroLimpio = '56' + numeroLimpio; }
+
+        let fechaLimpia = "Por definir";
+        if (fechaRaw && fechaRaw.trim() !== '') {
+            try {
+                let d = new Date(fechaRaw);
+                fechaLimpia = d.toLocaleDateString('es-CL') + " a las " + d.toLocaleTimeString('es-CL').substring(0,5);
+            } catch(e) {}
+        }
+
+        const mensaje = `🌸 *LINDA MAMÁ SPA* 🌸\n\nHola *${nombre}* ✨,\nNos comunicamos para confirmar tu cita agendada para el servicio de *${servicio}*.\n\n📅 *Fecha y Hora:* ${fechaLimpia}\n\nPor favor, respóndenos con un *"Confirmo"* para asegurar tu cupo en la agenda.\n¡Te esperamos! 💆‍♀️`;
+        const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
+        window.open(url, '_blank');
+    }
 
     // --- MODIFICACIONES DEL CATÁLOGO (SERVICIOS Y PROMOS) ---
     function abrirModalTratamiento(event) {
@@ -1060,6 +1814,20 @@
     }
     function borrarServicio(id) { reproducirError(); if(confirm("¿Eliminar servicio?")) { fetch('/api/tratamientos/borrar/'+id, {method:'DELETE'}).then(()=>window.location.reload()); } }
 
+    function borradoMasivoCatalogo() {
+        reproducirError();
+        const codigo = prompt("⚠️ ADVERTENCIA ⚠️\nEstás a punto de ELIMINAR TODO EL CATÁLOGO de tratamientos y productos de tu base de datos.\nSi estás completamente seguro, escribe 'BORRAR TODO' en mayúsculas a continuación:");
+        
+        if(codigo === "BORRAR TODO") {
+            fetch('/api/tratamientos/borrar-todos', {method:'DELETE'})
+                .then(res => res.text())
+                .then(msg => { alert("🔥 " + msg); window.location.reload(); })
+                .catch(err => alert("Error en el vaciado."));
+        } else if (codigo !== null) {
+            alert("Operación cancelada. El código de seguridad no coincide.");
+        }
+    }
+
     function abrirModalCliente(event) { reproducirClick(); document.getElementById('formCliente').reset(); document.getElementById('clienteId').value = ""; new bootstrap.Modal(document.getElementById('modalCliente')).show(); }
     function editarCliente(btn) { reproducirClick(); document.getElementById('clienteId').value = btn.getAttribute('data-id'); document.getElementById('cliNombre').value = btn.getAttribute('data-nombre'); document.getElementById('cliTelefono').value = btn.getAttribute('data-telefono'); document.getElementById('cliCorreo').value = btn.getAttribute('data-correo'); document.getElementById('cliCumple').value = btn.getAttribute('data-cumpleanos'); document.getElementById('cliNotas').value = btn.getAttribute('data-notas'); new bootstrap.Modal(document.getElementById('modalCliente')).show(); }
     function guardarCliente(event) { activarEfectoWaooo(event); const payload = { nombre: document.getElementById('cliNombre').value, telefono: document.getElementById('cliTelefono').value, correo: document.getElementById('cliCorreo').value, cumpleanos: document.getElementById('cliCumple').value, notasMedicas: document.getElementById('cliNotas').value }; const id = document.getElementById('clienteId').value; if(id) payload.id = id; setTimeout(() => fetch('/api/clientes/guardar', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) }).then(()=>window.location.reload()), 800); }
@@ -1083,6 +1851,45 @@
         const mensaje = `🌸 ¡Hola ${nombre}! Te escribimos con mucho cariño de *Linda Mamá Spa* ✨.\n\nQueremos confirmar tu cita para tu sesión de *${servicio}* agendada para el *${fecha}*.\n\n¡Te esperamos para consentirte! Por favor confírmanos tu asistencia con un "Sí". 💕`;
         const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
         window.open(url, '_blank');
+    }
+
+    function imprimirKardexRecibo() {
+        const nombre = document.getElementById('k-cli-nombre').value || 'Paciente Spa';
+        const fecha = new Date().toLocaleDateString('es-CL');
+        const finanzas = document.getElementById('k-finanzas-total').value || '$0';
+        
+        let htmlPrint = `
+            <div style="text-align: center; margin-bottom: 15px; font-family: monospace;">
+                <h3>LINDA MAMÁ SPA</h3>
+                <p style="margin: 0;">Reporte de Paciente Kardex</p>
+                <p style="margin: 0;">Fecha: ${fecha}</p>
+                <div style="border-top: 1px dashed black; margin: 10px 0;"></div>
+                <div style="text-align: left; font-size: 14px;">
+                    <p><strong>Paciente:</strong> ${nombre}</p>
+                    <p><strong>Saldo Activo Contratado:</strong> ${finanzas}</p>
+                </div>
+                <div style="border-top: 1px dashed black; margin: 10px 0;"></div>
+                <p>Las últimas 3 sesiones:</p>
+                <ul style="text-align: left; font-size: 12px; list-style: none; padding: 0;">
+        `;
+        
+        // Agregar las ltimas 3 visitas
+        let cnt = 0;
+        visitasKardexTemporal.forEach(v => {
+            if(cnt < 3) {
+                htmlPrint += `<li>- ${v.fecha}: ${v.proc}</li>`;
+                cnt++;
+            }
+        });
+
+        htmlPrint += `
+                </ul>
+                <div style="border-top: 1px dashed black; margin: 10px 0;"></div>
+                <p>¡Gracias por elegir Linda Mamá Spa!</p>
+            </div>
+        `;
+        document.getElementById('print-area').innerHTML = htmlPrint;
+        window.print();
     }
 
     // ==========================================
@@ -1138,6 +1945,484 @@
         const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
         window.open(url, '_blank');
     }
+
+    // ==========================================
+    // 🔥 NUEVA FUNCIÓN: VER CAJA ADMINISTRATIVA 🔥
+    // ==========================================
+    function verEstadoCajaAdmin(event) {
+        activarEfectoWaooo(event);
+        fetch('/api/pos/caja-fuerte')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('admin-caja-efectivo').innerText = '$' + (data.totalEfectivo || 0).toLocaleString('es-CL');
+                document.getElementById('admin-caja-egresos').innerText = '-$' + (data.totalEgresos || 0).toLocaleString('es-CL');
+                document.getElementById('admin-caja-neto').innerText = '$' + (data.efectivoEnCajon || 0).toLocaleString('es-CL');
+                
+                document.getElementById('admin-caja-spa').innerText = '$' + (data.gananciaSpa || 0).toLocaleString('es-CL');
+                
+                let htmlSocias = '';
+                if(data.deudaPorSocia && Object.keys(data.deudaPorSocia).length > 0) {
+                    for(const [nombre, monto] of Object.entries(data.deudaPorSocia)) {
+                        htmlSocias += `<div class="d-flex justify-content-between"><span>${nombre}</span><span class="fw-bold">$${monto.toLocaleString('es-CL')}</span></div>`;
+                    }
+                } else {
+                    htmlSocias = '<i>No hay comisiones pendientes</i>';
+                }
+                document.getElementById('admin-caja-socias').innerHTML = htmlSocias;
+
+                new bootstrap.Modal(document.getElementById('modalCajaAdmin')).show();
+            })
+            .catch(err => {
+                alert("⚠️ Error al conectar con la Caja Fuerte.");
+                console.error(err);
+            });
+    }
+    // ==========================================
+    // 🔥 GESTIÓN DE SOCIAS (10 CUPOS MAX) 🔥
+    // ==========================================
+    let modalSociaInst = null;
+    
+    document.getElementById('socias-tab').addEventListener('click', cargarSocias);
+
+    function cargarSocias() {
+        fetch('/api/socias')
+            .then(res => res.json())
+            .then(socias => {
+                const grid = document.getElementById('grid-socias');
+                if(socias.length === 0) {
+                    grid.innerHTML = '<div class="col-12 text-center text-muted p-3">No hay socias registradas. Añade una nueva.</div>';
+                    return;
+                }
+                
+                let html = '';
+                socias.forEach(s => {
+                    let foto = s.fotoUrl ? `<img src="${s.fotoUrl}" class="card-avatar me-3" style="width: 70px; height: 70px;">` : '<i class="bi bi-person-circle text-secondary me-3" style="font-size: 70px;"></i>';
+                    html += `
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="grid-card text-center" style="${!s.activa ? 'opacity: 0.7; filter: grayscale(1);' : ''}">
+                                <div class="d-flex justify-content-center mb-2">
+                                    ${foto}
+                                </div>
+                                <h5 class="fw-bold" style="color: var(--cyan-neon);">${s.nombre}</h5>
+                                <p class="small text-white-50 mb-2">${s.especialidad || 'Sin especialidad'}</p>
+                                
+                                <div class="d-flex justify-content-between mx-auto mb-3 w-100 p-2 rounded" style="background: rgba(0,0,0,0.3); max-width: 200px;">
+                                    <div class="text-center w-50 border-end border-secondary">
+                                        <small class="d-block text-white" style="font-size: 0.7rem;">COM. SPA</small>
+                                        <span class="fw-bold text-info">${s.porcentajeSpa}%</span>
+                                    </div>
+                                    <div class="text-center w-50">
+                                        <small class="d-block text-white" style="font-size: 0.7rem;">COM. SOCIA</small>
+                                        <span class="fw-bold text-warning">${s.porcentajeSocia}%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-actions justify-content-center border-top-0 mb-1 gap-1">
+                                    <button class="btn btn-sm btn-cyan flex-grow-1" onclick="editarSocia(${s.id}, '${s.nombre}', '${s.especialidad || ''}', ${s.porcentajeSpa}, ${s.porcentajeSocia}, '${s.fotoUrl || ''}', '${s.descripcion || ''}', '${s.telefono || ''}', '${s.usuario || ''}', '${s.password || ''}')"><i class="bi bi-pencil"></i> Editar</button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="borrarSocia(${s.id})"><i class="bi bi-trash"></i></button>
+                                </div>
+                                <div class="card-actions justify-content-center mt-1 pt-2 align-items-center flex-column">
+                                    <div class="d-flex w-100 gap-1 mb-2">
+                                        <button class="btn btn-sm btn-fucsia flex-grow-1" onclick="verBalanceSocia(${s.id}, '${s.nombre}')">
+                                            <i class="bi bi-cash-coin me-1"></i> Balance
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-fucsia px-3" title="Imprimir Balance" onclick="imprimirBalanceSocia(${s.id}, '${s.nombre}', ${s.porcentajeSocia})">
+                                            <i class="bi bi-printer"></i>
+                                        </button>
+                                    </div>
+                                    <div class="d-flex w-100 gap-1 mb-1">
+                                        <button class="btn btn-sm text-dark fw-bold flex-grow-1" style="background-color: #25D366; border-color: #25D366; box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);" onclick="enviarWhatsAppSocia('${s.nombre}', '${s.telefono || ''}')">
+                                            <i class="bi bi-whatsapp me-1"></i> Reporte Diario
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success px-3" title="Imprimir Reporte Diario" onclick="imprimirReporteDiarioSocia(${s.id}, '${s.nombre}', ${s.porcentajeSocia})">
+                                            <i class="bi bi-printer"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                grid.innerHTML = html;
+            })
+            .catch(err => console.error("Error cargando socias:", err));
+    }
+
+    function abrirModalSocia(e) {
+        if(e) activarEfectoWaooo(e);
+        document.getElementById('formSocia').reset();
+        document.getElementById('sociaId').value = '';
+        document.getElementById('tituloModalSocia').innerText = 'Añadir Nueva Socia';
+        if(!modalSociaInst) modalSociaInst = new bootstrap.Modal(document.getElementById('modalSocia'));
+        modalSociaInst.show();
+    }
+
+    function editarSocia(id, nombre, espec, pSpa, pSocia, foto, desc, telefono, user, pass) {
+        document.getElementById('sociaId').value = id;
+        document.getElementById('sociaNombre').value = nombre;
+        document.getElementById('sociaEspec').value = espec;
+        document.getElementById('sociaPorcSpa').value = pSpa;
+        document.getElementById('sociaPorcSocia').value = pSocia;
+        document.getElementById('sociaFoto').value = foto;
+        document.getElementById('sociaDesc').value = desc;
+        document.getElementById('sociaTelefono').value = telefono || '';
+        document.getElementById('sociaUser').value = user || '';
+        document.getElementById('sociaPass').value = pass || '';
+        document.getElementById('tituloModalSocia').innerText = 'Editar Socia';
+        
+        if(!modalSociaInst) modalSociaInst = new bootstrap.Modal(document.getElementById('modalSocia'));
+        modalSociaInst.show();
+    }
+
+    function guardarSocia(event) {
+        event.preventDefault();
+        const id = document.getElementById('sociaId').value;
+        const payload = {
+            id: id ? parseInt(id) : null,
+            nombre: document.getElementById('sociaNombre').value,
+            especialidad: document.getElementById('sociaEspec').value,
+            porcentajeSpa: parseFloat(document.getElementById('sociaPorcSpa').value),
+            porcentajeSocia: parseFloat(document.getElementById('sociaPorcSocia').value),
+            fotoUrl: document.getElementById('sociaFoto').value,
+            descripcion: document.getElementById('sociaDesc').value,
+            telefono: document.getElementById('sociaTelefono').value,
+            usuario: document.getElementById('sociaUser').value,
+            password: document.getElementById('sociaPass').value,
+            activa: true
+        };
+
+        fetch('/api/socias', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if(!res.ok) {
+                if(res.status === 400) throw new Error("Límite de 10 socias alcanzado.");
+                throw new Error("Error guardando.");
+            }
+            return res.json();
+        })
+        .then(data => {
+            sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
+            modalSociaInst.hide();
+            cargarSocias();
+        })
+        .catch(err => {
+            sfxFail.currentTime = 0; sfxFail.play().catch(()=>{});
+            alert(err.message);
+        });
+    }
+
+    function borrarSocia(id) {
+        if(!confirm("¿Estás segura de eliminar esta vacante de Socia permanentemente?")) return;
+        fetch('/api/socias/' + id, {method: 'DELETE'})
+            .then(res => {
+                if(res.ok) {
+                    sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
+                    cargarSocias();
+                } else {
+                    alert("Error eliminando socia. Es probable que tenga ventas asociadas.");
+                }
+            });
+    }
+
+    // --- NUEVAS FUNCIONES DE LIQUIDACIÓN ---
+    let sociaIdSeleccionadaParaPago = null;
+
+    function verBalanceSocia(id, nombre) {
+        reproducirClick();
+        sociaIdSeleccionadaParaPago = id;
+        document.getElementById('lblNombreSociaLiquidacion').innerText = nombre;
+
+        fetch(`/api/socias/${id}/balance`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('lblSaldoPendienteLiquidacion').innerText = '$' + (data.totalPendiente || 0).toLocaleString('es-CL');
+                
+                let htmlPendientes = '';
+                if(data.pendientes && data.pendientes.length > 0) {
+                    data.pendientes.forEach(v => {
+                        htmlPendientes += `<tr>
+                            <td class="small">${new Date(v.fechaHora).toLocaleDateString()}</td>
+                            <td class="small">${v.detalle}</td>
+                            <td class="fw-bold text-info">$${v.montoSocia.toLocaleString('es-CL')}</td>
+                        </tr>`;
+                    });
+                } else {
+                    htmlPendientes = '<tr><td colspan="3" class="text-center text-white-50">Sin deudas pendientes</td></tr>';
+                }
+                document.getElementById('tablaPendientesLiquidacion').innerHTML = htmlPendientes;
+
+                let htmlHistorial = '';
+                if(data.historialPagos && data.historialPagos.length > 0) {
+                    data.historialPagos.forEach(p => {
+                        htmlHistorial += `<div class="p-2 mb-2 rounded bg-dark border border-secondary">
+                            <div class="d-flex justify-content-between">
+                                <span class="small">${new Date(p.fechaHora).toLocaleDateString()}</span>
+                                <span class="fw-bold text-success">$${p.monto.toLocaleString('es-CL')}</span>
+                            </div>
+                            <small class="text-white-50 d-block">${p.comentarios}</small>
+                        </div>`;
+                    });
+                } else {
+                    htmlHistorial = '<i class="small text-white-50">Sin pagos anteriores.</i>';
+                }
+                document.getElementById('historialPagosLiquidacion').innerHTML = htmlHistorial;
+
+                new bootstrap.Modal(document.getElementById('modalLiquidacion')).show();
+            });
+    }
+
+    function procesarPagoSocia() {
+        const comentarios = document.getElementById('comentariosLiquidacion').value || 'Liquidación formal de comisiones';
+        const medioPago = document.getElementById('metodoPagoLiquidacion').value;
+
+        if(!confirm("¿Confirmas que has entregado el dinero a la socia y quieres marcar estas comisiones como pagadas?")) return;
+
+        fetch(`/api/socias/${sociaIdSeleccionadaParaPago}/liquidar`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ comentarios, medioPago })
+        })
+        .then(res => {
+            if(res.ok) {
+                alert("✅ Pago registrado y comisiones liquidadas con éxito.");
+                window.location.reload();
+            } else {
+                alert("⚠️ Error al procesar el pago.");
+            }
+        });
+    }
+
+
+    // ==========================================
+    // LÓGICA DE IMPRESIÓN Y EXPORTACIÓN WAP
+    // ==========================================
+    function imprimirTicketCliente(cliente, servicio, total, fecha, folio) {
+        reproducirClick();
+        const content = document.getElementById('print-content');
+        content.innerHTML = `
+            <div class="print-row"><span>Folio Cita:</span> <span>#${folio}</span></div>
+            <div class="print-row"><span>Fecha/Hora:</span> <span>${fecha}</span></div>
+            <div class="print-row"><span>Cliente:</span> <span>${cliente}</span></div>
+            <div class="print-row"><span>Servicio:</span> <span>${servicio}</span></div>
+            <div class="print-divider"></div>
+            <div class="print-row" style="font-weight:bold; font-size: 14px;"><span>TOTAL PAGADO:</span> <span>$${parseInt(total).toLocaleString('es-CL')}</span></div>
+            <div style="text-align: center; margin-top: 15px; font-size: 10px;">¡Gracias por su visita a Linda Mamá Spa!</div>
+        `;
+        window.print();
+    }
+
+    function imprimirTicketSocia(nombreSocia, porcSocia) {
+        reproducirClick();
+        const content = document.getElementById('print-content');
+        const fecha = new Date().toLocaleDateString('es-CL') + " " + new Date().toLocaleTimeString('es-CL');
+        // Extraemos dinámicamente el valor actual si la caja ya calculó la deuda
+        let deudaAcumulada = "Calculado según corte"; 
+        
+        content.innerHTML = `
+            <div class="print-row" style="margin-bottom: 10px; font-weight:bold; text-align:center;">LIQUIDACIÓN DE TURNO (SOCIA)</div>
+            <div class="print-row"><span>Fecha Emitido:</span> <span>${fecha}</span></div>
+            <div class="print-row"><span>Nombre Socia:</span> <span>${nombreSocia}</span></div>
+            <div class="print-row"><span>Tasa Comisión:</span> <span>${porcSocia}%</span></div>
+            <div class="print-divider"></div>
+            <div class="print-row"><span>Liquidación Total:</span> <span>Según Reporte de Caja Fuerte</span></div>
+            <div class="print-divider"></div>
+            <div style="text-align: center; margin-top: 10px; font-size: 10px;">Recibí conforme el cálculo diario según sistema interno.</div>
+        `;
+        window.print();
+    }
+
+    function imprimirBalanceSocia(id, nombreSocia, porcSocia) {
+        reproducirClick();
+        fetch(`/api/socias/${id}/balance`)
+            .then(res => res.json())
+            .then(data => {
+                const totalPendiente = data.totalPendiente || 0;
+                const pendientes = data.pendientes || [];
+                const content = document.getElementById('print-content');
+                const fecha = new Date().toLocaleDateString('es-CL') + " " + new Date().toLocaleTimeString('es-CL');
+                
+                let detalleServicios = '';
+                pendientes.forEach(v => {
+                    detalleServicios += `<div class="print-row" style="font-size: 10px;"><span>${new Date(v.fechaHora).toLocaleTimeString('es-CL').substring(0,5)} ${v.detalle.substring(0,18)}</span> <span>$${v.montoSocia.toLocaleString('es-CL')}</span></div>`;
+                });
+
+                content.innerHTML = `
+                    <div class="print-row" style="margin-bottom: 5px; font-weight:bold; text-align:center; font-size:14px;">RECIBO DE COMISIONES</div>
+                    <div class="print-row" style="margin-bottom: 10px; text-align:center; font-size:10px;">Linda Mamá Spa</div>
+                    <div class="print-row"><span>Fecha:</span> <span>${fecha}</span></div>
+                    <div class="print-row"><span>Especialista:</span> <span>${nombreSocia.substring(0, 15)}</span></div>
+                    <div class="print-row"><span>Tasa Comisión:</span> <span>${porcSocia}%</span></div>
+                    <div class="print-divider"></div>
+                    <div style="font-weight:bold; font-size: 11px; margin-bottom:5px;">Servicios Pendientes de Pago:</div>
+                    ${detalleServicios || '<div style="font-size:10px; text-align:center;">No hay comisiones adeudadas</div>'}
+                    <div class="print-divider"></div>
+                    <div class="print-row" style="font-weight:bold; font-size: 13px;"><span>TOTAL A PAGAR:</span> <span>$${totalPendiente.toLocaleString('es-CL')}</span></div>
+                    <div class="print-divider" style="margin-top:20px; border-top:1px dashed #000; width:100%; margin-left:auto; margin-right:auto;"></div>
+                    <div style="text-align: center; font-size: 10px; margin-top:5px;">Firma de Conformidad</div>
+                `;
+                window.print();
+            })
+            .catch(err => alert("Error al obtener balance para imprimir."));
+    }
+
+    function imprimirReporteDiarioSocia(id, nombreSocia, porcSocia) {
+        reproducirClick();
+        fetch('/api/pos/caja-fuerte')
+            .then(res => res.json())
+            .then(data => {
+                const ventas = data.ventas || [];
+                // Filtramos ventas del turno actual correspondientes a la socia
+                const ventasSocia = ventas.filter(v => v.socia && v.socia.id === id);
+                
+                let totalSociaDiario = 0;
+                let detalleServicios = '';
+                
+                ventasSocia.forEach(v => {
+                    const montoSocia = v.montoSocia || 0;
+                    totalSociaDiario += montoSocia;
+                    detalleServicios += `<div class="print-row" style="font-size: 10px;"><span>${new Date(v.fechaHora).toLocaleTimeString('es-CL').substring(0,5)} ${v.detalle.substring(0,18)}</span> <span>$${montoSocia.toLocaleString('es-CL')}</span></div>`;
+                });
+
+                const content = document.getElementById('print-content');
+                const fecha = new Date().toLocaleDateString('es-CL') + " " + new Date().toLocaleTimeString('es-CL');
+
+                content.innerHTML = `
+                    <div class="print-row" style="margin-bottom: 5px; font-weight:bold; text-align:center; font-size:14px;">REPORTE DIARIO DE TURNO</div>
+                    <div class="print-row" style="margin-bottom: 10px; text-align:center; font-size:10px;">Linda Mamá Spa</div>
+                    <div class="print-row"><span>Fecha:</span> <span>${fecha}</span></div>
+                    <div class="print-row"><span>Especialista:</span> <span>${nombreSocia.substring(0, 15)}</span></div>
+                    <div class="print-row"><span>Tasa Comisión:</span> <span>${porcSocia}%</span></div>
+                    <div class="print-divider"></div>
+                    <div style="font-weight:bold; font-size: 11px; margin-bottom:5px;">Servicios Realizados Hoy (Turno Activo):</div>
+                    ${detalleServicios || '<div style="font-size:10px; text-align:center;">No hay servicios en el turno actual</div>'}
+                    <div class="print-divider"></div>
+                    <div class="print-row" style="font-weight:bold; font-size: 13px;"><span>PRODUCCIÓN HOY:</span> <span>$${totalSociaDiario.toLocaleString('es-CL')}</span></div>
+                    <div style="text-align: center; margin-top: 15px; font-size: 10px;">Este reporte incluye todos los servicios realizados antes de cerrar la caja Z.</div>
+                `;
+                window.print();
+            })
+            .catch(err => alert("Error al obtener datos del turno."));
+    }
+
+    function enviarWhatsAppSocia(nombreSocia, telefonoSocia) {
+        reproducirClick();
+        let numero = telefonoSocia;
+        if (!numero) {
+            numero = prompt(`Ingresa el número de WhatsApp (Ej: 56912345678) de la socia ${nombreSocia}:`);
+        }
+        if (!numero) return;
+        
+        // Formatear el mensaje
+        let texto = `Hola *${nombreSocia}* 🌸,\n\n`;
+        texto += `Te confirmamos que tu liquidación de comisiones del turno está lista para ser cobrada o ha sido transferida.\n\n`;
+        texto += `_*Linda Mamá Spa*_ ✨`;
+        
+        // Limpiar el número de espacios y el + si los tiene
+        numero = numero.replace(/\D/g, ''); 
+        
+        let url = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
+        window.open(url, '_blank');
+    }
+
+    function subirCsvMascara(event) {
+        // Mantenemos la lógica de subida automática por si acaso
+        const file = event.target.files[0];
+        procesarArchivoCSV(file);
+    }
+
+    function iniciarCargaMascaraEnModal() {
+        const fileInput = document.getElementById('modalCsvFileInput');
+        const file = fileInput.files[0];
+        if(!file) {
+            Swal.fire('Atención', 'Por favor selecciona un archivo CSV antes de continuar.', 'warning');
+            return;
+        }
+        procesarArchivoCSV(file);
+    }
+
+    function procesarArchivoCSV(file) {
+        if(!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        Swal.fire({
+            title: 'Procesando historial...',
+            text: 'Estamos migrando tus servicios a PostgreSQL',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        fetch('/api/tratamientos/upload-csv', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.text())
+        .then(msg => {
+            // Cerrar modal si existe
+            const modalEl = document.getElementById('modalImportarCSV');
+            const modalInst = bootstrap.Modal.getInstance(modalEl);
+            if(modalInst) modalInst.hide();
+
+            Swal.fire('¡Éxito!', msg, 'success').then(() => {
+                window.location.reload();
+            });
+        })
+        .catch(err => {
+            console.error("Error CSV:", err);
+            Swal.fire('Error', 'No se pudo subir el archivo: ' + err, 'error');
+        });
+    }
+
+    // Inicializar Tablero Dinámico
+    function actualizarDashboardCaja() {
+        const elCaja = document.getElementById('dash-caja-actual');
+        const elTransf = document.getElementById('dash-resumen-transf');
+        const elTarj = document.getElementById('dash-resumen-tarj');
+        if (!elCaja) return;
+        
+        fetch('/api/pos/caja-fuerte')
+            .then(res => res.json())
+            .then(data => {
+                const efectivo = data.efectivoEnCajon || 0;
+                const transf = data.totalTransferencia || 0;
+                const tarj = data.totalTarjeta || 0;
+                
+                elCaja.innerText = "$" + efectivo.toLocaleString('es-CL');
+                if(elTransf) elTransf.innerText = "$" + transf.toLocaleString('es-CL');
+                if(elTarj) elTarj.innerText = "$" + tarj.toLocaleString('es-CL');
+            })
+            .catch(err => {
+                elCaja.innerText = "Error";
+                console.error("Dashboard Caja Fuerte error:", err);
+            });
+    }
+
+    // Ejecutar al iniciar
+    document.addEventListener("DOMContentLoaded", () => {
+        actualizarDashboardCaja();
+    });
+
+    // ==============================================
+    // MOTOR DE AUDIO MANUAL
+    // ==============================================
+    let sintetizador = window.speechSynthesis;
+    let actualUtterance = null;
+
+    function reproducirVozInstruccion(texto) {
+        if (!('speechSynthesis' in window)) return alert("Tu navegador no soporta voz.");
+        if (sintetizador.speaking) sintetizador.cancel();
+        
+        actualUtterance = new SpeechSynthesisUtterance(texto);
+        actualUtterance.lang = 'es-ES';
+        actualUtterance.rate = 1.05;
+        actualUtterance.pitch = 1.1;
+        sintetizador.speak(actualUtterance);
+    }
 </script>
+
 </body>
 </html>

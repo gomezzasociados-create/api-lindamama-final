@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#1a0229">
+    <link rel="manifest" href="/manifest.json">
+    <script src="/pwa-init.js"></script>
+    <title>Portal de Socias | Linda Mamá Spa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --fucsia-neon: #ff00ff;
+            --cyan-neon: #00e5ff;
+            --violeta-profundo: #100118;
+            --violeta-tarjeta: #1c0229;
+            --blanco-puro: #ffffff;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #2a0342 0%, var(--violeta-profundo) 100%);
+            color: var(--blanco-puro);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Glow Behind Card */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: var(--fucsia-neon);
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.2;
+            z-index: 0;
+            animation: pulseGlow 5s infinite alternate;
+        }
+        @keyframes pulseGlow { 0% { transform: scale(0.8); opacity: 0.15; } 100% { transform: scale(1.2); opacity: 0.25; } }
+
+        .login-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .login-card {
+            background: rgba(28, 2, 41, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            animation: slideUpFade 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @media (min-width: 768px) {
+            .login-card { flex-direction: row; }
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* LEFT SIDE - INFO SECTION */
+        .info-section {
+            padding: 40px;
+            flex: 1;
+            background: linear-gradient(145deg, rgba(255, 0, 255, 0.1), transparent);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .info-section h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            font-size: 2.5rem;
+            color: var(--cyan-neon);
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+
+        .badge-socia {
+            display: inline-block;
+            background: rgba(255, 0, 255, 0.15);
+            border: 1px solid var(--fucsia-neon);
+            color: var(--fucsia-neon);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);
+            animation: latido 2s infinite;
+        }
+
+        @keyframes latido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        .feature-list { list-style: none; padding: 0; margin-top: 20px; }
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            transition: 0.3s;
+        }
+        .feature-list li:hover { opacity: 1; transform: translateX(5px); }
+        .feature-list i { color: var(--cyan-neon); font-size: 1.2rem; margin-right: 12px; margin-top: 2px; }
+
+        /* RIGHT SIDE - FORM SECTION */
+        .form-section {
+            padding: 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 229, 255, 0.1);
+            border: 2px solid var(--cyan-neon);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--cyan-neon);
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+        }
+
+        .form-control {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .form-control::placeholder { color: rgba(255, 255, 255, 0.4); }
+        .form-control:focus {
+            background: rgba(0, 0, 0, 0.5);
+            border-color: var(--fucsia-neon);
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Cool Floating Label Input Group */
+        .input-group-cyber {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 1.2rem;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+        .form-control:focus + .input-icon { color: var(--fucsia-neon); }
+
+        .btn-login {
+            background: linear-gradient(90deg, var(--fucsia-neon), #9000ff);
+            border: none;
+            border-radius: 15px;
+            padding: 15px;
+            font-weight: 800;
+            color: white;
+            width: 100%;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.3);
+            margin-top: 10px;
+        }
+        .btn-login:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(255, 0, 255, 0.6); }
+        .btn-login:active { transform: translateY(0); }
+
+        .error-msg { 
+            background: rgba(255, 0, 0, 0.1); 
+            border: 1px solid red; 
+            color: #ff4d4d; 
+            padding: 10px; 
+            border-radius: 10px; 
+            font-size: 0.9rem; 
+            margin-bottom: 20px; 
+            width: 100%;
+            animation: shake 0.4s ease-in-out; 
+        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } }
+
+        .form-footerText {
+            margin-top: 25px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+    </style>
+</head>
+<body>
+
+    <!-- Audio FX -->
+    <audio id="sfx-hover" preload="auto" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3?filename=bubble-sound-43207.mp3"></audio>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            
+            <!-- SECCIÓN IZQUIERDA: INFORMACIÓN Y BIENVENIDA -->
+            <div class="info-section">
+                <span class="badge-socia"><i class="bi bi-star-fill me-1"></i> SOCIA INDEPENDIENTE</span>
+                <h1>Linda Mamá Spa</h1>
+                <p class="mb-4 text-white-50">Ingresa a tu entorno privado. Aquí, tú tienes el control de tu crecimiento y el de tus pacientes.</p>
+                
+                <ul class="feature-list">
+                    <li>
+                        <i class="bi bi-calendar2-check-fill"></i>
+                        <div>
+                            <strong>Tu Agenda Personal</strong><br>
+                            Gestiona y revisa todas tus citas programadas en tiempo real.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="bi bi-wallet2"></i>
+                        <div>
+                            <strong>Cortes y Comisiones</strong><br>
+                            Visualiza tus reportes financieros y cierres de turno exactos.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="bi bi-heart-pulse-fill"></i>
+                        <div>
+                            <strong>Kardex de Pacientes</strong><br>
+                            Acceso directo a las fichas médicas y evolución de quienes atiendes.
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- SECCIÓN DERECHA: FORMULARIO -->
+            <div class="form-section">
+                <div class="user-avatar">
+                    <i class="bi bi-person-bounding-box"></i>
+                </div>
+                <h4 class="fw-bold mb-1">Bienvenida de Nuevo</h4>
+                <p class="small text-white-50 mb-4">Ingresa tus credenciales personales para acceder.</p>
+
+                <div th:if="${error}" class="error-msg" th:text="${error}"></div>
+
+                <form th:action="@{/socia/login}" method="post" style="width: 100%;">
+                    
+                    <div class="input-group-cyber" onmouseover="document.getElementById('sfx-hover').play().catch(()=>{})">
+                        <input type="text" name="usuario" class="form-control" placeholder="Escribe tu usuario" required autocomplete="username">
+                        <i class="bi bi-person-fill input-icon"></i>
+                    </div>
+
+                    <div class="input-group-cyber" onmouseover="document.getElementById('sfx-hover').play().catch(()=>{})">
+                        <input type="password" name="password" class="form-control" placeholder="Tú contraseña secreta" required autocomplete="current-password">
+                        <i class="bi bi-shield-lock-fill input-icon"></i>
+                    </div>
+
+                    <button type="submit" class="btn-login" onclick="this.innerHTML='<span class=\'spinner-border spinner-border-sm me-2\'></span> Autenticando...'">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión
+                    </button>
+                </form>
+
+                <p class="form-footerText">
+                    <i class="bi bi-info-circle me-1"></i> Toda tu actividad dentro del panel se encuentra cifrada y es estrictamente confidencial.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

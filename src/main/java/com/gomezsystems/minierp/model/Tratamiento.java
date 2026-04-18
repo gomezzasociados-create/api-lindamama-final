@@ -12,14 +12,20 @@ public class Tratamiento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "TEXT")
     private String nombre;
 
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
+    @Column(columnDefinition = "TEXT")
     private String imagen;
     private Integer precio;
+    
+    @Column(columnDefinition = "TEXT")
     private String cantidad;
+    
+    private Integer duracionMinutos; // Añadido para la agenda
 
     // 🔥 PROMOCIONES Y FECHAS DE CADUCIDAD 🔥
     private boolean enPromocion;
@@ -63,6 +69,9 @@ public class Tratamiento {
     public void setPrecio(Integer precio) { this.precio = precio; }
     public String getCantidad() { return cantidad; }
     public void setCantidad(String cantidad) { this.cantidad = cantidad; }
+
+    public Integer getDuracionMinutos() { return duracionMinutos; }
+    public void setDuracionMinutos(Integer duracionMinutos) { this.duracionMinutos = duracionMinutos; }
 
     public boolean isEnPromocion() { return enPromocion; }
     public void setEnPromocion(boolean enPromocion) { this.enPromocion = enPromocion; }

@@ -2,7 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#d63384">
+    <link rel="manifest" href="/manifest.json">
+    <script src="/pwa-init.js"></script>
     <title>Linda Mamá Spa - POS Neón</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -44,17 +47,37 @@
         /* Tarjetas de Tratamiento con Oferta */
         .card-servicio {
             background: linear-gradient(145deg, var(--violeta-tarjeta), #2a0342); border: 1px solid rgba(0, 229, 255, 0.2);
-            border-radius: 15px; cursor: pointer; transition: all 0.3s ease-in-out; height: 150px; display: flex;
-            flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); position: relative; overflow: hidden;
+            border-radius: 15px; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            height: 200px !important; display: flex; flex-direction: column; justify-content: center; 
+            align-items: center; text-align: center; padding: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.6); 
+            position: relative; overflow: hidden;
         }
-        .card-servicio:hover, .card-servicio:active { border-color: var(--cyan-neon); transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0, 229, 255, 0.4); background: #2a0342; }
-        .card-servicio h5 { font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; color: var(--blanco-puro); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; z-index: 2;}
-        .card-servicio .precio { color: var(--cyan-neon); font-weight: 800; font-size: 1.2rem; text-shadow: 0 0 10px rgba(0,229,255,0.3); z-index: 2;}
+        .card-servicio:hover, .card-servicio:active { border-color: var(--cyan-neon); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 229, 255, 0.4); background: #2a0342; }
+        .card-servicio img { width: 100%; height: 130px; object-fit: cover; opacity: 1; transition: 0.5s; position: absolute; top: 0; left: 0; z-index: 1;}
+        .card-servicio:hover img { transform: scale(1.08); }
+        .card-servicio h5 { font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; color: var(--blanco-puro); text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index: 2;}
+        .card-servicio .precio { color: var(--cyan-neon); font-weight: 800; font-size: 1.2rem; text-shadow: 0 0 10px #000; z-index: 3;}
+        .card-servicio .info-overlay { 
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; padding: 10px; 
+            background: linear-gradient(to top, var(--violeta-tarjeta) 50%, transparent); 
+            z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+        }
 
-        .etiqueta-promo { position: absolute; top: 10px; right: -30px; background: var(--fucsia-neon); color: white; font-weight: 900; font-size: 0.7rem; padding: 3px 30px; transform: rotate(45deg); box-shadow: 0 0 10px var(--fucsia-neon); letter-spacing: 1px; z-index: 1;}
+        .etiqueta-promo { position: absolute; top: 10px; right: -30px; background: var(--fucsia-neon); color: white; font-weight: 900; font-size: 0.7rem; padding: 3px 30px; transform: rotate(45deg); box-shadow: 0 0 10px var(--fucsia-neon); letter-spacing: 1px; z-index: 3;}
         .precio-viejo { font-size: 0.8rem; color: #888; text-decoration: line-through; display: block; margin-bottom: -5px;}
         .precio-oferta { color: var(--fucsia-neon) !important; font-size: 1.4rem !important; text-shadow: 0 0 15px var(--fucsia-neon) !important; }
+
+        /* Botones de Método de Pago Neón */
+        .pay-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .pay-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 10px; cursor: pointer; text-align: center; transition: 0.3s; font-size: 0.85rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+        .pay-btn i { font-size: 1.5rem; margin-bottom: 5px; }
+        .pay-btn input { display: none; }
+        .pay-btn:has(input:checked) { transform: translateY(-3px); }
+
+        .pay-efectivo:has(input:checked) { border-color: var(--verde-neon); background: rgba(0, 255, 0, 0.1); color: var(--verde-neon); box-shadow: 0 0 15px rgba(0, 255, 0, 0.4); }
+        .pay-tarjeta:has(input:checked) { border-color: var(--cyan-neon); background: rgba(0, 229, 255, 0.1); color: var(--cyan-neon); box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
+        .pay-transfer:has(input:checked) { border-color: var(--fucsia-neon); background: rgba(255, 0, 255, 0.1); color: var(--fucsia-neon); box-shadow: 0 0 15px rgba(255, 0, 255, 0.4); }
+        .pay-mercadopago:has(input:checked) { border-color: var(--naranja-neon); background: rgba(255, 153, 0, 0.1); color: var(--naranja-neon); box-shadow: 0 0 15px rgba(255, 153, 0, 0.4); }
 
         /* Barra Lateral del Carrito */
         .carrito { background: rgba(28, 2, 41, 0.85); backdrop-filter: blur(15px); border-radius: 20px; padding: 25px; height: 85vh; border: 1px solid var(--fucsia-neon); box-shadow: 0 0 30px rgba(255, 0, 255, 0.15); position: sticky; top: 20px; display: flex; flex-direction: column; }
@@ -68,35 +91,53 @@
 
         .input-dark { background-color: #100118; border: 1px solid rgba(255,255,255,0.2); color: white; }
         .input-dark:focus { background-color: #100118; color: white; border-color: var(--fucsia-neon); box-shadow: 0 0 10px rgba(255,0,255,0.4); }
-        .input-dark:disabled { background-color: rgba(255,255,255,0.05); color: #888; border-color: transparent; }
 
-        /* Botones de Método de Pago Neón */
-        .pay-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .pay-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 10px; cursor: pointer; text-align: center; transition: 0.3s; font-size: 0.85rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center;}
-        .pay-btn i { font-size: 1.5rem; margin-bottom: 5px; }
+        /* MINI CARDS POS HEADER */
+        .mini-card {
+            background: rgba(28, 2, 41, 0.7); border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 10px; padding: 5px 15px; display: flex; flex-direction: column;
+            justify-content: center; min-width: 110px; transition: 0.3s;
+        }
+        .mini-card .label { font-size: 0.65rem; opacity: 0.6; text-transform: uppercase; font-weight: 700; }
+        .mini-card .value { font-size: 1rem; color: var(--cyan-neon); font-weight: 800; }
 
-        .pay-btn input { display: none; }
-        .pay-btn:has(input:checked) { transform: translateY(-3px); }
+        /* LEDGER NOTEBOOK STYLES */
+        .notebook-modal { background: #100118 !important; border: 2px solid var(--fucsia-neon) !important; }
+        .notebook-tab { background: rgba(28, 2, 41, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; height: 400px; overflow-y: auto; }
+        .notebook-entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); font-size: 0.85rem; }
+        .notebook-title { font-family: 'Playfair Display', serif; font-weight: 900; color: var(--fucsia-neon); border-bottom: 2px solid var(--fucsia-neon); display: inline-block; padding-bottom: 5px; margin-bottom: 15px; }
 
-        .pay-efectivo:has(input:checked) { border-color: var(--verde-neon); background: rgba(0, 255, 0, 0.1); color: var(--verde-neon); box-shadow: 0 0 15px rgba(0, 255, 0, 0.4); }
-        .pay-tarjeta:has(input:checked) { border-color: var(--cyan-neon); background: rgba(0, 229, 255, 0.1); color: var(--cyan-neon); box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
-        .pay-transfer:has(input:checked) { border-color: var(--fucsia-neon); background: rgba(255, 0, 255, 0.1); color: var(--fucsia-neon); box-shadow: 0 0 15px rgba(255, 0, 255, 0.4); }
-        .pay-mercadopago:has(input:checked) { border-color: var(--naranja-neon); background: rgba(255, 153, 0, 0.1); color: var(--naranja-neon); box-shadow: 0 0 15px rgba(255, 153, 0, 0.4); }
+        /* ESTILOS DEL TICKET IMPRIMIBLE */
+        .ticket-visual { 
+            background: white; color: black; font-family: 'Courier New', Courier, monospace; 
+            padding: 20px; width: 100%; max-width: 400px; margin: 0 auto; font-size: 14px;
+        }
+        .row-ticket { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .ticket-line { border-top: 1px dashed black; margin: 10px 0; }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--violeta-profundo); }
-        ::-webkit-scrollbar-thumb { background: var(--cyan-neon); border-radius: 10px; }
+        @media print {
+            body * { visibility: hidden; }
+            #modalTicket, #modalTicket * { visibility: visible; }
+            #modalTicket { position: absolute; left: 0; top: 0; width: 100%; }
+            .btn-print-ticket { display: none !important; }
+            .modal-header, .modal-footer { display: none !important; }
+        }
 
+        /* 📱 RESPONSIVE MOBILE FIXES 📱 */
         @media (max-width: 768px) {
-            body { padding-bottom: 20px; }
-            .pos-container { height: auto; padding: 10px; }
-            .contenedor-servicios { max-height: 40vh; border-bottom: 1px solid var(--fucsia-neon); padding-bottom: 15px; }
-            .card-servicio { height: auto; min-height: 120px; padding: 8px; }
-            .card-servicio h5 { font-size: 0.85rem; }
+            .pos-container { height: auto; overflow: visible; padding-bottom: 80px; }
+            .contenedor-servicios { max-height: none; overflow: visible; padding-right: 0; }
+            .carrito { position: relative; top: 0; height: auto; margin-top: 20px; margin-bottom: 60px; box-shadow: 0 -10px 30px rgba(0,0,0,0.5); }
+            .navbar-cyber .navbar-brand { font-size: 1.2rem; }
+            .card-servicio { height: 160px !important; }
+            .card-servicio img { height: 100px; }
+            .card-servicio h5 { font-size: 0.8rem; }
             .card-servicio .precio { font-size: 1rem; }
-            .carrito { height: auto; position: relative; top: 0; margin-top: 20px; padding: 15px; }
-            #items-pos { max-height: 200px; }
-            .welcome-text { font-size: 2.2rem; }
+            #btn-mobile-cart { display: flex !important; align-items: center; justify-content: center; }
+            
+            /* Ajustes Libro de Turno móvil */
+            .notebook-tab { height: auto !important; max-height: 250px; overflow-y: auto; margin-bottom: 15px; }
+            .notebook-modal .modal-body { padding: 15px !important; }
         }
     </style>
 </head>
@@ -113,7 +154,7 @@
         <h2 class="fw-bold mb-1" style="color: var(--cyan-neon); font-family: 'Playfair Display';"><i class="bi bi-cart-check-fill"></i> Caja POS</h2>
         <p class="text-white mb-4 opacity-75">Control de Venta Directa</p>
         <input type="password" id="input-pin" class="pin-input" maxlength="4" placeholder="••••" onkeypress="if(event.key === 'Enter') validarAcceso(event)">
-        <button class="btn btn-fucsia w-100 py-3 fs-5 mt-2" onclick="validarAcceso(event)">ABRIR TURNO</button>
+        <button type="button" class="btn btn-fucsia w-100 py-3 fs-5 mt-2" onclick="validarAcceso(event)">ABRIR TURNO</button>
     </div>
 </div>
 
@@ -125,21 +166,40 @@
 
 <div id="app-pos">
     <nav class="navbar navbar-expand navbar-cyber">
-        <div class="container-fluid px-3 px-md-4">
-            <a class="navbar-brand m-0" href="/admin"><i class="bi bi-stars me-1"></i>Linda Mamá <span class="text-white fw-light fs-6 ms-2 d-none d-md-inline">| Punto de Venta</span></a>
+        <div class="container-fluid px-2 px-md-4">
+            <a class="navbar-brand m-0" href="/admin"><i class="bi bi-stars me-1"></i>Linda Mamá</a>
+            
+            <div class="d-none d-lg-flex gap-3 mx-auto">
+                <div class="mini-card">
+                    <span class="label">💵 Efectivo</span>
+                    <span class="value" id="mini-efectivo">$0</span>
+                </div>
+                <div class="mini-card">
+                    <span class="label">🏦 Transf.</span>
+                    <span class="value" id="mini-transf">$0</span>
+                </div>
+                <div class="mini-card">
+                    <span class="label">💳 Tarj/MP</span>
+                    <span class="value" id="mini-tarj">$0</span>
+                </div>
+            </div>
+
             <div class="d-flex align-items-center">
-                <span class="badge border border-info text-info p-2 fs-6" id="badge-vendedor" style="background: rgba(0,229,255,0.1);"><i class="bi bi-person-circle"></i> Cargando...</span>
-                <a href="/admin" class="btn btn-sm btn-outline-light ms-3"><i class="bi bi-arrow-left-circle"></i> Volver</a>
+                <button class="btn btn-sm ms-2 ms-md-3 fw-bold" style="background: var(--naranja-neon); color: black;" onclick="abrirLibroMovimientos()" data-bs-toggle="modal" data-bs-target="#modalCajaFuerte">
+                    <i class="bi bi-book-half"></i> LIBRO DE TURNO
+                </button>
             </div>
         </div>
     </nav>
 
     <div class="container-fluid pos-container">
         <div class="row">
-            <div class="col-md-7 col-lg-8 px-2 px-md-4 position-relative">
-
+            <div class="col-md-7 col-lg-8 px-2 px-md-4">
                 <div class="position-relative mb-4">
-                    <label class="form-label text-info small fw-bold"><i class="bi bi-search"></i> BUSCAR SERVICIO O CLIENTA</label>
+                    <label class="form-label text-info small fw-bold">
+                        <i class="bi bi-search"></i> BUSCAR SERVICIO O CLIENTA
+                        <i class="bi bi-volume-up-fill ms-2 cursor-pointer text-warning" style="cursor: pointer; font-size: 1.2rem;" onclick="reproducirVozInstruccion('Aquí puedes escribir el nombre de un tratamiento o masaje para filtrarlo rápidamente. Si tocas el servicio que aparece, se enviará directo al carrito a la derecha.')"></i>
+                    </label>
                     <div class="input-group">
                         <span class="input-group-text border-info text-info" style="background: var(--violeta-tarjeta);"><i class="bi bi-search"></i></span>
                         <input type="text" id="input-buscador" class="form-control input-dark border-info" placeholder="Escribe el nombre de la clienta o servicio..." onkeyup="buscarMixto()">
@@ -149,241 +209,229 @@
 
                 <div class="row contenedor-servicios pe-2 mx-0" id="grid-servicios">
                     <div class="col-6 col-md-6 col-lg-4 mb-3 px-2 item-grid-servicio" th:each="s : ${servicios}" th:data-nombre-lower="${#strings.toLowerCase(s.nombre)}">
-
                         <div class="card card-servicio" th:classappend="${s.enPromocion} ? 'border-warning' : ''"
                              th:data-id="${s.id}" th:data-nombre="${s.nombre}"
                              th:data-precio="${s.enPromocion and s.precioPromo != null ? s.precioPromo : s.precio}"
                              onclick="capturarServicio(event, this)">
+                            
+                            <img th:if="${s.imagen != null and s.imagen != ''}" th:src="${s.imagen}" alt="Servicio">
+                            <img th:unless="${s.imagen != null and s.imagen != ''}" src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=300&auto=format&fit=crop" alt="Default">
 
-                            <th:block th:if="${s.enPromocion}">
-                                <div class="etiqueta-promo">OFERTA</div>
-                            </th:block>
-
-                            <h5 th:text="${s.nombre}">Tratamiento</h5>
-
-                            <div class="precio mt-auto" th:classappend="${s.enPromocion} ? 'precio-oferta' : ''">
-                                <span th:if="${s.enPromocion}" class="precio-viejo" th:text="'$' + ${s.precio != null ? #numbers.formatInteger(s.precio, 0, 'POINT') : '0'}"></span>
-                                $<span th:text="${s.enPromocion and s.precioPromo != null ? #numbers.formatInteger(s.precioPromo, 0, 'POINT') : (s.precio != null ? #numbers.formatInteger(s.precio, 0, 'POINT') : '0')}">$0</span>
+                            <div class="info-overlay">
+                                <div th:if="${s.enPromocion}" class="etiqueta-promo">OFERTA</div>
+                                <h5 th:text="${s.nombre}">Tratamiento</h5>
+                                <div class="precio mt-auto" th:classappend="${s.enPromocion} ? 'precio-oferta' : ''">
+                                    <span th:if="${s.enPromocion}" class="precio-viejo" th:text="'$' + ${#numbers.formatInteger(s.precio, 0, 'POINT')}"></span>
+                                    $<span th:text="${s.enPromocion and s.precioPromo != null ? #numbers.formatInteger(s.precioPromo, 0, 'POINT') : #numbers.formatInteger(s.precio, 0, 'POINT')}">0</span>
+                                </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
 
             <div class="col-md-5 col-lg-4 mt-3 mt-md-0">
                 <div class="carrito">
-
-                    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-secondary pb-2">
-                        <h5 class="mb-0 fw-bold" style="color: var(--fucsia-neon);"><i class="bi bi-cart-check-fill"></i> Resumen de Venta</h5>
-                        <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="limpiarCliente()" id="btn-limpiar" style="display:none; font-size: 0.75rem;"><i class="bi bi-x-circle"></i> Soltar Clienta</button>
-                    </div>
-
+                    <h5 class="mb-3 fw-bold" style="color: var(--fucsia-neon); border-bottom: 2px solid var(--fucsia-neon); padding-bottom: 10px;">
+                        Resumen de Venta
+                        <i class="bi bi-volume-up-fill float-end cursor-pointer text-warning" style="cursor: pointer; font-size: 1.3rem;" onclick="reproducirVozInstruccion('Este es el carrito. Es obligatorio poner el nombre de la clienta. Revisa el total, selecciona el método de pago con el que la clienta te entrega el dinero, y oprime Cobrar Ahora para guardar la venta en tu caja.')"></i>
+                    </h5>
+                    
                     <div class="p-3 mb-3 border border-secondary rounded" style="background: rgba(255,255,255,0.02);">
-                        <div class="mb-2 position-relative">
-                            <label class="form-label small fw-bold mb-1" style="color: var(--cyan-neon);">NOMBRE DE CLIENTA <span class="text-danger">*</span></label>
-                            <input type="text" id="cliente-nombre" class="form-control form-control-sm input-dark" placeholder="Ej: María Gómez">
-                        </div>
+                        <input type="text" id="cliente-nombre" class="form-control form-control-sm input-dark mb-2" placeholder="Nombre Clienta">
                         <div class="row g-2">
-                            <div class="col-6">
-                                <label class="form-label small fw-bold mb-1" style="color: var(--cyan-neon);">WHATSAPP</label>
-                                <input type="text" id="cliente-telefono" class="form-control form-control-sm input-dark" placeholder="+569...">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small fw-bold mb-1" style="color: var(--cyan-neon);">CORREO</label>
-                                <input type="email" id="cliente-correo" class="form-control form-control-sm input-dark" placeholder="@">
-                            </div>
+                            <div class="col-6"><input type="text" id="cliente-telefono" class="form-control form-control-sm input-dark" placeholder="WhatsApp"></div>
+                            <div class="col-6"><input type="email" id="cliente-correo" class="form-control form-control-sm input-dark" placeholder="Correo"></div>
                         </div>
                         <input type="hidden" id="cliente-id" value="">
                     </div>
 
-                    <div class="mb-2">
-                        <label class="form-label small fw-bold mb-1" style="color: var(--cyan-neon);">FECHA DE CITA (MANUAL)</label>
-                        <input type="datetime-local" id="fecha-servicio" class="form-control form-control-sm input-dark text-info">
-                    </div>
-
-                    <div id="items-pos" class="mt-2 mb-2" style="flex-grow: 1; overflow-y: auto;">
-                        <div class="text-center text-muted small mt-4 opacity-50">
-                            <i class="bi bi-hand-index-thumb fs-1 d-block mb-2"></i>
-                            Toca los servicios a la izquierda<br>para agregarlos al carrito
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <input type="datetime-local" id="fecha-servicio" class="form-control form-control-sm input-dark">
+                        </div>
+                        <div class="col-6">
+                            <select id="socia-select" class="form-select form-select-sm input-dark"><option value="">Masajista</option></select>
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top border-secondary mb-3">
-                        <span class="h6 mb-0 fw-bold text-white">TOTAL A COBRAR</span>
-                        <span id="total-final" class="h2 mb-0" style="color: var(--cyan-neon); font-weight: 900; text-shadow: 0 0 15px rgba(0,229,255,0.4);">$0</span>
+                    <div id="items-pos" style="flex-grow: 1; overflow-y: auto;"></div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary mb-3">
+                        <span class="fw-bold">TOTAL</span>
+                        <span id="total-final" class="h2 mb-0" style="color: var(--cyan-neon); font-weight: 900;">$0</span>
                     </div>
 
                     <div class="pay-btn-group">
                         <label class="pay-btn pay-efectivo">
                             <input type="radio" name="metodoPago" value="EFECTIVO" checked>
-                            <i class="bi bi-cash-stack"></i> Caja Efectivo
+                            <i class="bi bi-cash-stack"></i> Efectivo
                         </label>
                         <label class="pay-btn pay-tarjeta">
                             <input type="radio" name="metodoPago" value="TARJETA">
-                            <i class="bi bi-credit-card-2-front"></i> Datafono / POS
+                            <i class="bi bi-credit-card-2-front"></i> POS/Datafono
                         </label>
                         <label class="pay-btn pay-transfer">
                             <input type="radio" name="metodoPago" value="TRANSFERENCIA">
-                            <i class="bi bi-bank"></i> Transferencia
+                            <i class="bi bi-bank"></i> Transf.
                         </label>
                         <label class="pay-btn pay-mercadopago">
                             <input type="radio" name="metodoPago" value="MERCADO_PAGO">
-                            <i class="bi bi-link-45deg"></i> Link MP
+                            <i class="bi bi-qr-code-scan"></i> Link MP
                         </label>
                     </div>
 
-                    <button class="btn btn-fucsia w-100 py-3 rounded text-uppercase fs-5" id="btn-procesar" onclick="confirmarVenta(event)">
-                        <i class="bi bi-check2-circle me-1"></i> Procesar Venta
-                    </button>
+                    <button class="btn btn-fucsia w-100 py-3 fs-5" id="btn-procesar" onclick="confirmarVenta(event)">COBRAR AHORA</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<div class="modal fade" id="modalCajaFuerte" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content notebook-modal">
+            <div class="modal-header border-0 pb-0">
+                <h3 class="notebook-title m-0">
+                    <i class="bi bi-book-half me-2"></i>Libro de Movimientos
+                    <i class="bi bi-volume-up-fill ms-2 cursor-pointer text-warning fs-4" style="cursor: pointer;" onclick="reproducirVozInstruccion('Este es el libro de turno. Registra de forma automática todo lo que has cobrado en la sección Ingresos. Si ocupas dinero de la caja para gastos del local o compras rápidas, regístralo manualmente en Egresos a la derecha. Al final del día, esto te dirá cuánto debes entregar con el cierre Z.')"></i>
+                </h3>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 pt-3">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="notebook-tab">
+                            <h6 class="fw-bold text-info mb-3"><i class="bi bi-arrow-up-right-circle me-1"></i>INGRESOS (VENTAS)</h6>
+                            <div id="notebook-ingresos"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-5 mt-3 mt-md-0">
+                        <div class="notebook-tab">
+                            <h6 class="fw-bold text-danger mb-3"><i class="bi bi-arrow-down-left-circle me-1"></i>EGRESOS (GASTOS)</h6>
+                            <div id="notebook-egresos" class="mb-4"></div>
+                            
+                            <div class="p-3 rounded border border-secondary" style="background: rgba(255,255,255,0.03);">
+                                <h6 class="small fw-bold text-white-50 mb-2">Registrar Gasto Rápido:</h6>
+                                <input type="text" id="egreso-descripcion" class="form-control form-control-sm input-dark mb-2" placeholder="Motivo">
+                                <div class="input-group input-group-sm mb-2">
+                                    <span class="input-group-text bg-dark border-secondary text-white">$</span>
+                                    <input type="number" id="egreso-monto" class="form-control input-dark" placeholder="Monto">
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger w-100" onclick="guardarEgreso()">GUARDAR GASTO</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-4 rounded-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 text-center text-md-start" style="background: linear-gradient(90deg, #1c0229 0%, #2a0342 100%); border: 1px solid var(--cyan-neon);">
+                    <div>
+                        <span class="d-block small text-white-50 fw-bold">BALANCE CONTABLE TURNO</span>
+                        <h5 class="mb-0 text-white" id="notebook-resumen-texto">Resumen de caja</h5>
+                    </div>
+                    
+                    <div class="d-flex gx-4 text-center text-md-end mb-2 mb-md-0">
+                        <div class="px-3 border-md-start border-secondary" style="border-left: 1px solid rgba(255,255,255,0.2);">
+                            <span class="d-block small text-white-50">Efectivo Líquido</span>
+                            <h2 id="notebook-total-efectivo" class="mb-0 fw-bold text-success">$0</h2>
+                        </div>
+                    </div>
+
+                    <div class="ms-0 ms-md-3 w-100" style="max-width: 200px;">
+                        <button class="btn btn-danger btn-lg w-100 fw-bold" onclick="ejecutarCorteZ()">
+                            <i class="bi bi-lock-fill me-1"></i> CIERRE Z
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalTicket" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-dark">
+            <div class="modal-body">
+                <div class="ticket-visual" id="ticket-imprimible">
+                    <h4 class="text-center">Linda Mamá Spa</h4>
+                    <div class="ticket-line"></div>
+                    <div id="t-items"></div>
+                    <div class="ticket-line"></div>
+                    <div class="row-ticket"><strong>TOTAL</strong> <strong id="t-total">$0</strong></div>
+                    <div class="ticket-line"></div>
+                    <p class="text-center small">¡Gracias por su visita!</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="window.print()">Imprimir</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+<!-- BOTÓN MÓVIL FLOTANTE DE CARRITO -->
+<button id="btn-mobile-cart" class="btn btn-fucsia w-100 position-fixed bottom-0 start-0 fw-bold d-none" style="z-index: 9999; border-radius: 0; padding: 15px; font-size: 1.2rem; box-shadow: 0 -5px 20px rgba(255,0,255,0.4);" onclick="setTimeout(()=>window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}), 100)">
+    <i class="bi bi-cart3 me-2"></i> VER CARRITO <span class="ms-2 badge bg-dark text-cyan-neon" id="btn-cart-total">$0</span>
+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // --- EFECTOS DE SONIDO GLOBALES ---
     const sfxOk = document.getElementById('sfx-login-ok');
     const sfxFail = document.getElementById('sfx-login-fail');
     const sfxWaooo = document.getElementById('sfx-waooo');
     const sfxClick = document.getElementById('sfx-click');
     const sfxDelete = document.getElementById('sfx-delete');
 
-    function activarEfectoWaooo(elementoTarget) {
-        if(elementoTarget) {
-            elementoTarget.classList.add('efecto-waooo');
-            setTimeout(() => elementoTarget.classList.remove('efecto-waooo'), 600);
-        }
-        sfxWaooo.currentTime = 0; sfxWaooo.play().catch(()=>{});
-    }
-
-    // --- LÓGICA DE CAJERO Y SEGURIDAD ---
     let vendedorActual = 'Caja General';
+    let carrito = [];
 
-    function validarAcceso(event) {
-        const pin = document.getElementById('input-pin').value.trim();
-
-        if (pin === '7777') { vendedorActual = "Crisley Paredes"; }
-        else if (pin === '1010') { vendedorActual = "Janneth"; }
-        else if (pin === '2020') { vendedorActual = "Daniela Camacho"; }
-        else if (pin === '3030') { vendedorActual = "Daniela Montaño"; }
-        else {
-            sfxFail.currentTime = 0; sfxFail.play().catch(()=>{});
+    function validarAcceso() {
+        const pin = document.getElementById('input-pin').value;
+        const pins = {'7777': 'Crisley Paredes', '1010': 'Janneth', '2020': 'Daniela Camacho', '3030': 'Daniela Montaño'};
+        
+        if (pins[pin]) {
+            vendedorActual = pins[pin];
+            sfxOk.play().catch(()=>{});
+            localStorage.setItem('spa_usuario', vendedorActual);
+            
+            document.getElementById('login-screen').style.display = 'none';
+            const welcomeScreen = document.getElementById('welcome-screen');
+            welcomeScreen.style.display = 'flex';
+            
+            const primerNombre = vendedorActual.split(' ')[0];
+            document.getElementById('welcome-message').innerText = "¡Bienvenida " + primerNombre + "!";
+            
+            if ('speechSynthesis' in window) {
+                const mensajeVoz = new SpeechSynthesisUtterance("Bienvenida " + primerNombre + ". Iniciando sistema de caja.");
+                mensajeVoz.lang = 'es-ES';
+                mensajeVoz.rate = 1.0;
+                window.speechSynthesis.speak(mensajeVoz);
+            }
+            
+            setTimeout(() => {
+                sfxWaooo.play().catch(()=>{});
+                welcomeScreen.style.display = 'none';
+                document.getElementById('app-pos').style.display = 'block';
+                const ahora = new Date();
+                ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
+                document.getElementById('fecha-servicio').value = ahora.toISOString().slice(0,16);
+            }, 2000);
+        } else {
+            sfxFail.play().catch(()=>{});
             const loginBox = document.getElementById('login-box');
             loginBox.classList.add('shake-error');
             setTimeout(() => loginBox.classList.remove('shake-error'), 400);
-            return;
         }
-
-        sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
-        localStorage.setItem('spa_usuario', vendedorActual);
-
-        document.getElementById('login-screen').style.display = 'none';
-        const welcomeScreen = document.getElementById('welcome-screen');
-        welcomeScreen.style.display = 'flex';
-
-        const primerNombre = vendedorActual.split(' ')[0];
-        document.getElementById('welcome-message').innerText = "¡Bienvenida " + primerNombre + "!";
-
-        if ('speechSynthesis' in window) {
-            const mensajeVoz = new SpeechSynthesisUtterance("Bienvenida " + primerNombre + ". Iniciando sistema de caja.");
-            mensajeVoz.lang = 'es-ES';
-            mensajeVoz.rate = 1.0;
-            window.speechSynthesis.speak(mensajeVoz);
-        }
-
-        setTimeout(() => {
-            sfxWaooo.currentTime = 0; sfxWaooo.play().catch(()=>{});
-            welcomeScreen.style.display = 'none';
-            document.getElementById('app-pos').style.display = 'block';
-            document.getElementById('badge-vendedor').innerHTML = `<i class="bi bi-person-badge"></i> Atiende: ${vendedorActual}`;
-
-            const ahora = new Date();
-            ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
-            document.getElementById('fecha-servicio').value = ahora.toISOString().slice(0,16);
-        }, 2500);
     }
-
-    // --- LÓGICA DEL CARRITO Y CLIENTES ---
-    let carrito = [];
 
     function buscarMixto() {
-        const query = document.getElementById('input-buscador').value.toLowerCase();
-
-        const itemsGrid = document.querySelectorAll('.item-grid-servicio');
-        itemsGrid.forEach(item => {
-            const nombreServicio = item.getAttribute('data-nombre-lower');
-            if(query === '' || nombreServicio.includes(query)) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
+        const q = document.getElementById('input-buscador').value.toLowerCase();
+        document.querySelectorAll('.item-grid-servicio').forEach(el => {
+            el.style.display = el.getAttribute('data-nombre-lower').includes(q) ? 'block' : 'none';
         });
-
-        if (query.length < 3) { document.getElementById('lista-busqueda').innerHTML = ''; return; }
-
-        fetch(`/api/pos/buscar-cliente?query=${query}`)
-            .then(res => res.json())
-            .then(data => {
-                let html = '';
-                data.forEach(c => {
-                    html += `<div class="cliente-opcion" onclick="seleccionarCliente(${c.id}, '${c.nombre}', '${c.telefono || ''}', '${c.correo || ''}')">
-                                <i class="bi bi-person-check text-info me-2"></i><strong>${c.nombre}</strong> <br>
-                                <small class="text-muted ms-4">${c.telefono || 'Sin teléfono'}</small>
-                             </div>`;
-                });
-                document.getElementById('lista-busqueda').innerHTML = html;
-            })
-            .catch(e => console.error("Error buscando:", e));
     }
 
-    function seleccionarCliente(id, nombre, telefono, correo) {
-        sfxClick.currentTime = 0; sfxClick.play().catch(()=>{});
-        document.getElementById('cliente-id').value = id;
-        document.getElementById('cliente-nombre').value = nombre;
-        document.getElementById('cliente-telefono').value = telefono;
-        document.getElementById('cliente-correo').value = correo;
-
-        document.getElementById('cliente-nombre').disabled = true;
-        document.getElementById('cliente-telefono').disabled = true;
-        document.getElementById('cliente-correo').disabled = true;
-
-        document.getElementById('lista-busqueda').innerHTML = '';
-        document.getElementById('input-buscador').value = '';
-
-        document.querySelectorAll('.item-grid-servicio').forEach(i => i.style.display = 'block');
-        document.getElementById('btn-limpiar').style.display = 'block';
-    }
-
-    function limpiarCliente() {
-        sfxDelete.currentTime = 0; sfxDelete.play().catch(()=>{});
-        document.getElementById('cliente-id').value = "";
-        document.getElementById('cliente-nombre').value = "";
-        document.getElementById('cliente-telefono').value = "";
-        document.getElementById('cliente-correo').value = "";
-
-        document.getElementById('cliente-nombre').disabled = false;
-        document.getElementById('cliente-telefono').disabled = false;
-        document.getElementById('cliente-correo').disabled = false;
-
-        document.getElementById('btn-limpiar').style.display = 'none';
-    }
-
-    function capturarServicio(event, elemento) {
-        sfxClick.currentTime = 0; sfxClick.play().catch(()=>{});
-
-        elemento.classList.add('efecto-waooo');
-        setTimeout(() => elemento.classList.remove('efecto-waooo'), 300);
-
-        const id = elemento.getAttribute('data-id');
-        const nombre = elemento.getAttribute('data-nombre');
-        const precio = parseInt(elemento.getAttribute('data-precio'));
-        carrito.push({ id, nombre, precio });
-
-        document.getElementById('input-buscador').value = '';
-        document.querySelectorAll('.item-grid-servicio').forEach(i => i.style.display = 'block');
-
+    function capturarServicio(e, el) {
+        sfxClick.play();
+        carrito.push({id: el.dataset.id, nombre: el.dataset.nombre, precio: parseInt(el.dataset.precio)});
         renderizarCarrito();
     }
 
@@ -397,89 +445,179 @@
 
         div.innerHTML = '';
         let total = 0;
-        carrito.forEach((item, index) => {
-            total += item.precio;
+        carrito.forEach((it, idx) => {
+            total += it.precio;
             div.innerHTML += `
                 <div class="item-carrito align-items-center">
-                    <span style="flex:1; color: var(--blanco-puro); font-weight:600;"><i class="bi bi-check2 text-info me-1"></i>${item.nombre}</span>
-                    <span class="fw-bold mx-2" style="color: var(--fucsia-neon);">$${item.precio.toLocaleString('es-CL')}</span>
-                    <button class="btn btn-sm btn-outline-danger border-0 p-1 lh-1" onclick="quitar(${index})" title="Quitar"><i class="bi bi-trash-fill"></i></button>
+                    <span style="flex:1; color: var(--blanco-puro); font-weight:600;"><i class="bi bi-check2 text-info me-1"></i>${it.nombre}</span>
+                    <span class="fw-bold mx-2" style="color: var(--fucsia-neon);">$${it.precio.toLocaleString('es-CL')}</span>
+                    <button class="btn btn-sm btn-outline-danger border-0 p-1 lh-1" onclick="quitar(${idx})" title="Quitar"><i class="bi bi-trash-fill"></i></button>
                 </div>`;
         });
-        document.getElementById('total-final').innerText = "$" + total.toLocaleString('es-CL');
+        document.getElementById('total-final').innerText = '$' + total.toLocaleString('es-CL');
+        const flotante = document.getElementById('btn-cart-total');
+        if(flotante) flotante.innerText = '$' + total.toLocaleString('es-CL');
     }
 
-    function quitar(index) {
+    function quitar(idx) {
         sfxDelete.currentTime = 0; sfxDelete.play().catch(()=>{});
-        carrito.splice(index, 1);
+        carrito.splice(idx, 1);
         renderizarCarrito();
     }
 
     function confirmarVenta(event) {
-        if (carrito.length === 0) {
-            sfxFail.currentTime = 0; sfxFail.play().catch(()=>{});
-            return alert("⚠️ Agregue al menos un servicio al carrito.");
+        if (!carrito.length) {
+            sfxFail.play().catch(()=>{});
+            return alert("⚠️ Agregue servicios al carrito.");
         }
-
+        
         const nombreCliente = document.getElementById('cliente-nombre').value.trim();
         if (!nombreCliente) {
-            sfxFail.currentTime = 0; sfxFail.play().catch(()=>{});
-            return alert("⚠️ Debe ingresar el nombre de la clienta.");
+            sfxFail.play().catch(()=>{});
+            return alert("⚠️ Ingrese el nombre de la clienta.");
         }
-
-        const fecha = document.getElementById('fecha-servicio').value;
-        if (!fecha) {
-            sfxFail.currentTime = 0; sfxFail.play().catch(()=>{});
-            return alert("⚠️ Seleccione una fecha para la cita.");
-        }
-
-        activarEfectoWaooo(event.currentTarget);
-
-        const serviciosAgrupados = carrito.map(i => i.nombre).join(" + ");
-        const nombreConFirma = `${serviciosAgrupados} [Cobró: ${vendedorActual}]`;
-        const metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
-
-        const venta = {
-            clienteId: document.getElementById('cliente-id').value || null,
-            nuevoClienteNombre: nombreCliente,
-            nuevoClienteTelefono: document.getElementById('cliente-telefono').value.trim(),
-            nuevoClienteCorreo: document.getElementById('cliente-correo').value.trim(),
-            nombreTratamiento: nombreConFirma,
-            totalPagado: carrito.reduce((sum, i) => sum + i.precio, 0),
-            metodoPago: metodoPago,
-            fechaHora: fecha,
-            estado: metodoPago === 'MERCADO_PAGO' ? 'RESERVADO' : 'CONFIRMADO'
-        };
 
         const btn = document.getElementById('btn-procesar');
         btn.disabled = true;
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Autorizando...`;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Procesando...`;
 
-        setTimeout(() => {
-            fetch('/api/pos/venta-directa', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(venta)
-            })
-            .then(res => res.text())
-            .then(data => {
-                if (data.startsWith('http')) {
-                    window.location.href = data;
-                } else {
-                    alert("🎉 ¡Venta registrada exitosamente!");
-                    location.reload();
-                }
-            })
-            .catch(err => {
-                sfxFail.currentTime = 0; sfxFail.play().catch(()=>{});
-                alert("Ocurrió un error al procesar la venta. Revise su conexión.");
-                btn.disabled = false;
-                btn.innerHTML = `<i class="bi bi-check2-circle me-1"></i> Procesar Venta`;
-                console.error(err);
-            });
-        }, 800);
+        const metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
+        const venta = {
+            nuevoClienteNombre: nombreCliente,
+            nuevoClienteTelefono: document.getElementById('cliente-telefono').value.trim(),
+            nuevoClienteCorreo: document.getElementById('cliente-correo').value.trim(),
+            totalPagado: carrito.reduce((sum, i) => sum + i.precio, 0),
+            metodoPago: metodoPago,
+            fechaHora: document.getElementById('fecha-servicio').value,
+            sociaId: document.getElementById('socia-select').value || null
+        };
+
+        fetch('/api/pos/venta-directa', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(venta)
+        })
+        .then(res => res.text())
+        .then(data => {
+            if (data.startsWith('http')) {
+                window.location.href = data;
+            } else {
+                sfxOk.play().catch(()=>{});
+                // Preparar e Imprimir Recibo POS
+                let itemsHTML = '';
+                carrito.forEach(it => {
+                    itemsHTML += `<div class="row-ticket"><span>${it.nombre}</span><span>$${it.precio.toLocaleString('es-CL')}</span></div>`;
+                });
+                document.getElementById('t-items').innerHTML = itemsHTML;
+                document.getElementById('t-total').innerText = '$' + venta.totalPagado.toLocaleString('es-CL');
+                
+                // Mostrar Modal e interception events
+                const modalTkt = new bootstrap.Modal(document.getElementById('modalTicket'));
+                document.getElementById('modalTicket').addEventListener('hidden.bs.modal', function () {
+                    location.reload(); // Solo recarga cuando se sierra el ticket
+                }, {once: true});
+                modalTkt.show();
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error al procesar la venta.");
+            btn.disabled = false;
+            btn.innerHTML = "COBRAR AHORA";
+        });
+    }
+
+    function formatCLP(amount) {
+        return '$' + Math.floor(amount || 0).toLocaleString('es-CL');
+    }
+
+    function abrirLibroMovimientos() {
+        sfxClick.play().catch(()=>{});
+        fetch('/api/pos/caja-fuerte')
+        .then(res => res.json())
+        .then(data => {
+            // Actualizar Mini-Indicadores Navbar
+            if(document.getElementById('mini-efectivo')) document.getElementById('mini-efectivo').innerText = formatCLP(data.efectivoEnCajon);
+            if(document.getElementById('mini-transf')) document.getElementById('mini-transf').innerText = formatCLP(data.totalTransferencia);
+            if(document.getElementById('mini-tarj')) document.getElementById('mini-tarj').innerText = formatCLP(data.totalTarjeta);
+
+            // Actualizar Modal
+            document.getElementById('notebook-total-efectivo').innerText = formatCLP(data.efectivoEnCajon);
+            document.getElementById('notebook-resumen-texto').innerText = `Ventas del turno: ${data.numVentas || 0}`;
+            
+            const divI = document.getElementById('notebook-ingresos');
+            divI.innerHTML = '';
+            if(data.ventas && data.ventas.length > 0) {
+                data.ventas.forEach(v => {
+                    divI.innerHTML += `<div class="notebook-entry">
+                        <span><i class="bi bi-check2-circle text-info me-2"></i>${v.detalle}</span>
+                        <b class="text-white">${formatCLP(v.montoTotal)}</b>
+                    </div>`;
+                });
+            } else {
+                divI.innerHTML = '<div class="text-center text-muted mt-5">No hay ventas registradas</div>';
+            }
+
+            const divE = document.getElementById('notebook-egresos');
+            divE.innerHTML = '';
+            if(data.egresos && data.egresos.length > 0) {
+                data.egresos.forEach(e => {
+                    divE.innerHTML += `<div class="notebook-entry">
+                        <span class="text-white-50"><i class="bi bi-dash-circle text-danger me-2"></i>${e.descripcion}</span>
+                        <b class="text-danger">-${formatCLP(e.monto)}</b>
+                    </div>`;
+                });
+            } else {
+                divE.innerHTML = '<div class="text-center text-muted mt-5">Sin egresos registrados</div>';
+            }
+        });
+    }
+
+    function guardarEgreso() {
+        const desc = document.getElementById('egreso-descripcion').value.trim();
+        const monto = parseInt(document.getElementById('egreso-monto').value);
+        if(!desc || !monto) return alert("Complete los datos del gasto");
+
+        fetch('/api/pos/egresos', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ descripcion: desc, monto: monto, metodoSalida: 'EFECTIVO' })
+        }).then(() => {
+            document.getElementById('egreso-descripcion').value = '';
+            document.getElementById('egreso-monto').value = '';
+            abrirLibroMovimientos();
+        });
+    }
+
+    function ejecutarCorteZ() {
+        if(confirm("¿Cerrar caja?")) {
+            fetch('/api/pos/ejecutar-corte', {method:'POST'}).then(() => location.reload());
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/api/socias').then(r => r.json()).then(ss => {
+            const sel = document.getElementById('socia-select');
+            ss.forEach(s => sel.innerHTML += `<option value="${s.id}">${s.nombre}</option>`);
+        });
+    });
+
+    // ==============================================
+    // MOTOR DE AUDIO MANUAL
+    // ==============================================
+    let sintetizador = window.speechSynthesis;
+    let actualUtterance = null;
+
+    function reproducirVozInstruccion(texto) {
+        if (!('speechSynthesis' in window)) return alert("Tu navegador no soporta voz.");
+        if (sintetizador.speaking) sintetizador.cancel();
+        
+        actualUtterance = new SpeechSynthesisUtterance(texto);
+        actualUtterance.lang = 'es-ES';
+        actualUtterance.rate = 1.05;
+        actualUtterance.pitch = 1.1;
+        sintetizador.speak(actualUtterance);
     }
 </script>
-
 </body>
 </html>

@@ -1,11 +1,14 @@
 package com.gomezsystems.minierp.controller;
 
 import com.gomezsystems.minierp.model.Cita;
+import com.gomezsystems.minierp.model.Venta;
 import com.gomezsystems.minierp.repository.CitaRepository;
+import com.gomezsystems.minierp.repository.VentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -16,14 +19,30 @@ public class AdminCitasRestController {
     @Autowired
     private CitaRepository citaRepository;
 
+    @Autowired
+    private VentaRepository ventaRepository;
+
     // 🔥 1. CONFIRMAR (El chulito verde)
     @PostMapping("/confirmar/{id}")
+    @Transactional
     public ResponseEntity<String> confirmarCita(@PathVariable Long id) {
         Optional<Cita> citaOpt = citaRepository.findById(id);
         if (citaOpt.isPresent()) {
             Cita cita = citaOpt.get();
             cita.setEstado("CONFIRMADO");
             citaRepository.save(cita);
+
+            if (cita.getCliente() != null) {
+                java.util.List<Venta> posiblesVentas = ventaRepository.findByClienteIdOrderByFechaHoraDesc(cita.getCliente().getId());
+                for (Venta v : posiblesVentas) {
+                    if ("RESERVADO".equals(v.getEstado()) || "PENDIENTE".equals(v.getEstado())) {
+                        v.setEstado("PAGADO");
+                        ventaRepository.save(v);
+                        break; 
+                    }
+                }
+            }
+
             return ResponseEntity.ok("Cita confirmada");
         }
         return ResponseEntity.badRequest().body("Cita no encontrada");
@@ -31,6 +50,7 @@ public class AdminCitasRestController {
 
     // 🔥 2. CANCELAR (La X roja)
     @PostMapping("/cancelar/{id}")
+    @Transactional
     public ResponseEntity<String> cancelarCita(@PathVariable Long id) {
         if (citaRepository.existsById(id)) {
             citaRepository.deleteById(id);
@@ -41,6 +61,7 @@ public class AdminCitasRestController {
 
     // 🔥 3. REAGENDAR (El botón azul de reloj) - CORREGIDO Y BLINDADO
     @PostMapping("/reagendar/{id}")
+    @Transactional
     public ResponseEntity<String> reagendarCita(@PathVariable Long id, @RequestParam("nuevaFecha") String nuevaFecha) {
         Optional<Cita> citaOpt = citaRepository.findById(id);
 

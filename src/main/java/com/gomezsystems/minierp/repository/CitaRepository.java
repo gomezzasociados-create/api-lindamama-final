@@ -14,4 +14,8 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     // 🔥 LA MAGIA: Spring Boot leerá este nombre y creará la consulta SQL automáticamente
     List<Cita> findByEstadoAndFechaCreacionBefore(String estado, LocalDateTime limite);
 
+    List<Cita> findBySociaIdAndFechaHoraBetweenOrderByFechaHoraAsc(Long sociaId, LocalDateTime inicio, LocalDateTime fin);
+
+    List<Cita> findBySociaIdAndFechaHoraAfterOrderByFechaHoraAsc(Long sociaId, LocalDateTime inicio);
+
 }
