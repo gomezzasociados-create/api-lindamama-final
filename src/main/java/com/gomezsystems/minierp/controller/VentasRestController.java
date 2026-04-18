@@ -195,9 +195,9 @@ public class VentasRestController {
                         .build();
 
                 PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-                        .success("https://lindamama.gomerzz.space/api/pagos/exito")
-                        .pending("https://lindamama.gomerzz.space/pos")
-                        .failure("https://lindamama.gomerzz.space/pos")
+                        .success("https://lindamama.gomezz.space/api/pagos/exito")
+                        .pending("https://lindamama.gomezz.space/pos")
+                        .failure("https://lindamama.gomezz.space/pos")
                         .build();
 
                 PreferenceRequest preferenceRequest = PreferenceRequest.builder()

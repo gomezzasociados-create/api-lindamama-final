@@ -39,7 +39,7 @@ public class SociaViewController {
     public String procesarLogin(@RequestParam String usuario, @RequestParam String password, HttpSession session, Model model) {
         Optional<Socia> sociaOpt = sociaRepository.findByUsuario(usuario);
         
-        if (sociaOpt.isPresent() && sociaOpt.get().getPassword().equals(password)) {
+        if (sociaOpt.isPresent() && password.equals(sociaOpt.get().getPassword())) {
             session.setAttribute("sociaLogueada", sociaOpt.get().getId());
             return "redirect:/socia/agenda";
         }
