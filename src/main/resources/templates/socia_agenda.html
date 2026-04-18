@@ -299,7 +299,7 @@
                         th:data-nombre="${cita.cliente.nombre}" 
                         th:data-telefono="${cita.cliente.telefono}"
                         th:data-correo="${cita.cliente.correo}"
-                        th:data-cumpleanos="${cita.cliente.cumpleanos != null ? #temporals.format(cita.cliente.cumpleanos, 'yyyy-MM-dd') : ''}"
+                        th:data-cumpleanos="${cita.cliente.cumpleanos != null ? cita.cliente.cumpleanos : ''}"
                         th:data-notas="${cita.cliente.notasMedicas}"
                         th:data-historial="${cita.cliente.historialCompras}"
                         th:id="'kjson-' + ${cita.cliente.id}" th:value="${cita.cliente.kardexJson}"
