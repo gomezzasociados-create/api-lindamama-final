@@ -1159,7 +1159,8 @@ let visitasKardexTemporal = [];
     function imprimirKardexRecibo() {
         const nombre = document.getElementById('k-cli-nombre').value || 'Paciente Spa';
         const fecha = new Date().toLocaleDateString('es-CL');
-        const finanzas = document.getElementById('k-finanzas-total').value || '$0';
+        const finanzasEl = document.getElementById('f-total-pack');
+        const finanzas = finanzasEl ? finanzasEl.value || '$0' : '$0';
         
         let htmlPrint = `
             <div style="text-align: center; margin-bottom: 15px; font-family: monospace;">
