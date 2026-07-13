@@ -2,9 +2,12 @@ package com.gomezsystems.minierp.controller;
 
 import com.gomezsystems.minierp.model.Cliente;
 import com.gomezsystems.minierp.repository.ClienteRepository;
+import com.gomezsystems.minierp.repository.CitaRepository;
+import com.gomezsystems.minierp.repository.VentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,6 +17,12 @@ public class ClienteRestController {
 
     @Autowired
     private ClienteRepository clienteRepository;
+
+    @Autowired
+    private CitaRepository citaRepository;
+
+    @Autowired
+    private VentaRepository ventaRepository;
 
     // 1. Obtener todos los clientes
     @GetMapping
@@ -29,8 +38,11 @@ public class ClienteRestController {
 
     // 3. Borrar (Coincide con /api/clientes/borrar/{id})
     @DeleteMapping("/borrar/{id}")
+    @Transactional
     public ResponseEntity<String> borrarCliente(@PathVariable Long id) {
         if (clienteRepository.existsById(id)) {
+            citaRepository.desasociarCliente(id);
+            ventaRepository.desasociarCliente(id);
             clienteRepository.deleteById(id);
             return ResponseEntity.ok("Cliente eliminado con éxito");
         }

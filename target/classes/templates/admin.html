@@ -103,7 +103,7 @@
         /* GRID CARDS STYLES */
         .grid-card { background: rgba(28, 2, 41, 0.8); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 12px; padding: 15px; transition: 0.3s; height: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
         .grid-card:hover { border-color: var(--cyan-neon); box-shadow: 0 5px 20px rgba(0, 229, 255, 0.2); transform: translateY(-3px); }
-        .card-avatar { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--fucsia-neon); }
+        .card-avatar { width: 70px; height: 95px; border-radius: 12px; object-fit: cover; border: 2px solid var(--fucsia-neon); box-shadow: 0 0 10px rgba(255, 0, 255, 0.2); }
         .card-title-cp { font-weight: 800; color: var(--cyan-neon); font-size: 1.1rem; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px;}
         .card-actions { margin-top: auto; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); display: flex; gap: 5px; flex-wrap: wrap; }
         .info-pill { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 4px 10px; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.1); display: inline-flex; align-items: center; gap: 5px; }
@@ -166,7 +166,8 @@
             <a class="navbar-brand" href="#"><i class="bi bi-stars me-1 text-info"></i>Linda Mamá <span class="d-none d-md-inline">| <span style="font-family: 'Poppins'; font-size: 1rem; color: var(--cyan-neon);">CENTRO DE MANDO</span></span></a>
 
             <div class="d-flex align-items-center gap-2">
-                <span class="badge me-3" style="background: rgba(255,0,255,0.2); color: var(--fucsia-neon); border: 1px solid var(--fucsia-neon);" id="etiqueta-usuario"><i class="bi bi-person-circle"></i> ...</span>
+                <span class="badge me-2" style="background: rgba(255,0,255,0.2); color: var(--fucsia-neon); border: 1px solid var(--fucsia-neon);" id="etiqueta-usuario"><i class="bi bi-person-circle"></i> ...</span>
+                <button class="btn btn-sm btn-outline-danger me-2" onclick="cerrarSesionAdmin()" style="font-size: 0.75rem; border-color: rgba(255,0,128,0.4); color: #ff55bb; background: rgba(255,0,128,0.05);"><i class="bi bi-box-arrow-right"></i> Salir</button>
                 <a href="/catalogo" class="btn btn-sm btn-outline-light btn-nav-top"><i class="bi bi-shop"></i> <span class="d-none d-md-inline">Web</span></a>
                 <a href="/agenda" class="btn btn-sm btn-outline-light btn-nav-top"><i class="bi bi-calendar3"></i> <span class="d-none d-md-inline">Agenda</span></a>
                 <a href="/pos" class="btn btn-sm btn-outline-light btn-nav-top"><i class="bi bi-calculator"></i> <span class="d-none d-md-inline">POS</span></a>
@@ -1049,8 +1050,14 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-info fw-bold">Foto URL</label>
-                            <input type="url" class="form-control" id="sociaFoto">
+                            <label class="form-label text-info fw-bold">Foto de Perfil</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="sociaFotoFile" accept="image/*" onchange="subirFotoSociaServidor()">
+                                <input type="hidden" id="sociaFoto" value="">
+                            </div>
+                            <div id="socia-preview-container" class="mt-2 text-center" style="display: none;">
+                                <img id="socia-foto-preview" src="" alt="Vista previa" class="rounded border border-info" style="max-height: 100px; box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-info fw-bold">Biografía y Descripción</label>
@@ -1201,6 +1208,7 @@
         // Éxito en el login
         sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
         localStorage.setItem('spa_usuario', usuarioActual);
+        localStorage.setItem('spa_rol', rolActual);
 
         // Pantalla de Bienvenida Waooo
         document.getElementById('login-screen').style.display = 'none';
@@ -1232,6 +1240,12 @@
             }
         }, 2500);
     }
+
+    window.cerrarSesionAdmin = function() {
+        localStorage.removeItem('spa_usuario');
+        localStorage.removeItem('spa_rol');
+        window.location.reload();
+    };
 
     // ==========================================
     // LÓGICA DEL MEGA-KARDEX MÉDICO
@@ -1831,7 +1845,20 @@
     function abrirModalCliente(event) { reproducirClick(); document.getElementById('formCliente').reset(); document.getElementById('clienteId').value = ""; new bootstrap.Modal(document.getElementById('modalCliente')).show(); }
     function editarCliente(btn) { reproducirClick(); document.getElementById('clienteId').value = btn.getAttribute('data-id'); document.getElementById('cliNombre').value = btn.getAttribute('data-nombre'); document.getElementById('cliTelefono').value = btn.getAttribute('data-telefono'); document.getElementById('cliCorreo').value = btn.getAttribute('data-correo'); document.getElementById('cliCumple').value = btn.getAttribute('data-cumpleanos'); document.getElementById('cliNotas').value = btn.getAttribute('data-notas'); new bootstrap.Modal(document.getElementById('modalCliente')).show(); }
     function guardarCliente(event) { activarEfectoWaooo(event); const payload = { nombre: document.getElementById('cliNombre').value, telefono: document.getElementById('cliTelefono').value, correo: document.getElementById('cliCorreo').value, cumpleanos: document.getElementById('cliCumple').value, notasMedicas: document.getElementById('cliNotas').value }; const id = document.getElementById('clienteId').value; if(id) payload.id = id; setTimeout(() => fetch('/api/clientes/guardar', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) }).then(()=>window.location.reload()), 800); }
-    function borrarCliente(id) { reproducirError(); if(confirm("¿Eliminar cliente?")) { fetch('/api/clientes/borrar/'+id, {method:'DELETE'}).then(()=>window.location.reload()); } }
+    function borrarCliente(id) { 
+        reproducirError(); 
+        if(confirm("¿Eliminar cliente definitivamente? Las citas y ventas históricas de este cliente se conservarán de forma segura.")) { 
+            fetch('/api/clientes/borrar/'+id, {method:'DELETE'})
+            .then(res => {
+                if (res.ok) {
+                    window.location.reload();
+                } else {
+                    res.text().then(msg => alert("Error al eliminar cliente: " + msg));
+                }
+            })
+            .catch(err => alert("Error de conexión: " + err));
+        } 
+    }
 
     function enviarWhatsAppConfirmacion(btn) {
         reproducirClick();
@@ -1997,7 +2024,7 @@
                 
                 let html = '';
                 socias.forEach(s => {
-                    let foto = s.fotoUrl ? `<img src="${s.fotoUrl}" class="card-avatar me-3" style="width: 70px; height: 70px;">` : '<i class="bi bi-person-circle text-secondary me-3" style="font-size: 70px;"></i>';
+                    let foto = s.fotoUrl ? `<img src="${s.fotoUrl}" class="card-avatar me-3" style="width: 70px; height: 95px;">` : '<i class="bi bi-person-circle text-secondary me-3" style="font-size: 70px;"></i>';
                     html += `
                         <div class="col-12 col-md-6 col-lg-4">
                             <div class="grid-card text-center" style="${!s.activa ? 'opacity: 0.7; filter: grayscale(1);' : ''}">
@@ -2032,7 +2059,7 @@
                                         </button>
                                     </div>
                                     <div class="d-flex w-100 gap-1 mb-1">
-                                        <button class="btn btn-sm text-dark fw-bold flex-grow-1" style="background-color: #25D366; border-color: #25D366; box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);" onclick="enviarWhatsAppSocia('${s.nombre}', '${s.telefono || ''}')">
+                                        <button class="btn btn-sm text-dark fw-bold flex-grow-1" style="background-color: #25D366; border-color: #25D366; box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);" onclick="enviarWhatsAppSocia(${s.id}, '${s.nombre}', '${s.telefono || ''}')">
                                             <i class="bi bi-whatsapp me-1"></i> Reporte Diario
                                         </button>
                                         <button class="btn btn-sm btn-outline-success px-3" title="Imprimir Reporte Diario" onclick="imprimirReporteDiarioSocia(${s.id}, '${s.nombre}', ${s.porcentajeSocia})">
@@ -2053,6 +2080,10 @@
         if(e) activarEfectoWaooo(e);
         document.getElementById('formSocia').reset();
         document.getElementById('sociaId').value = '';
+        document.getElementById('sociaFoto').value = '';
+        document.getElementById('sociaFotoFile').value = '';
+        document.getElementById('socia-preview-container').style.display = 'none';
+        document.getElementById('socia-foto-preview').src = '';
         document.getElementById('tituloModalSocia').innerText = 'Añadir Nueva Socia';
         if(!modalSociaInst) modalSociaInst = new bootstrap.Modal(document.getElementById('modalSocia'));
         modalSociaInst.show();
@@ -2065,6 +2096,14 @@
         document.getElementById('sociaPorcSpa').value = pSpa;
         document.getElementById('sociaPorcSocia').value = pSocia;
         document.getElementById('sociaFoto').value = foto;
+        document.getElementById('sociaFotoFile').value = '';
+        if (foto && foto.trim() !== '') {
+            document.getElementById('socia-foto-preview').src = foto;
+            document.getElementById('socia-preview-container').style.display = 'block';
+        } else {
+            document.getElementById('socia-foto-preview').src = '';
+            document.getElementById('socia-preview-container').style.display = 'none';
+        }
         document.getElementById('sociaDesc').value = desc;
         document.getElementById('sociaTelefono').value = telefono || '';
         document.getElementById('sociaUser').value = user || '';
@@ -2114,6 +2153,41 @@
             alert(err.message);
         });
     }
+
+    window.subirFotoSociaServidor = function() {
+        const fileInput = document.getElementById('sociaFotoFile');
+        if (!fileInput || fileInput.files.length === 0) return;
+
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const previewImg = document.getElementById('socia-foto-preview');
+        const previewContainer = document.getElementById('socia-preview-container');
+        previewImg.src = "https://i.gifer.com/ZZ5H.gif"; // spinner
+        previewContainer.style.display = 'block';
+
+        fetch('/api/socias/upload-foto', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => {
+            if(!res.ok) throw new Error("Error en la subida");
+            return res.json();
+        })
+        .then(data => {
+            if (data.fotoUrl) {
+                document.getElementById('sociaFoto').value = data.fotoUrl;
+                previewImg.src = data.fotoUrl;
+            }
+        })
+        .catch(err => {
+            reproducirError();
+            alert("No se pudo cargar la imagen: " + err.message);
+            previewContainer.style.display = 'none';
+            fileInput.value = '';
+        });
+    };
 
     function borrarSocia(id) {
         if(!confirm("¿Estás segura de eliminar esta vacante de Socia permanentemente?")) return;
@@ -2308,7 +2382,7 @@
             .catch(err => alert("Error al obtener datos del turno."));
     }
 
-    function enviarWhatsAppSocia(nombreSocia, telefonoSocia) {
+    function enviarWhatsAppSocia(idSocia, nombreSocia, telefonoSocia) {
         reproducirClick();
         let numero = telefonoSocia;
         if (!numero) {
@@ -2316,16 +2390,42 @@
         }
         if (!numero) return;
         
-        // Formatear el mensaje
-        let texto = `Hola *${nombreSocia}* 🌸,\n\n`;
-        texto += `Te confirmamos que tu liquidación de comisiones del turno está lista para ser cobrada o ha sido transferida.\n\n`;
-        texto += `_*Linda Mamá Spa*_ ✨`;
-        
         // Limpiar el número de espacios y el + si los tiene
         numero = numero.replace(/\D/g, ''); 
         
-        let url = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
-        window.open(url, '_blank');
+        // Obtener el reporte diario desde la API
+        fetch(`/api/socias/${idSocia}/reporte-diario`)
+        .then(res => {
+            if (!res.ok) throw new Error("No se pudo obtener el reporte diario");
+            return res.json();
+        })
+        .then(data => {
+            const hoy = new Date().toLocaleDateString('es-CL');
+            let texto = `🌸 *REPORTE DIARIO - ${nombreSocia}* 🌸\n`;
+            texto += `📅 *Fecha:* ${hoy}\n\n`;
+            texto += `Estimada *${nombreSocia}*, aquí tienes el desglose de tus servicios realizados hoy:\n\n`;
+
+            if (data.servicios && data.servicios.length > 0) {
+                data.servicios.forEach((s, idx) => {
+                    texto += `*${idx + 1}.* ${s.detalle}\n`;
+                    texto += `   • *Valor:* $${s.monto.toLocaleString('es-CL')}\n`;
+                    texto += `   • *Tu Comisión:* $${s.comision.toLocaleString('es-CL')}\n\n`;
+                });
+                texto += `-----------------------------------\n`;
+                texto += `💰 *TOTAL GANADO HOY:* *$${data.totalGanado.toLocaleString('es-CL')}*\n\n`;
+            } else {
+                texto += `No registras servicios realizados el día de hoy.\n\n`;
+            }
+
+            texto += `_*Linda Mamá Spa*_ ✨`;
+
+            let url = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
+        })
+        .catch(err => {
+            reproducirError();
+            alert("Error al armar el reporte de WhatsApp: " + err.message);
+        });
     }
 
     function subirCsvMascara(event) {
@@ -2405,6 +2505,32 @@
     // Ejecutar al iniciar
     document.addEventListener("DOMContentLoaded", () => {
         actualizarDashboardCaja();
+        
+        // Auto-login si ya existe una sesión guardada
+        const savedUsuario = localStorage.getItem('spa_usuario');
+        const savedRol = localStorage.getItem('spa_rol');
+        if (savedUsuario && savedRol) {
+            usuarioActual = savedUsuario;
+            rolActual = savedRol;
+            
+            // Ocultar login y mostrar dashboard inmediatamente
+            const loginScr = document.getElementById('login-screen');
+            const appDash = document.getElementById('app-dashboard');
+            const labelUsr = document.getElementById('etiqueta-usuario');
+            
+            if (loginScr) loginScr.style.display = 'none';
+            if (appDash) appDash.style.display = 'block';
+            if (labelUsr) labelUsr.innerHTML = `<i class="bi bi-person-circle"></i> ${usuarioActual}`;
+            
+            if (rolActual === "ADMINISTRADORA") {
+                let ingresosEl = document.getElementById('monto-ingresos');
+                if (ingresosEl) {
+                    ingresosEl.innerText = "$****";
+                    ingresosEl.classList.remove('text-cyan-neon');
+                    ingresosEl.style.color = "#888";
+                }
+            }
+        }
     });
 
     // ==============================================

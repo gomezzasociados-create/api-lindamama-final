@@ -9,6 +9,7 @@
     <title>Catálogo - Linda Mamá Spa</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root {
             --violeta-profundo: #100118;
@@ -35,7 +36,7 @@
 
         h1.titulo-principal {
             font-family: 'Playfair Display', serif; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 3px;
-            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 40px #ff007f, 0 0 80px #ff007f; margin-top: 30px; margin-bottom: 5px;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 40px #ff007f, 0 0 80px #ff007f; margin-top: -95px; margin-bottom: 5px;
         }
 
         .subtitulo-neon {
@@ -57,8 +58,8 @@
             background: rgba(0,0,0,0.4); padding: 10px 20px; border-radius: 10px;
         }
 
-        header { text-align: center; padding: 50px 20px; background: radial-gradient(circle, rgba(42, 3, 66, 0.8) 0%, rgba(16, 1, 24, 0.95) 70%); position: relative; }
-        .img-logo { max-width: 160px; position: relative; z-index: 5; animation: contornoNeon 5s infinite alternate; }
+        header { text-align: center; padding: 0px 20px 10px; background: radial-gradient(circle, rgba(42, 3, 66, 0.8) 0%, rgba(16, 1, 24, 0.95) 70%); position: relative; }
+        .img-logo { max-width: 360px; position: relative; z-index: 5; animation: contornoNeon 5s infinite alternate; margin-top: -40px; }
 
         @keyframes contornoNeon {
             0% { filter: drop-shadow(0 0 15px #ff00ff); }
@@ -84,7 +85,7 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
 
-        .card-servicio:hover { transform: translateY(-10px) scale(1.03); border-color: var(--fucsia-neon); box-shadow: 0 0 30px 10px rgba(255, 0, 255, 0.6); z-index: 10;}
+        .card-servicio:hover, .card-servicio.expanded { transform: translateY(-8px) scale(1.02); border-color: var(--fucsia-neon); box-shadow: 0 0 50px 15px rgba(255, 0, 255, 0.8), inset 0 0 15px rgba(255, 0, 255, 0.3); z-index: 10;}
 
         .card-img-container { width: 100%; height: 200px; overflow: hidden; position: relative; }
         .img-servicio { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
@@ -112,6 +113,12 @@
             animation: fadeIn 0.4s ease-in-out;
         }
         .card-description-collapse.show { display: block; }
+        .card-servicio.expanded .card-description-collapse {
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -135,26 +142,31 @@
             100% { transform: scale(1); }
         }
 
-        /* Botón Play/Pause Principal */
+        /* Barra de Control de Música Slim - Horizontal Superior */
+        .music-control-bar {
+            position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1100;
+            display: flex; gap: 12px; align-items: center;
+            background: rgba(28, 2, 41, 0.85); border: 1.5px solid var(--fucsia-neon);
+            border-radius: 20px; padding: 4px 15px;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-music-slim {
+            background: transparent; border: none; font-size: 1.1rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease; padding: 2px 6px; border-radius: 8px;
+        }
         #btn-musica {
-            position: fixed; bottom: 20px; left: 20px; z-index: 1000;
-            background: rgba(28, 2, 41, 0.9); border: 2px solid var(--fucsia-neon);
-            border-radius: 50%; width: 60px; height: 60px; font-size: 1.8rem;
-            color: var(--fucsia-neon); cursor: pointer; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.6); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--fucsia-neon);
         }
-        #btn-musica:hover { box-shadow: 0 0 35px var(--cyan-neon); transform: scale(1.15) rotate(10deg); border-color: var(--cyan-neon); color: var(--cyan-neon);}
-        .music-paused { opacity: 0.6; box-shadow: none !important; filter: grayscale(100%); border-color: gray !important;}
-
-        /* Botón Siguiente Canción */
         #btn-siguiente {
-            position: fixed; bottom: 90px; left: 28px; z-index: 1000;
-            background: rgba(28, 2, 41, 0.9); border: 2px solid var(--cyan-neon);
-            border-radius: 50%; width: 45px; height: 45px; font-size: 1.2rem;
-            color: var(--cyan-neon); cursor: pointer; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); transition: 0.3s ease;
+            color: var(--cyan-neon);
         }
-        #btn-siguiente:hover { box-shadow: 0 0 25px var(--cyan-neon); transform: scale(1.15); background: var(--cyan-neon); color: black;}
+        .btn-music-slim:hover {
+            transform: scale(1.2);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .music-paused { opacity: 0.5; filter: grayscale(100%); }
 
         #carrito-flotante {
             position: fixed; top: 20px; right: 20px; width: 400px; max-height: 90vh; overflow-y: auto; z-index: 1000;
@@ -182,8 +194,722 @@
             .grid-catalogo { grid-template-columns: 1fr; gap: 20px; }
             header { padding: 30px 10px; }
             #carrito-flotante { top: auto; bottom: 0; right: 0; width: 100%; border-radius: 20px 20px 0 0; max-height: 70vh; }
-            #btn-musica { bottom: 90px; left: 15px; }
-            #btn-siguiente { bottom: 160px; left: 22px; }
+        }
+
+        /* ==========================================================================
+           ESTILOS DEL ASISTENTE DE RESERVAS (WIZARD NEÓN)
+           ========================================================================== */
+        .wizard-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 20px;
+            margin-bottom: 50px;
+        }
+
+        /* Steppers */
+        .wizard-stepper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            background: rgba(16, 1, 24, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 0, 255, 0.2);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(255, 0, 255, 0.05);
+            margin-bottom: 30px;
+        }
+        .step-progress-bar {
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            width: 80%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+            border-radius: 10px;
+        }
+        .step-progress-line {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--fucsia-neon) 0%, var(--cyan-neon) 100%);
+            box-shadow: 0 0 10px var(--fucsia-neon), 0 0 20px var(--cyan-neon);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+        }
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            z-index: 2;
+            position: relative;
+        }
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 20%;
+            cursor: pointer;
+        }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1c0229;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .step-item.active .step-number {
+            border-color: var(--fucsia-neon);
+            background: var(--fucsia-neon);
+            color: #000;
+            box-shadow: 0 0 20px var(--fucsia-neon), inset 0 0 5px white;
+            transform: scale(1.15);
+        }
+        .step-item.completed .step-number {
+            border-color: var(--cyan-neon);
+            background: var(--cyan-neon);
+            color: #000;
+            box-shadow: 0 0 15px var(--cyan-neon);
+        }
+        .step-label {
+            display: none; /* Ocultamos etiquetas individuales para evitar superposiciones en móvil y desktop */
+        }
+        .step-active-indicator {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-top: 15px;
+            padding: 8px 25px;
+            background: linear-gradient(90deg, rgba(255, 0, 255, 0.15) 0%, rgba(0, 229, 255, 0.15) 100%);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.15);
+            text-shadow: 0 0 8px var(--fucsia-neon), 0 0 15px var(--cyan-neon);
+            animation: respirarGlow 3s infinite alternate;
+            transition: all 0.5s ease;
+            display: inline-block;
+        }
+        @keyframes respirarGlow {
+            0% {
+                box-shadow: 0 0 10px rgba(255, 0, 255, 0.1), inset 0 0 5px rgba(255, 0, 255, 0.1);
+                border-color: rgba(255, 0, 255, 0.3);
+            }
+            100% {
+                box-shadow: 0 0 20px rgba(0, 229, 255, 0.3), inset 0 0 10px rgba(0, 229, 255, 0.2);
+                border-color: rgba(0, 229, 255, 0.5);
+            }
+        }
+
+        #campo-email-w {
+            display: block !important;
+        }
+
+        /* Botones de subcategorías (Packs vs Sesiones) */
+        .sub-categories-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+        .btn-sub-tab {
+            background: rgba(28, 2, 41, 0.6);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            font-family: 'Poppins', sans-serif;
+        }
+        .btn-sub-tab:hover {
+            border-color: var(--cyan-neon);
+            color: var(--cyan-neon);
+            box-shadow: 0 0 10px rgba(0,229,255,0.2);
+        }
+        .btn-sub-tab.active {
+            background: linear-gradient(135deg, var(--fucsia-neon) 0%, #a000a0 100%);
+            border-color: var(--fucsia-neon);
+            color: #fff;
+            box-shadow: 0 0 15px var(--fucsia-brillo);
+            text-shadow: 0 0 5px white;
+        }
+
+        /* Secciones del Wizard */
+        .wizard-step-section {
+            display: none;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .wizard-step-section.active-section {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Títulos de sección */
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--cyan-neon);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 2px solid var(--fucsia-neon);
+            padding-bottom: 8px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+            display: inline-block;
+        }
+
+        /* Botones de Navegación del Asistente */
+        .wizard-nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            gap: 20px;
+        }
+        .btn-wizard-nav {
+            padding: 15px 35px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: none;
+        }
+        .btn-wizard-prev {
+            background: rgba(28, 2, 41, 0.8);
+            border: 2px solid var(--fucsia-neon);
+            color: var(--fucsia-neon);
+        }
+        .btn-wizard-prev:hover {
+            box-shadow: 0 0 20px var(--fucsia-neon);
+            transform: translateY(-2px);
+            background: var(--fucsia-neon);
+            color: #000;
+        }
+        .btn-wizard-next {
+            background: linear-gradient(135deg, var(--cyan-neon) 0%, #0077ff 100%);
+            color: #000;
+            border: none;
+        }
+        .btn-wizard-next:hover:not(:disabled) {
+            box-shadow: 0 0 25px var(--cyan-neon);
+            transform: translateY(-2px) scale(1.02);
+        }
+        .btn-wizard-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+            box-shadow: none;
+        }
+
+        /* Paso 2: Fecha y Hora (Calendario mensual en cuadrícula) */
+        .calendar-month-container {
+            background: rgba(28, 2, 41, 0.6);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 229, 255, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 35px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 450px;
+            margin: 0 auto 35px;
+        }
+        .calendar-month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .calendar-month-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--cyan-neon);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        }
+        .calendar-month-btn {
+            background: transparent;
+            border: 1px solid var(--fucsia-neon);
+            color: var(--fucsia-neon);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+            box-shadow: 0 0 8px rgba(255,0,255,0.2);
+        }
+        .calendar-month-btn:hover {
+            background: var(--fucsia-neon);
+            color: #000;
+            box-shadow: 0 0 15px var(--fucsia-neon);
+        }
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .calendar-weekday {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--texto-muted);
+            text-transform: uppercase;
+        }
+        .calendar-days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+        .calendar-day-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #fff;
+            border: 1px solid transparent;
+            position: relative;
+        }
+        .calendar-day-cell:hover:not(.disabled):not(.empty) {
+            border-color: var(--cyan-neon);
+            color: var(--cyan-neon);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+            transform: scale(1.1);
+        }
+        .calendar-day-cell.active {
+            background: var(--fucsia-neon) !important;
+            color: #000 !important;
+            box-shadow: 0 0 15px var(--fucsia-neon), inset 0 0 5px white !important;
+            font-weight: 800;
+        }
+        .calendar-day-cell.disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            text-decoration: line-through;
+            color: #666;
+        }
+        .calendar-day-cell.empty {
+            cursor: default;
+            pointer-events: none;
+        }
+        .calendar-day-cell.today {
+            border: 1px solid var(--cyan-neon);
+            color: var(--cyan-neon);
+        }
+
+        /* Horas */
+        .hours-section {
+            background: rgba(28, 2, 41, 0.4);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .hours-group-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--fucsia-neon);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .hours-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .hour-btn {
+            background: rgba(16, 1, 24, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-radius: 12px;
+            padding: 12px 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .hour-btn:hover:not(.disabled) {
+            border-color: var(--cyan-neon);
+            color: var(--cyan-neon);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+        }
+        .hour-btn.active {
+            border-color: var(--fucsia-neon) !important;
+            background: rgba(255, 0, 255, 0.15);
+            color: #fff !important;
+            box-shadow: 0 0 20px var(--fucsia-brillo), inset 0 0 5px white !important;
+            transform: scale(1.05);
+            text-shadow: 0 0 8px #fff;
+        }
+        .hour-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.05);
+            color: #666;
+            text-decoration: line-through;
+            box-shadow: none;
+        }
+
+        /* Shimmer Loading Effect */
+        .shimmer-placeholder {
+            background: #1c0229;
+            background-image: linear-gradient(to right, #1c0229 0%, rgba(255,0,255,0.1) 20%, #1c0229 40%, #1c0229 100%);
+            background-repeat: no-repeat;
+            background-size: 800px 104px;
+            display: inline-block;
+            position: relative;
+            animation-duration: 1.2s;
+            animation-fill-mode: forwards;
+            animation-iteration-count: infinite;
+            animation-name: shimmerEffect;
+            animation-timing-function: linear;
+            border-radius: 12px;
+            border: 2px dashed rgba(255,0,255,0.1);
+        }
+        @keyframes shimmerEffect {
+            0% { background-position: -468px 0; }
+            100% { background-position: 468px 0; }
+        }
+
+        /* Paso 3: Especialistas */
+        .specialist-wizard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+        .specialist-card-w {
+            background: rgba(28, 2, 41, 0.8);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            perspective: 1000px;
+        }
+        .specialist-card-w:hover {
+            border-color: var(--cyan-neon);
+            box-shadow: 0 0 25px var(--cyan-brillo);
+            transform: translateY(-5px);
+        }
+        .specialist-card-w.active {
+            border-color: var(--fucsia-neon);
+            background: rgba(255, 0, 255, 0.1);
+            box-shadow: 0 0 30px var(--fucsia-brillo), inset 0 0 10px rgba(255,0,255,0.1);
+            transform: scale(1.03);
+        }
+        .specialist-photo-w {
+            width: 140px;
+            height: 190px;
+            border-radius: 15px;
+            object-fit: cover;
+            border: 3px solid var(--cyan-neon);
+            margin: 0 auto 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px var(--cyan-brillo);
+        }
+        .specialist-card-w.active .specialist-photo-w {
+            border-color: var(--fucsia-neon);
+            box-shadow: 0 0 20px var(--fucsia-brillo);
+            transform: scale(1.05);
+        }
+        .specialist-name-w {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        .specialist-desc-w {
+            font-size: 0.8rem;
+            color: var(--texto-muted);
+        }
+        .specialist-card-w.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+
+        /* Paso 4: Formulario */
+        .form-wizard-card {
+            background: rgba(28, 2, 41, 0.7);
+            border: 1px solid rgba(255, 0, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .wizard-input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        .wizard-input-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--cyan-neon);
+            margin-bottom: 10px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+        }
+        .wizard-input {
+            width: 100%;
+            background: rgba(16, 1, 24, 0.8) !important;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            color: #fff !important;
+            font-size: 1.1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+        .wizard-input:focus {
+            border-color: var(--fucsia-neon);
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+            outline: none;
+        }
+        .wizard-input-error {
+            color: #ff3366;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+            font-weight: 600;
+        }
+
+        /* Paso 5: Resumen y confirmación */
+        .summary-card {
+            background: rgba(20, 2, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 229, 255, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.1);
+        }
+        .summary-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--cyan-neon);
+            border-bottom: 1px dashed rgba(255,255,255,0.2);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+        .summary-item-label {
+            color: var(--texto-muted);
+            font-weight: 500;
+        }
+        .summary-item-value {
+            font-weight: 700;
+            color: #fff;
+        }
+        .summary-total {
+            border-top: 2px solid rgba(0,229,255,0.3);
+            padding-top: 15px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Glow de Energía en Selección de Pago */
+        .payment-card-w {
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .payment-card-w.active {
+            border-color: var(--cyan-neon);
+            box-shadow: 0 0 20px var(--cyan-brillo);
+            background: rgba(0, 229, 255, 0.08);
+        }
+        /* Borde animado giratorio (Conic Gradient) */
+        .payment-card-w.active::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, var(--cyan-neon), transparent 30%);
+            animation: rotateConicBorder 4s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+        .payment-card-w.active::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            background: #1c0229;
+            border-radius: 13px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .payment-card-w-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+        @keyframes rotateConicBorder {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Botón de confirmar reserva */
+        .btn-confirmar-reserva {
+            background: linear-gradient(135deg, var(--transfer-green) 0%, #009c63 100%);
+            color: #000;
+            font-size: 1.3rem;
+            font-weight: 800;
+            padding: 20px;
+            border-radius: 15px;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(0, 210, 138, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .btn-confirmar-reserva:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 35px var(--transfer-green);
+        }
+
+        /* Canvas Confeti Overlay */
+        #confeti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+        }
+
+        /* Ripple Effect */
+        .ripple-neon-effect {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 229, 255, 0.5);
+            transform: scale(0);
+            animation: rippleEffectAnim 0.6s linear;
+            pointer-events: none;
+        }
+        @keyframes rippleEffectAnim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Ajustes Mobile */
+        @media (max-width: 768px) {
+            .step-label {
+                font-size: 0.65rem;
+                letter-spacing: 0.5px;
+            }
+            .step-number {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+            .step-progress-bar {
+                top: 36px;
+            }
+            .day-card {
+                flex: 0 0 calc(33.33% - 10px);
+                padding: 10px 5px;
+            }
+            .day-number {
+                font-size: 1.4rem;
+            }
+            .section-title {
+                font-size: 1.4rem;
+            }
+            .hours-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            .hour-btn {
+                padding: 10px 5px;
+                font-size: 0.85rem;
+            }
+            .specialist-wizard-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+            .btn-wizard-nav {
+                padding: 12px 20px;
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -195,8 +921,10 @@
 <audio id="sfx-open" preload="auto" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3?filename=bubble-sound-43207.mp3"></audio>
 <audio id="sfx-delete" preload="auto" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=error-126627.mp3"></audio>
 
-<button id="btn-musica" class="music-paused" title="Reproducir/Pausar Música">🔇</button>
-<button id="btn-siguiente" title="Siguiente Canción">⏭️</button>
+<div class="music-control-bar">
+    <button id="btn-musica" class="music-paused btn-music-slim" title="Reproducir/Pausar Música">🔇</button>
+    <button id="btn-siguiente" class="btn-music-slim" title="Siguiente Canción">⏭️</button>
+</div>
 
 <header>
     <div class="logo-container">
@@ -206,9 +934,56 @@
     <h3 class="subtitulo-neon">con visión de futuro</h3>
 </header>
 
-<div class="container">
 
-    <h2 class="titulo-categoria">Packs VIP (Método Crys 7T)</h2>
+<div class="container">
+    
+    <!-- BARRA DE PASOS (STEPPER) -->
+    <div class="wizard-stepper mb-4">
+        <div class="step-progress-bar">
+            <div class="step-progress-line" id="step-line" style="width: 0%;"></div>
+        </div>
+        <div class="steps-container">
+            <div class="step-item active" data-step="1" onclick="navegarAPasoDirecto(1)">
+                <div class="step-number">1</div>
+                <div class="step-label">Tratamientos</div>
+            </div>
+            <div class="step-item" data-step="2" onclick="navegarAPasoDirecto(2)">
+                <div class="step-number">2</div>
+                <div class="step-label">Fecha y Hora</div>
+            </div>
+            <div class="step-item" data-step="3" onclick="navegarAPasoDirecto(3)">
+                <div class="step-number">3</div>
+                <div class="step-label">Especialista</div>
+            </div>
+            <div class="step-item" data-step="4" onclick="navegarAPasoDirecto(4)">
+                <div class="step-number">4</div>
+                <div class="step-label">Tus Datos</div>
+            </div>
+            <div class="step-item" data-step="5" onclick="navegarAPasoDirecto(5)">
+                <div class="step-number">5</div>
+                <div class="step-label">Pago</div>
+            </div>
+        </div>
+        <!-- Indicador Único y Destacado del Paso Actual -->
+        <div class="step-active-indicator" id="step-indicator-text">
+            Paso 1: Selecciona tus Tratamientos
+        </div>
+    </div>
+
+    <!-- CONTENEDOR DEL WIZARD -->
+    <div class="wizard-container">
+
+        <!-- ==================== PASO 1: SELECCIÓN DE SERVICIOS ==================== -->
+        <div id="step-section-1" class="wizard-step-section active-section">
+
+            <!-- Selector de Categorías (Sub-Tabs) -->
+            <div class="sub-categories-selector">
+                <button type="button" class="btn-sub-tab active" id="tab-sesiones" onclick="seleccionarSubCategoria('sesiones')">🌸 Sesiones Individuales</button>
+                <button type="button" class="btn-sub-tab" id="tab-packs-vip" onclick="seleccionarSubCategoria('packs')">💎 Packs VIP</button>
+            </div>
+
+            <div id="sub-sec-packs" style="display: none;">
+                <h2 class="titulo-categoria">Packs VIP (Método Crys 7T)</h2>
     <div class="grid-catalogo">
         <div th:each="pack : ${packs}" th:if="${pack.nombre != null and #strings.containsIgnoreCase(pack.nombre, 'Pack')}" class="card-packs-wrapper">
 
@@ -244,8 +1019,10 @@
             </div>
         </div>
     </div>
+    </div>
 
-    <h2 class="titulo-categoria">Sesiones Individuales</h2>
+    <div id="sub-sec-sesiones" style="display: block;">
+        <h2 class="titulo-categoria">Sesiones Individuales</h2>
     <div class="grid-catalogo">
         <div th:each="pack : ${packs}" th:unless="${pack.nombre != null and #strings.containsIgnoreCase(pack.nombre, 'Pack')}" class="card-servicio-wrapper">
 
@@ -281,8 +1058,240 @@
             </div>
         </div>
     </div>
+    </div>
 
+
+        </div> <!-- Cierre Paso 1 -->
+
+        <!-- ==================== PASO 2: FECHA Y HORA ==================== -->
+        <div id="step-section-2" class="wizard-step-section">
+            <h2 class="section-title"><i class="bi bi-calendar-event me-2"></i>Elige el Día y la Hora</h2>
+            
+            <!-- Calendario de Mes Completo -->
+            <div class="calendar-month-container">
+                <div class="calendar-month-header">
+                    <button type="button" class="calendar-month-btn" onclick="cambiarMesCalendario(-1)">❮</button>
+                    <div class="calendar-month-title" id="calendar-mes-ano">Julio 2026</div>
+                    <button type="button" class="calendar-month-btn" onclick="cambiarMesCalendario(1)">❯</button>
+                </div>
+                <div class="calendar-weekdays">
+                    <div class="calendar-weekday">Lu</div>
+                    <div class="calendar-weekday">Ma</div>
+                    <div class="calendar-weekday">Mi</div>
+                    <div class="calendar-weekday">Ju</div>
+                    <div class="calendar-weekday">Vi</div>
+                    <div class="calendar-weekday">Sá</div>
+                    <div class="calendar-weekday">Do</div>
+                </div>
+                <div class="calendar-days-grid" id="calendar-dias-grid">
+                    <!-- JS generará las celdas de días del mes -->
+                </div>
+            </div>
+
+            <!-- Contenedor de Horas con Shimmer -->
+            <div id="contenedor-horas-shimmer" style="display: none;">
+                <div class="hours-section">
+                    <div class="hours-group-title"><i class="bi bi-hourglass-split"></i> Cargando Horas...</div>
+                    <div class="hours-grid">
+                        <div class="shimmer-placeholder" style="height: 50px; width: 100%;"></div>
+                        <div class="shimmer-placeholder" style="height: 50px; width: 100%;"></div>
+                        <div class="shimmer-placeholder" style="height: 50px; width: 100%;"></div>
+                        <div class="shimmer-placeholder" style="height: 50px; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor de Horas Real -->
+            <div id="contenedor-horas" class="hours-section">
+                <!-- Secciones Mañana, Tarde, Noche por JS -->
+            </div>
+
+            <!-- Botones de navegación -->
+            <div class="wizard-nav-buttons">
+                <button class="btn-wizard-nav btn-wizard-prev" onclick="irAlPaso(1)"><i class="bi bi-arrow-left me-2"></i>Atrás</button>
+                <button class="btn-wizard-nav btn-wizard-next" id="btn-next-step-2" onclick="irAlPaso(3)" disabled>Elegir Especialista<i class="bi bi-arrow-right ms-2"></i></button>
+            </div>
+        </div>
+
+        <!-- ==================== PASO 3: ESPECIALISTAS ==================== -->
+        <div id="step-section-3" class="wizard-step-section">
+            <h2 class="section-title"><i class="bi bi-person-heart me-2"></i>Selecciona a tu Especialista</h2>
+            
+            <div class="specialist-wizard-grid" id="lista-socias-wizard">
+                <!-- Cargado por JS -->
+            </div>
+            
+            <!-- Botones de navegación -->
+            <div class="wizard-nav-buttons">
+                <button class="btn-wizard-nav btn-wizard-prev" onclick="irAlPaso(2)"><i class="bi bi-arrow-left me-2"></i>Atrás</button>
+                <button class="btn-wizard-nav btn-wizard-next" id="btn-next-step-3" onclick="irAlPaso(4)">Ingresar mis Datos<i class="bi bi-arrow-right ms-2"></i></button>
+            </div>
+        </div>
+
+        <!-- ==================== PASO 4: FORMULARIO DE DATOS ==================== -->
+        <div id="step-section-4" class="wizard-step-section">
+            <h2 class="section-title"><i class="bi bi-person-fill-check me-2"></i>Tus Datos de Contacto</h2>
+            
+            <div class="form-wizard-card">
+                <div class="wizard-input-group">
+                    <label class="wizard-input-label" for="cliente-nombre-w">Nombre Completo</label>
+                    <input type="text" class="wizard-input" id="cliente-nombre-w" placeholder="Ej. Camila Pérez" required oninput="validarFormDatos()">
+                    <div class="wizard-input-error" id="error-nombre">Por favor ingresa tu nombre.</div>
+                </div>
+                
+                <div class="wizard-input-group">
+                    <label class="wizard-input-label" for="cliente-telefono-w">Número de WhatsApp</label>
+                    <input type="tel" class="wizard-input" id="cliente-telefono-w" placeholder="Ej. +56912345678" required oninput="validarFormDatos()">
+                    <small class="text-white-50 d-block mt-1">Usa formato internacional, ej. +56912345678 o 56912345678</small>
+                    <div class="wizard-input-error" id="error-telefono">WhatsApp requerido.</div>
+                </div>
+
+                <div class="wizard-input-group" id="campo-email-w">
+                    <label class="wizard-input-label" for="cliente-email-w">Correo Electrónico</label>
+                    <input type="email" class="wizard-input" id="cliente-email-w" placeholder="Ej. camila@correo.com" oninput="validarFormDatos()">
+                    <div class="wizard-input-error" id="error-email">Correo inválido.</div>
+                </div>
+            </div>
+
+            <!-- Botones de navegación -->
+            <div class="wizard-nav-buttons">
+                <button class="btn-wizard-nav btn-wizard-prev" onclick="irAlPaso(3)"><i class="bi bi-arrow-left me-2"></i>Atrás</button>
+                <button class="btn-wizard-nav btn-wizard-next" id="btn-next-step-4" onclick="irAlPaso(5)" disabled>Confirmar Reserva<i class="bi bi-arrow-right ms-2"></i></button>
+            </div>
+        </div>
+
+        <!-- ==================== PASO 5: CONFIRMACIÓN Y PAGO ==================== -->
+        <div id="step-section-5" class="wizard-step-section">
+            <h2 class="section-title"><i class="bi bi-shield-check me-2"></i>Resumen y Pago</h2>
+            
+            <div class="row">
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="summary-card">
+                        <h4 class="summary-title">✨ Detalle de tu Reserva</h4>
+                        <div id="detalle-reserva-wizard">
+                            <!-- Inyectado por JS -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 col-md-12">
+                    <div class="summary-card mb-4" style="border-color: var(--fucsia-neon); box-shadow: 0 10px 25px rgba(255, 0, 255, 0.05);">
+                        <h4 class="summary-title" style="color: var(--fucsia-neon);">💵 Monto a Pagar Hoy</h4>
+                        
+                        <div class="form-check p-3 mb-2" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer;" onclick="document.getElementById('abono-total').click()">
+                            <input class="form-check-input" type="radio" name="opcionAbonoW" id="abono-total" value="total" checked onchange="actualizarMontoResumen()">
+                            <label class="form-check-label text-white fw-bold ps-2" for="abono-total">Pagar Total (<span id="abono-total-txt">$0</span>)</label>
+                        </div>
+                        
+                        <div class="form-check p-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer;" onclick="document.getElementById('abono-parcial').click()">
+                            <input class="form-check-input" type="radio" name="opcionAbonoW" id="abono-parcial" value="abono" onchange="actualizarMontoResumen()">
+                            <label class="form-check-label text-white fw-bold ps-2" for="abono-parcial">Abonar el 20% (<span id="abono-parcial-txt">$0</span>)</label>
+                        </div>
+                    </div>
+
+                    <div class="summary-card">
+                        <h4 class="summary-title" style="color: var(--cyan-neon);">💳 ¿Cómo deseas pagar?</h4>
+                        
+                        <div class="payment-card-w active" id="card-transferencia-w" onclick="seleccionarMetodoPagoW('transferencia')">
+                            <div class="payment-card-w-content">
+                                <i class="bi bi-bank fs-2" style="color: var(--transfer-green);"></i>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 fw-bold text-white">Transferencia Bancaria</h6>
+                                    <small class="text-white-50">Reserva directa por WhatsApp sin cargos.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="payment-card-w" id="card-mercadopago-w" onclick="seleccionarMetodoPagoW('mercadopago')">
+                            <div class="payment-card-w-content">
+                                <i class="bi bi-credit-card-2-front fs-2" style="color: var(--mp-blue);"></i>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 fw-bold text-white">Tarjetas (MercadoPago)</h6>
+                                    <small class="text-white-50">Pago automático e inmediato.</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" id="metodo-pago-w" value="transferencia">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón procesar compra -->
+            <button class="btn-confirmar-reserva mt-4" id="btn-final-reservar" onclick="procesarReservaFinal()">
+                <div class="spinner-border spinner-mp text-dark me-2" role="status" id="spinner-pago-w" style="width: 1.5rem; height: 1.5rem; display: none;"></div>
+                <span id="btn-final-reservar-txt"><i class="bi bi-bank me-2"></i>Confirmar y Agendar</span>
+            </button>
+
+            <!-- Botón de navegación -->
+            <div class="wizard-nav-buttons">
+                <button class="btn-wizard-nav btn-wizard-prev" onclick="irAlPaso(4)"><i class="bi bi-arrow-left me-2"></i>Atrás</button>
+            </div>
+        </div>
+
+    </div> <!-- Cierre wizard-container -->
+</div> <!-- Cierre container general -->
+
+<!-- MODAL DE DATOS DE TRANSFERENCIA (CONFIRMACIÓN) -->
+<div class="modal fade" id="modalTransferenciaW" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #100118; border: 2px solid var(--transfer-green); box-shadow: 0 0 30px rgba(0, 210, 138, 0.4); color: white; border-radius: 15px;">
+            <div class="modal-header border-0 pb-0 justify-content-center pt-4">
+                <i class="bi bi-check-circle-fill" style="font-size: 4rem; color: var(--transfer-green); text-shadow: 0 0 20px var(--transfer-green);"></i>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <h3 class="fw-bold mb-2" style="color: var(--transfer-green);">¡Cita Reservada!</h3>
+                <p class="text-white-50 mb-4">Para confirmar tu hora, por favor realiza la transferencia del monto acordado.</p>
+
+                <div class="text-start p-4 mb-4" style="background: rgba(0,0,0,0.5); border-radius: 10px; border: 1px dashed var(--transfer-green);">
+                    <h5 class="fw-bold mb-3 border-bottom border-secondary pb-2">Datos de Transferencia</h5>
+                    <p class="mb-1"><span class="text-white-50">Banco:</span> <strong>Banco Santander</strong></p>
+                    <p class="mb-1"><span class="text-white-50">Tipo:</span> <strong>Cuenta Corriente</strong></p>
+                    <p class="mb-1"><span class="text-white-50">N° Cuenta:</span> <strong>000094066425</strong></p>
+                    <p class="mb-1"><span class="text-white-50">RUT:</span> <strong>77.912.907-1</strong></p>
+                    <p class="mb-1"><span class="text-white-50">Nombre:</span> <strong>Linda Mamá Spa</strong></p>
+                    <p class="mb-0"><span class="text-white-50">Monto:</span> <strong style="color: var(--fucsia-neon); font-size: 1.2rem;" id="monto-transferencia-w">$0</strong></p>
+                </div>
+
+                <button id="btn-whatsapp-comprobante-w" class="btn w-100 fw-bold py-3" style="background: #25D366; color: white; border-radius: 10px; font-size: 1.1rem; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);">
+                    <i class="bi bi-whatsapp fs-5 me-2"></i> Enviar Comprobante
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- MODAL DE PAGO EXITOSO MERCADO PAGO -->
+<div class="modal fade" id="modalMercadoPagoExitoW" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #100118; border: 2px solid var(--cyan-neon); box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); color: white; border-radius: 15px;">
+            <div class="modal-header border-0 pb-0 justify-content-center pt-4">
+                <i class="bi bi-check-circle-fill" style="font-size: 4rem; color: var(--cyan-neon); text-shadow: 0 0 20px var(--cyan-neon);"></i>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <h3 class="fw-bold mb-2" style="color: var(--cyan-neon);">¡Pago Aprobado!</h3>
+                <p class="text-white-50 mb-4">Tu pago se ha procesado exitosamente por Mercado Pago. Tu cita ya está agendada y confirmada.</p>
+
+                <div class="text-start p-4 mb-4" style="background: rgba(0,0,0,0.5); border-radius: 10px; border: 1px dashed var(--cyan-neon);">
+                    <h5 class="fw-bold mb-3 border-bottom border-secondary pb-2" style="color: var(--cyan-neon);">Detalles de la Reserva</h5>
+                    <p class="mb-1"><span class="text-white-50">Estado:</span> <strong style="color: #25D366;">Confirmada & Pagada</strong></p>
+                    <p class="mb-1"><span class="text-white-50">Pasarela:</span> <strong>Mercado Pago</strong></p>
+                    <p class="mb-0"><span class="text-white-50">Comprobante:</span> <span class="text-white-50">Enviado por correo electrónico</span></p>
+                </div>
+
+                <button class="btn btn-spa w-100 fw-bold py-3" style="border-radius: 10px; font-size: 1.1rem;" onclick="window.location.href='/catalogo'">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Canvas Confeti Overlay -->
+<div id="confeti-canvas-container">
+    <canvas id="confeti-canvas"></canvas>
+</div>
+
 
 <div id="carrito-flotante">
     <div style="background: linear-gradient(90deg, var(--fucsia-neon) 0%, var(--cyan-neon) 100%); padding: 20px; display: flex; justify-content: space-between; align-items: center; border-top-left-radius: 12px; border-top-right-radius: 12px;">
@@ -299,6 +1308,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // --- LÓGICA DE AUDIO Y PLAYLIST ---
     const bgMusic = document.getElementById('spaAudio');
@@ -387,6 +1397,13 @@
 
     // --- CARRITO Y EFECTOS ACORDEÓN / WAOOO ---
     let carrito = JSON.parse(localStorage.getItem('spaCarrito')) || [];
+    let pasoActual = 1;
+    let fechaSeleccionada = null; // YYYY-MM-DD
+    let horaSeleccionada = null;  // HH:mm
+    let sociaSeleccionada = '';   // ID de la socia (vacío para Cualquiera)
+    let listaSocias = [];
+    let todasLasCitas = [];
+    let cargandoDisponibilidad = false;
 
     function toggleDescription(element) {
         sfxOpen.currentTime = 0; sfxOpen.play().catch(()=>{});
@@ -394,13 +1411,16 @@
         const cardTarget = element.closest('.card-servicio');
         const descTarget = cardTarget.querySelector('.card-description-collapse');
 
-        document.querySelectorAll('.card-description-collapse.show').forEach(desc => {
-            if (desc !== descTarget) {
-                desc.classList.remove('show');
+        document.querySelectorAll('.card-servicio').forEach(card => {
+            if (card !== cardTarget) {
+                card.classList.remove('expanded');
+                const desc = card.querySelector('.card-description-collapse');
+                if (desc) desc.classList.remove('show');
             }
         });
 
         descTarget.classList.toggle('show');
+        cardTarget.classList.toggle('expanded');
     }
 
     function actualizarCarritoUI() {
@@ -411,9 +1431,16 @@
 
         lista.innerHTML = ''; let total = 0;
 
-        if (carrito.length === 0) { carritoUI.style.display = 'none'; }
-        else {
-            carritoUI.style.display = 'block';
+        if (carrito.length === 0) { 
+            carritoUI.style.display = 'none'; 
+        } else {
+            // El carrito flotante solo se muestra en el Paso 1
+            if (pasoActual === 1) {
+                carritoUI.style.display = 'block';
+            } else {
+                carritoUI.style.display = 'none';
+            }
+            
             carrito.forEach((item, index) => {
                 total += parseFloat(item.precio);
                 lista.innerHTML += `
@@ -464,8 +1491,782 @@
     };
 
     document.getElementById('btn-agendar').addEventListener('click', () => {
-        window.location.href = '/agenda';
+        irAlPaso(2);
     });
+
+    // ==========================================================================
+    // LÓGICA DE NAVEGACIÓN Y CONTROL DEL WIZARD (PASO A PASO)
+    // ==========================================================================
+
+    window.irAlPaso = function(paso) {
+        if (paso === 2 && carrito.length === 0) {
+            alert("⚠️ Por favor selecciona al menos un servicio del catálogo antes de agendar.");
+            return;
+        }
+
+        sfxOpen.currentTime = 0; sfxOpen.play().catch(()=>{});
+
+        // Ocultar sección actual y mostrar la nueva con animación
+        const seccionActualHTML = document.querySelector('.wizard-step-section.active-section');
+        const seccionNuevaHTML = document.getElementById(`step-section-${paso}`);
+
+        if (seccionActualHTML && seccionNuevaHTML) {
+            seccionActualHTML.classList.remove('active-section');
+            seccionNuevaHTML.classList.add('active-section');
+            // Reset scroll a la parte superior
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        pasoActual = paso;
+
+        // Actualizar barra de progreso (Steppers)
+        document.querySelectorAll('.step-item').forEach(item => {
+            const stepNum = parseInt(item.getAttribute('data-step'));
+            item.classList.remove('active', 'completed');
+            if (stepNum === paso) {
+                item.classList.add('active');
+            } else if (stepNum < paso) {
+                item.classList.add('completed');
+            }
+        });
+
+        const lineProgress = document.getElementById('step-line');
+        const widthPercent = ((paso - 1) / 4) * 100;
+        lineProgress.style.width = `${widthPercent}%`;
+
+        // Actualizar el texto del indicador del paso activo
+        const stepTexts = {
+            1: "Paso 1: Selecciona tus Tratamientos 🌸",
+            2: "Paso 2: Elige el Día y la Hora 📅",
+            3: "Paso 3: Selecciona a tu Especialista 💆",
+            4: "Paso 4: Ingresa tus Datos de Contacto 👤",
+            5: "Paso 5: Resumen de Reserva y Pago 💵"
+        };
+        const textElement = document.getElementById('step-indicator-text');
+        if (textElement && stepTexts[paso]) {
+            textElement.innerText = stepTexts[paso];
+        }
+
+        // Acciones específicas por paso
+        if (paso === 1) {
+            actualizarCarritoUI();
+        } else {
+            // Ocultar carrito flotante si estamos en otros pasos
+            document.getElementById('carrito-flotante').style.display = 'none';
+        }
+
+        if (paso === 2) {
+            cargarDisponibilidad();
+        }
+
+        if (paso === 3) {
+            cargarEspecialistasDisponibles();
+        }
+
+        if (paso === 4) {
+            validarFormDatos();
+        }
+
+        if (paso === 5) {
+            cargarResumenFinal();
+        }
+    };
+
+    window.navegarAPasoDirecto = function(paso) {
+        // Solo permite navegar directamente a pasos que el usuario ya superó o habilitó
+        if (paso < pasoActual) {
+            irAlPaso(paso);
+        } else if (paso === 2 && carrito.length > 0) {
+            irAlPaso(paso);
+        } else if (paso === 3 && fechaSeleccionada && horaSeleccionada) {
+            irAlPaso(paso);
+        } else if (paso === 4 && fechaSeleccionada && horaSeleccionada) {
+            irAlPaso(paso);
+        }
+    };
+
+    // ==========================================================================
+    // DISPONIBILIDAD DE FECHA Y HORA (PASO 2)
+    // ==========================================================================
+
+    function cargarDisponibilidad() {
+        const shimmer = document.getElementById('contenedor-horas-shimmer');
+        const horasDiv = document.getElementById('contenedor-horas');
+        
+        shimmer.style.display = 'block';
+        horasDiv.style.display = 'none';
+
+        // Hacer fetch a citas y socias
+        Promise.all([
+            fetch('/api/citas').then(r => r.json()),
+            fetch('/api/socias').then(r => r.json())
+        ])
+        .then(([citas, socias]) => {
+            todasLasCitas = citas;
+            listaSocias = socias;
+            
+            shimmer.style.display = 'none';
+            horasDiv.style.display = 'block';
+
+            generarCalendarioMensual();
+        })
+        .catch(err => {
+            console.error("Error al cargar disponibilidad:", err);
+            shimmer.style.display = 'none';
+            horasDiv.innerHTML = '<div class="text-center text-warning p-4">Error cargando disponibilidad. Revisa la red.</div>';
+            horasDiv.style.display = 'block';
+        });
+    }
+
+    let calendarAnioActual = new Date().getFullYear();
+    let calendarMesActual = new Date().getMonth();
+
+    function generarCalendarioMensual() {
+        const titleMesAno = document.getElementById('calendar-mes-ano');
+        const gridDias = document.getElementById('calendar-dias-grid');
+        
+        if (!titleMesAno || !gridDias) return;
+        
+        gridDias.innerHTML = '';
+
+        const mesesLargos = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+
+        titleMesAno.innerText = `${mesesLargos[calendarMesActual]} ${calendarAnioActual}`;
+
+        // Obtener primer día del mes
+        const primerDiaMes = new Date(calendarAnioActual, calendarMesActual, 1);
+        // Día de la semana del primer día del mes (0=Domingo, 1=Lunes...)
+        let diaSemanaStart = primerDiaMes.getDay();
+        // Ajustar para que Lunes sea index 0
+        diaSemanaStart = diaSemanaStart === 0 ? 6 : diaSemanaStart - 1;
+
+        // Obtener cantidad de días en el mes
+        const totalDiasMes = new Date(calendarAnioActual, calendarMesActual + 1, 0).getDate();
+
+        const hoy = new Date();
+        const hoySinHora = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+
+        // Renderizar celdas vacías previas
+        for (let i = 0; i < diaSemanaStart; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'calendar-day-cell empty';
+            gridDias.appendChild(emptyCell);
+        }
+
+        // Renderizar días del mes
+        for (let d = 1; d <= totalDiasMes; d++) {
+            const fechaTemp = new Date(calendarAnioActual, calendarMesActual, d);
+            const yyyy = fechaTemp.getFullYear();
+            const mm = String(fechaTemp.getMonth() + 1).padStart(2, '0');
+            const dd = String(fechaTemp.getDate()).padStart(2, '0');
+            const fechaIsoString = `${yyyy}-${mm}-${dd}`;
+
+            const cell = document.createElement('div');
+            cell.className = 'calendar-day-cell';
+            cell.innerText = d;
+
+            // Marcar si es hoy
+            if (fechaTemp.getTime() === hoySinHora.getTime()) {
+                cell.className += ' today';
+            }
+
+            // Deshabilitar días pasados
+            if (fechaTemp.getTime() < hoySinHora.getTime()) {
+                cell.className += ' disabled';
+            } else {
+                if (fechaSeleccionada === fechaIsoString) {
+                    cell.className += ' active';
+                }
+
+                cell.onclick = function(e) {
+                    document.querySelectorAll('.calendar-day-cell').forEach(c => c.classList.remove('active'));
+                    cell.classList.add('active');
+                    crearEfectoRippleWaoo(e, cell);
+                    seleccionarDia(fechaIsoString);
+                };
+            }
+
+            gridDias.appendChild(cell);
+        }
+        
+        // Auto-seleccionar hoy si es el mes actual y no hay selección activa
+        if (!fechaSeleccionada) {
+            const yyyy = hoy.getFullYear();
+            const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+            const dd = String(hoy.getDate()).padStart(2, '0');
+            fechaSeleccionada = `${yyyy}-${mm}-${dd}`;
+        }
+        
+        // Cargar las horas correspondientes
+        if (fechaSeleccionada && fechaSeleccionada.startsWith(`${calendarAnioActual}-${String(calendarMesActual+1).padStart(2, '0')}`)) {
+            seleccionarDia(fechaSeleccionada);
+        }
+    }
+
+    window.cambiarMesCalendario = function(direccion) {
+        calendarMesActual += direccion;
+        if (calendarMesActual < 0) {
+            calendarMesActual = 11;
+            calendarAnioActual--;
+        } else if (calendarMesActual > 11) {
+            calendarMesActual = 0;
+            calendarAnioActual++;
+        }
+        generarCalendarioMensual();
+    };
+
+    function seleccionarDia(diaIso) {
+        fechaSeleccionada = diaIso;
+        renderizarHorasDelDia(diaIso);
+    }
+
+    function renderizarHorasDelDia(diaIso) {
+        const horasDiv = document.getElementById('contenedor-horas');
+        horasDiv.innerHTML = '';
+
+        // Filtrar citas ocupadas en este día
+        const ahora = new Date();
+        const citasDelDia = todasLasCitas.filter(c => {
+            if (!c.fechaHora) return false;
+            
+            // Comprobación de estado
+            const esConfirmada = (c.estado === 'CONFIRMADO' || c.estado === 'AGENDADA' || c.estado === 'COMPLETADO');
+            const esReservaActiva = (c.estado === 'RESERVADO');
+            
+            let esValida = false;
+            if (esConfirmada) {
+                esValida = true;
+            } else if (esReservaActiva && c.fechaCreacion) {
+                // Pago en curso (menos de 10 min de creación)
+                const fechaCrea = new Date(c.fechaCreacion);
+                const difMinutos = (ahora - fechaCrea) / 1000 / 60;
+                if (difMinutos < 10) {
+                    esValida = true;
+                }
+            }
+
+            if (!esValida) return false;
+            return c.fechaHora.startsWith(diaIso);
+        });
+
+        const sociasActivasCount = listaSocias.filter(s => s.activa).length;
+
+        // Horarios habituales: 08:00 a 23:00 en bloques de 30m
+        const jornadas = {
+            mañana: { title: '🌅 Mañana (08:00 - 12:00)', horas: [], min: 8, max: 12 },
+            tarde: { title: '☀️ Tarde (12:00 - 18:00)', horas: [], min: 12, max: 18 },
+            noche: { title: '🌙 Noche (18:00 - 23:30)', horas: [], min: 18, max: 24 }
+        };
+
+        for (let h = 8; h <= 23; h++) {
+            for (let m of [0, 30]) {
+                if (h === 23 && m === 30) continue; // Final de la jornada
+
+                const hhStr = String(h).padStart(2, '0');
+                const mmStr = String(m).padStart(2, '0');
+                const horaString = `${hhStr}:${mmStr}`;
+                const fechaHoraBloque = `${diaIso}T${horaString}:00`;
+
+                // Verificar ocupación
+                // Contar cuántas citas ocupan a esa hora
+                const citasBloque = citasDelDia.filter(c => c.fechaHora.includes(horaString));
+                
+                // Si la cantidad de citas en este bloque es igual o mayor a las socias activas,
+                // significa que todas las especialistas están ocupadas.
+                const ocupado = citasBloque.length >= (sociasActivasCount || 1);
+
+                // Determinar jornada
+                if (h >= 8 && h < 12) {
+                    jornadas.mañana.horas.push({ hora: horaString, ocupado: ocupado });
+                } else if (h >= 12 && h < 18) {
+                    jornadas.tarde.horas.push({ hora: horaString, ocupado: ocupado });
+                } else if (h >= 18 && h < 24) {
+                    jornadas.noche.horas.push({ hora: horaString, ocupado: ocupado });
+                }
+            }
+        }
+
+        // Renderizar jornadas
+        Object.keys(jornadas).forEach(key => {
+            const j = jornadas[key];
+            if (j.horas.length === 0) return;
+
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'mb-4';
+            groupDiv.innerHTML = `<div class="hours-group-title">${j.title}</div>`;
+
+            const grid = document.createElement('div');
+            grid.className = 'hours-grid';
+
+            j.horas.forEach(item => {
+                const btn = document.createElement('div');
+                btn.className = 'hour-btn';
+                if (item.ocupado) {
+                    btn.className += ' disabled';
+                    btn.innerText = `${item.hora} ⛔`;
+                } else {
+                    btn.innerText = item.hora;
+                    if (horaSeleccionada === item.hora) {
+                        btn.className += ' active';
+                    }
+                    btn.onclick = function(e) {
+                        if (btn.classList.contains('disabled')) return;
+                        
+                        sfxAdd.currentTime = 0; sfxAdd.play().catch(()=>{});
+                        document.querySelectorAll('.hour-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        crearEfectoRippleWaoo(e, btn);
+                        horaSeleccionada = item.hora;
+                        
+                        // Habilitar botón de continuar del Paso 2
+                        document.getElementById('btn-next-step-2').disabled = false;
+                        
+                        // Avanzar automáticamente con retraso corto para apreciar la animación
+                        setTimeout(() => {
+                            irAlPaso(3);
+                        }, 500);
+                    };
+                }
+                grid.appendChild(btn);
+            });
+
+            groupDiv.appendChild(grid);
+            horasDiv.appendChild(groupDiv);
+        });
+    }
+
+    // ==========================================================================
+    // SELECCIÓN DE ESPECIALISTA (PASO 3)
+    // ==========================================================================
+
+    function cargarEspecialistasDisponibles() {
+        const grid = document.getElementById('lista-socias-wizard');
+        grid.innerHTML = '';
+
+        const activas = listaSocias.filter(s => s.activa);
+
+        // Opción Cualquier Especialista
+        const cardCualquiera = document.createElement('div');
+        cardCualquiera.className = 'specialist-card-w';
+        if (sociaSeleccionada === '') {
+            cardCualquiera.className += ' active';
+        }
+        cardCualquiera.innerHTML = `
+            <div style="font-size: 50px; color: var(--cyan-neon); margin-bottom: 12px; line-height: 1;"><i class="bi bi-stars"></i></div>
+            <h6 class="specialist-name-w">Cualquiera</h6>
+            <small class="specialist-desc-w">Te asignamos a la especialista con mayor disponibilidad.</small>
+        `;
+        cardCualquiera.onclick = function(e) {
+            document.querySelectorAll('.specialist-card-w').forEach(c => c.classList.remove('active'));
+            cardCualquiera.classList.add('active');
+            crearEfectoRippleWaoo(e, cardCualquiera);
+            sociaSeleccionada = '';
+            
+            setTimeout(() => {
+                irAlPaso(4);
+            }, 500);
+        };
+        grid.appendChild(cardCualquiera);
+
+        // Renderizar especialistas individuales
+        activas.forEach(s => {
+            const card = document.createElement('div');
+            card.className = 'specialist-card-w';
+            
+            // Verificar si esta especialista está ocupada a la hora elegida
+            // Buscamos si tiene citas a la hora seleccionada
+            const ocupada = todasLasCitas.some(c => {
+                if (c.socia && c.socia.id === s.id && c.fechaHora) {
+                    const esConfirmada = (c.estado === 'CONFIRMADO' || c.estado === 'AGENDADA' || c.estado === 'COMPLETADO');
+                    const esReservaActiva = (c.estado === 'RESERVADO');
+                    let esValida = esConfirmada;
+                    if (esReservaActiva && c.fechaCreacion) {
+                        const difMinutos = (new Date() - new Date(c.fechaCreacion)) / 1000 / 60;
+                        if (difMinutos < 10) esValida = true;
+                    }
+                    return esValida && c.fechaHora.startsWith(fechaSeleccionada) && c.fechaHora.includes(horaSeleccionada);
+                }
+                return false;
+            });
+
+            if (ocupada) {
+                card.className += ' disabled';
+            } else if (sociaSeleccionada == s.id) {
+                card.className += ' active';
+            }
+
+            let avatarUrl = s.fotoUrl ? s.fotoUrl : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
+            
+            card.innerHTML = `
+                <img src="${avatarUrl}" class="specialist-photo-w" alt="${s.nombre}">
+                <h6 class="specialist-name-w">${s.nombre}</h6>
+                <small class="specialist-desc-w">${ocupada ? '⛔ Ocupada a esta hora' : (s.especialidad || 'Especialista')}</small>
+            `;
+
+            if (!ocupada) {
+                card.onclick = function(e) {
+                    document.querySelectorAll('.specialist-card-w').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    crearEfectoRippleWaoo(e, card);
+                    sociaSeleccionada = s.id;
+                    
+                    setTimeout(() => {
+                        irAlPaso(4);
+                    }, 500);
+                };
+            }
+
+            grid.appendChild(card);
+        });
+    }
+
+    // ==========================================================================
+    // FORMULARIO DE DATOS (PASO 4)
+    // ==========================================================================
+
+    window.validarFormDatos = function() {
+        const nombre = document.getElementById('cliente-nombre-w').value.trim();
+        const telefono = document.getElementById('cliente-telefono-w').value.trim();
+        const email = document.getElementById('cliente-email-w').value.trim();
+        const metodoPago = document.getElementById('metodo-pago-w').value;
+
+        const errorNombre = document.getElementById('error-nombre');
+        const errorTelefono = document.getElementById('error-telefono');
+        const errorEmail = document.getElementById('error-email');
+
+        let isValid = true;
+
+        if (nombre.length === 0) {
+            isValid = false;
+        }
+
+        // WhatsApp numérico básico
+        if (telefono.length < 8) {
+            isValid = false;
+        }
+
+        // Validar correo si es MercadoPago
+        if (metodoPago === 'mercadopago') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (email.length === 0 || !emailRegex.test(email)) {
+                isValid = false;
+            }
+        }
+
+        document.getElementById('btn-next-step-4').disabled = !isValid;
+    };
+
+    window.seleccionarSubCategoria = function(tipo) {
+        try { document.getElementById('sfx-open').currentTime = 0; document.getElementById('sfx-open').play().catch(()=>{}); } catch(ex) {}
+        const tabPacks = document.getElementById('tab-packs-vip');
+        const tabSesiones = document.getElementById('tab-sesiones');
+        const secPacks = document.getElementById('sub-sec-packs');
+        const secSesiones = document.getElementById('sub-sec-sesiones');
+
+        if (!tabPacks || !tabSesiones || !secPacks || !secSesiones) return;
+
+        if (tipo === 'packs') {
+            tabPacks.classList.add('active');
+            tabSesiones.classList.remove('active');
+            secPacks.style.display = 'block';
+            secSesiones.style.display = 'none';
+        } else {
+            tabPacks.classList.remove('active');
+            tabSesiones.classList.add('active');
+            secPacks.style.display = 'none';
+            secSesiones.style.display = 'block';
+        }
+    };
+
+    // ==========================================================================
+    // CONFIRMACIÓN Y PAGO (PASO 5)
+    // ==========================================================================
+
+    window.seleccionarMetodoPagoW = function(metodo) {
+        document.getElementById('metodo-pago-w').value = metodo;
+        document.querySelectorAll('.payment-card-w').forEach(c => c.classList.remove('active'));
+        
+        const cardMp = document.getElementById('card-mercadopago-w');
+        const cardTrans = document.getElementById('card-transferencia-w');
+        const emailField = document.getElementById('campo-email-w');
+        const btnText = document.getElementById('btn-final-reservar-txt');
+        const btn = document.getElementById('btn-final-reservar');
+
+        if (metodo === 'transferencia') {
+            cardTrans.classList.add('active');
+            btn.style.background = 'linear-gradient(135deg, #00f5a0 0%, #00d9e8 100%)';
+            btn.style.color = '#000000';
+            btn.style.boxShadow = '0 8px 30px rgba(0, 245, 160, 0.4)';
+            btnText.innerHTML = '<i class="bi bi-bank me-2"></i>Confirmar y Agendar';
+        } else {
+            cardMp.classList.add('active');
+            btn.style.background = 'linear-gradient(135deg, #009ee3 0%, #005f8f 100%)';
+            btn.style.color = '#ffffff';
+            btn.style.boxShadow = '0 8px 30px rgba(0, 158, 227, 0.4)';
+            btnText.innerHTML = '<i class="bi bi-credit-card me-2"></i>Pagar Seguro';
+        }
+
+        validarFormDatos();
+    };
+
+    function cargarResumenFinal() {
+        const container = document.getElementById('detalle-reserva-wizard');
+        container.innerHTML = '';
+
+        let total = 0;
+        let htmlList = '<ul style="list-style: none; padding: 0; margin-bottom: 20px;">';
+        carrito.forEach(i => {
+            total += parseFloat(i.precio);
+            htmlList += `
+                <li style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,0.1);">
+                    <span class="text-white-50">${i.nombre}</span>
+                    <strong style="color: var(--cyan-neon);">$${Number(i.precio).toLocaleString('es-CL')}</strong>
+                </li>`;
+        });
+        htmlList += '</ul>';
+
+        // Formatear Fecha
+        const fParts = fechaSeleccionada.split('-');
+        const fechaText = `${fParts[2]}/${fParts[1]}/${fParts[0]}`;
+
+        // Especialista Text
+        let especialistaText = 'Cualquiera';
+        if (sociaSeleccionada) {
+            const socia = listaSocias.find(s => s.id == sociaSeleccionada);
+            if (socia) especialistaText = socia.nombre;
+        }
+
+        const nombreCliente = document.getElementById('cliente-nombre-w').value.trim();
+
+        container.innerHTML = `
+            ${htmlList}
+            <div class="summary-item"><span class="summary-item-label">📅 Fecha:</span><span class="summary-item-value">${fechaText}</span></div>
+            <div class="summary-item"><span class="summary-item-label">⏰ Hora:</span><span class="summary-item-value">${horaSeleccionada} Hrs</span></div>
+            <div class="summary-item"><span class="summary-item-label">💆 Especialista:</span><span class="summary-item-value">${especialistaText}</span></div>
+            <div class="summary-item"><span class="summary-item-label">👤 Cliente:</span><span class="summary-item-value">${nombreCliente}</span></div>
+            <div class="summary-total">
+                <span class="cart-total-text" style="font-size: 1.3rem;">Total Reserva:</span>
+                <span class="cart-total-text" style="color: var(--cyan-neon); font-size: 1.6rem; text-shadow: 0 0 10px var(--cyan-neon);">$${total.toLocaleString('es-CL')}</span>
+            </div>
+        `;
+
+        // Llenar montos a abonar
+        document.getElementById('abono-total-txt').innerText = `$${total.toLocaleString('es-CL')}`;
+        document.getElementById('abono-parcial-txt').innerText = `$${(total * 0.2).toLocaleString('es-CL')}`;
+
+        actualizarMontoResumen();
+    }
+
+    let montoAbonoW = 0;
+
+    window.actualizarMontoResumen = function() {
+        const opcion = document.querySelector('input[name="opcionAbonoW"]:checked').value;
+        let total = 0;
+        carrito.forEach(i => total += parseFloat(i.precio));
+        montoAbonoW = Math.floor(opcion === 'total' ? total : total * 0.2);
+    };
+
+    window.procesarReservaFinal = function() {
+        const nombre = document.getElementById('cliente-nombre-w').value.trim();
+        const telefono = document.getElementById('cliente-telefono-w').value.trim();
+        const email = document.getElementById('cliente-email-w').value.trim();
+        const metodoPago = document.getElementById('metodo-pago-w').value;
+        const fecha = `${fechaSeleccionada}T${horaSeleccionada}:00`;
+
+        if (!nombre || !telefono) {
+            return alert("Por favor ingresa tu Nombre y número de WhatsApp en el paso anterior.");
+        }
+
+        // Bloquear interfaz
+        document.getElementById('btn-final-reservar').disabled = true;
+        document.getElementById('spinner-pago-w').style.display = 'inline-block';
+        document.getElementById('btn-final-reservar-txt').innerText = 'Procesando...';
+
+        let total = 0;
+        carrito.forEach(i => total += parseFloat(i.precio));
+
+        let tituloReserva = "Reserva - " + (carrito.map(i => i.nombre).join(", "));
+        if (sociaSeleccionada) {
+            tituloReserva += `|${sociaSeleccionada}`;
+        }
+
+        let metodoPagoEnviar = metodoPago;
+        if (metodoPago === 'mercadopago' && email.toLowerCase() === 'test@gomezsystems.com') {
+            metodoPagoEnviar = 'transferencia';
+        }
+
+        fetch('/api/pagos/crear-preferencia', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                titulo: tituloReserva,
+                precio: montoAbonoW,
+                montoTotal: total,
+                nombre: nombre,
+                telefono: telefono,
+                email: email,
+                fechaAgendamiento: fecha,
+                metodoPago: metodoPagoEnviar
+            })
+        })
+        .then(res => res.text())
+        .then(respuesta => {
+            if (respuesta.startsWith("TRANSFERENCIA_OK")) {
+                localStorage.removeItem('spaCarrito');
+                carrito = [];
+                
+                if (metodoPago === 'mercadopago' && email.toLowerCase() === 'test@gomezsystems.com') {
+                    lanzarConfeti();
+                    new bootstrap.Modal(document.getElementById('modalMercadoPagoExitoW')).show();
+                } else {
+                    document.getElementById('monto-transferencia-w').innerText = "$" + montoAbonoW.toLocaleString('es-CL');
+                    const idCita = respuesta.split("|")[1];
+
+                    const fParts = fechaSeleccionada.split('-');
+                    const fechaTextStr = `${fParts[2]}/${fParts[1]}`;
+                    const msj = `¡Hola Linda Mamá Spa! 👋\nAcabo de agendar cita para el *${fechaTextStr}* a las *${horaSeleccionada}*.\nMi nombre es *${nombre}*.\n\nAquí te envío mi comprobante de transferencia por *$${montoAbonoW.toLocaleString('es-CL')}*. (Ref: #${idCita})`;
+
+                    document.getElementById('btn-whatsapp-comprobante-w').onclick = () => {
+                        window.open(`https://wa.me/56982583042?text=${encodeURIComponent(msj)}`, '_blank');
+                        setTimeout(() => {
+                            window.location.href = '/catalogo';
+                        }, 500);
+                    };
+
+                    lanzarConfeti();
+                    new bootstrap.Modal(document.getElementById('modalTransferenciaW')).show();
+                }
+            } else if (respuesta.startsWith("http")) {
+                // Redirección MercadoPago
+                localStorage.removeItem('spaCarrito');
+                window.location.href = respuesta;
+            } else {
+                alert("Error de Servidor: " + respuesta);
+                restaurarBotonWizard();
+            }
+        })
+        .catch(err => {
+            console.error("Error en el flujo de reserva:", err);
+            if (err instanceof ReferenceError || err instanceof TypeError) {
+                alert("Error local en la aplicación: " + err.message + "\nReporta este detalle para solucionarlo.");
+            } else {
+                alert("Error al conectar con el servidor de pagos o procesar la reserva. Por favor intenta de nuevo.");
+            }
+            restaurarBotonWizard();
+        });
+    };
+
+    function restaurarBotonWizard() {
+        document.getElementById('btn-final-reservar').disabled = false;
+        document.getElementById('spinner-pago-w').style.display = 'none';
+        seleccionarMetodoPagoW(document.getElementById('metodo-pago-w').value);
+    }
+
+    // Detectar si el usuario viene de la agenda
+    window.addEventListener('load', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pasoParam = urlParams.get('paso');
+        if (pasoParam === 'agenda') {
+            if (carrito.length > 0) {
+                irAlPaso(2);
+            } else {
+                alert("✨ ¡Bienvenida al agendamiento! Por favor, añade a tu reserva el tratamiento que deseas de la lista para continuar.");
+            }
+        }
+    });
+
+    // --- EFECTO DE RIPPLE PERSONALIZADO ---
+    function crearEfectoRippleWaoo(e, el) {
+        const circle = document.createElement('div');
+        const d = Math.max(el.clientWidth, el.clientHeight);
+        circle.style.width = circle.style.height = d + 'px';
+
+        const rect = el.getBoundingClientRect();
+        circle.style.left = e.clientX - rect.left - d/2 + 'px';
+        circle.style.top = e.clientY - rect.top - d/2 + 'px';
+        circle.classList.add('ripple-neon-effect');
+
+        el.appendChild(circle);
+        setTimeout(() => {
+            circle.remove();
+        }, 600);
+    }
+
+    // --- MOTOR DE CONFETI NEÓN EN CANVAS ---
+    const canvas = document.getElementById('confeti-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    class ConfetiParticle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height - canvas.height;
+            this.r = Math.random() * 5 + 3; // tamaño de estrella
+            this.d = Math.random() * canvas.height;
+            this.color = Math.random() > 0.5 ? '#ff00ff' : '#00e5ff';
+            this.glow = Math.random() > 0.5 ? 12 : 0;
+            this.vx = Math.random() * 2 - 1;
+            this.vy = Math.random() * 3 + 2;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.y > canvas.height) {
+                this.y = -20;
+                this.x = Math.random() * canvas.width;
+            }
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
+            ctx.fillStyle = this.color;
+            if (this.glow > 0) {
+                ctx.shadowBlur = this.glow;
+                ctx.shadowColor = this.color;
+            } else {
+                ctx.shadowBlur = 0;
+            }
+            ctx.fill();
+        }
+    }
+
+    let animationFrameId;
+    function animateConfeti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        animationFrameId = requestAnimationFrame(animateConfeti);
+    }
+
+    function lanzarConfeti() {
+        const container = document.getElementById('confeti-canvas-container');
+        container.style.display = 'block';
+        canvas.style.display = 'block';
+        resizeCanvas();
+        particles = [];
+        for (let i = 0; i < 80; i++) {
+            particles.push(new ConfetiParticle());
+        }
+        animateConfeti();
+        setTimeout(() => {
+            cancelAnimationFrame(animationFrameId);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.style.display = 'none';
+            container.style.display = 'none';
+        }, 5000); // Celebración de 5 segundos
+    }
 
     actualizarCarritoUI();
 </script>

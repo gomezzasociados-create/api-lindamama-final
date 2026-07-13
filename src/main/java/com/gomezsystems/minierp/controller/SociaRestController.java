@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,5 +111,71 @@ public class SociaRestController {
         ventaRepository.saveAll(pendientes);
 
         return ResponseEntity.ok(pago);
+    }
+
+    @PostMapping("/upload-foto")
+    public ResponseEntity<?> subirFotoSocia(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("El archivo está vacío");
+        }
+        try {
+            java.io.File uploadDir = new java.io.File("uploads");
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            String extension = "";
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String nuevoNombre = "socia_" + System.currentTimeMillis() + extension;
+
+            java.nio.file.Path rutaDestino = java.nio.file.Paths.get("uploads", nuevoNombre);
+            java.nio.file.Files.copy(file.getInputStream(), rutaDestino, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("fotoUrl", "/uploads/" + nuevoNombre);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error al guardar archivo: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/reporte-diario")
+    public ResponseEntity<?> obtenerReporteDiario(@PathVariable Long id) {
+        Optional<Socia> sociaOpt = sociaRepository.findById(id);
+        if (sociaOpt.isEmpty()) return ResponseEntity.notFound().build();
+
+        java.time.LocalDateTime inicioHoy = java.time.LocalDate.now().atStartOfDay();
+        java.time.LocalDateTime finHoy = java.time.LocalDate.now().atTime(23, 59, 59);
+
+        List<Venta> ventasHoy = ventaRepository.findBySociaIdAndFechaHoraBetweenOrderByFechaHoraDesc(id, inicioHoy, finHoy);
+        
+        Double totalGanadoSocia = 0.0;
+        List<Map<String, Object>> desgloseServicios = new ArrayList<>();
+
+        for (Venta v : ventasHoy) {
+            if ("RESERVADO".equals(v.getEstado())) continue; // saltar reservas web no pagadas
+            
+            Double montoServicio = v.getTotalPagado() != null ? v.getTotalPagado() : v.getMontoTotal();
+            Double comisionSocia = v.getMontoSocia() != null ? v.getMontoSocia() : 0.0;
+            totalGanadoSocia += comisionSocia;
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("detalle", v.getDetalle());
+            item.put("monto", montoServicio);
+            item.put("comision", comisionSocia);
+            desgloseServicios.add(item);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("socia", sociaOpt.get().getNombre());
+        response.put("telefono", sociaOpt.get().getTelefono());
+        response.put("servicios", desgloseServicios);
+        response.put("totalGanado", totalGanadoSocia);
+
+        return ResponseEntity.ok(response);
     }
 }

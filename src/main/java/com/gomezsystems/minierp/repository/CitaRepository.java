@@ -8,6 +8,10 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 @Repository
 public interface CitaRepository extends JpaRepository<Cita, Long> {
 
@@ -18,4 +22,7 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
 
     List<Cita> findBySociaIdAndFechaHoraAfterOrderByFechaHoraAsc(Long sociaId, LocalDateTime inicio);
 
+    @Modifying
+    @Query("UPDATE Cita c SET c.cliente = null WHERE c.cliente.id = :clienteId")
+    void desasociarCliente(@Param("clienteId") Long clienteId);
 }

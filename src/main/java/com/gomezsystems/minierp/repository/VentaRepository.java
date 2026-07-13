@@ -28,4 +28,10 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
     Double sumTotalPagadoByEstadoPagado();
 
     List<Venta> findByEstadoAndFechaHoraBefore(String estado, java.time.LocalDateTime limite);
+
+    List<Venta> findBySociaIdAndFechaHoraBetweenOrderByFechaHoraDesc(Long sociaId, java.time.LocalDateTime inicio, java.time.LocalDateTime fin);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("UPDATE Venta v SET v.cliente = null WHERE v.cliente.id = :clienteId")
+    void desasociarCliente(@Param("clienteId") Long clienteId);
 }

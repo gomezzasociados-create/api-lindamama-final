@@ -13,9 +13,9 @@ public class WhatsappService {
     // ========================================================
     // ⚠️ PEGA AQUÍ TUS DATOS REALES DE EVOLUTION API:
     // ========================================================
-    private final String apiUrl = "";      // Ej: "https://api.gomezz.space" (Sin barra / al final)
-    private final String instancia = "";   // Ej: "lindamama"
-    private final String token = "";       // Tu Global Apikey o el de la instancia
+    private final String apiUrl = "https://api.gomezz.space";      // Ej: "https://api.gomezz.space" (Sin barra / al final)
+    private final String instancia = "systems";   // Ej: "lindamama"
+    private final String token = "9FCB1D6E24E9-4815-B408-2EC8C2735312";       // Tu Global Apikey o el de la instancia
     // ========================================================
 
     private final RestTemplate restTemplate = new RestTemplate();

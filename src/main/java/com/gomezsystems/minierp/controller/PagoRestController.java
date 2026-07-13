@@ -161,6 +161,22 @@ public class PagoRestController {
 
             // 🔥 5. DEVOLUCIÓN SEGÚN MÉTODO 🔥
             if ("transferencia".equals(metodoPago)) {
+                if (emailCli != null && emailCli.toLowerCase().contains("test@gomezsystems.com")) {
+                    try {
+                        String fechaLegible = nuevaCita.getFechaHora() != null ? nuevaCita.getFechaHora().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM HH:mm")) : "Por confirmar";
+                        String msgCliente = "🌸 *CONFIRMACIÓN DE PAGO - LINDA MAMÁ SPA* 🌸\n\n" +
+                                     "Hola *" + nombreCli + "*,\n" +
+                                     "Te confirmamos que hemos recibido con éxito tu pago de la reserva por un valor de *$" + String.format("%,.0f", precio.doubleValue()) + "*.\n\n" +
+                                     "📌 *Detalles de tu cita:*\n" +
+                                     "- *Servicio:* " + titulo + "\n" +
+                                     "- *Fecha y Hora:* " + fechaLegible + "\n" +
+                                     "- *Especialista:* " + (sociaAsignada != null ? sociaAsignada.getNombre() : "Por asignar") + "\n\n" +
+                                     "Tu agendamiento ha sido confirmado y agendado. ¡Te esperamos! ✨";
+                        whatsappService.enviarMensajeTexto(telefonoCli, msgCliente);
+                    } catch (Exception e) {
+                        System.err.println("Error enviando WhatsApp de prueba al cliente: " + e.getMessage());
+                    }
+                }
                 return "TRANSFERENCIA_OK|" + citaGuardada.getId();
             }
 
