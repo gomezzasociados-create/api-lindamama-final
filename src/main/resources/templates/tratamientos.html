@@ -1633,18 +1633,22 @@
         }
 
         const user_data = {
-            em: rawEmail.toLowerCase(),
-            ph: ph,
-            fn: fn,
-            ln: ln,
-            ct: ct,
-            country: country,
-            zp: '',
-            fbp: fbp,
-            fbc: fbc,
-            client_ip_address: window.userLocation.ip,
             client_user_agent: client_user_agent
         };
+
+        if (rawEmail) user_data.em = rawEmail.toLowerCase();
+        if (ph && ph !== '---') user_data.ph = ph;
+        if (fn) user_data.fn = fn;
+        if (ln) user_data.ln = ln;
+        if (ct) user_data.ct = ct;
+        if (country) user_data.country = country;
+        if (fbp) user_data.fbp = fbp;
+        if (fbc) user_data.fbc = fbc;
+
+        const ip = window.userLocation.ip;
+        if (ip && ip !== '::1' && ip !== '127.0.0.1' && ip !== 'localhost') {
+            user_data.client_ip_address = ip;
+        }
 
         if (typeof fbq === 'function') {
             fbq('track', eventName, customData, { eventID: eventId });
