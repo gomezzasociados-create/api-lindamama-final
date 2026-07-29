@@ -73,6 +73,19 @@ public class TratamientoRestController {
                     t.setCantidad("1 sesión");
                 }
 
+                // Clasificación automática por palabras clave
+                String nom = t.getNombre() != null ? t.getNombre().toLowerCase() : "";
+                String dsc = t.getDescripcion() != null ? t.getDescripcion().toLowerCase() : "";
+                if (nom.contains("facial") || dsc.contains("facial")) {
+                    t.setCategoria("faciales");
+                } else if (nom.contains("relaj") || dsc.contains("relaj")) {
+                    t.setCategoria("relajantes");
+                } else if (nom.contains("pack") || dsc.contains("pack")) {
+                    t.setCategoria("pos-operatorios");
+                } else {
+                    t.setCategoria("reductivos");
+                }
+
                 tratamientoRepo.save(t);
                 count++;
             }

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#d63384">
+    <title>Agenda Centro de Mando - Linda Mamá Spa</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- FullCalendar CSS/JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --cyan-neon: #00e5ff;
+            --fucsia-neon: #ff00ff;
+            --blanco-puro: #ffffff;
+            --violeta-profundo: #100118;
+            --violeta-tarjeta: #1c0229;
+        }
+
+        body {
+            background-color: var(--violeta-profundo);
+            background-image: radial-gradient(circle at center, #2a0342 0%, var(--violeta-profundo) 80%);
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .navbar-cyber {
+            background: rgba(28, 2, 41, 0.95);
+            border-bottom: 2px solid var(--fucsia-neon);
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            color: var(--blanco-puro) !important;
+            text-shadow: 0 0 10px var(--fucsia-neon);
+            letter-spacing: 1px;
+        }
+
+        .btn-nav-top {
+            transition: 0.3s;
+        }
+
+        .grid-card {
+            background: rgba(28, 2, 41, 0.8);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* FullCalendar Custom Overrides to match Neon Theme */
+        .fc {
+            --fc-border-color: rgba(255, 255, 255, 0.1);
+            --fc-page-bg-color: transparent;
+            --fc-today-bg-color: rgba(0, 229, 255, 0.08);
+            --fc-event-text-color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .fc-header-toolbar {
+            margin-bottom: 20px !important;
+        }
+
+        .fc-toolbar-title {
+            font-size: 1.4rem !important;
+            font-weight: 800;
+            color: var(--cyan-neon) !important;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+            text-transform: capitalize;
+        }
+
+        .fc-button-primary {
+            background-color: var(--violeta-tarjeta) !important;
+            border-color: rgba(0, 229, 255, 0.4) !important;
+            color: var(--cyan-neon) !important;
+            font-weight: 600 !important;
+            transition: 0.3s !important;
+            text-transform: capitalize !important;
+        }
+
+        .fc-button-primary:hover, .fc-button-primary:focus {
+            background-color: var(--cyan-neon) !important;
+            border-color: var(--cyan-neon) !important;
+            color: black !important;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.6) !important;
+        }
+
+        .fc-button-active {
+            background-color: var(--fucsia-neon) !important;
+            border-color: var(--fucsia-neon) !important;
+            color: white !important;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.6) !important;
+        }
+
+        .fc-day-today {
+            background-color: rgba(0, 229, 255, 0.08) !important;
+        }
+
+        .fc-col-header-cell-cushion {
+            color: var(--cyan-neon) !important;
+            font-weight: 600;
+            text-decoration: none !important;
+        }
+
+        .fc-timegrid-slot {
+            height: 45px !important;
+        }
+
+        .fc-timegrid-slot-label-cushion, .fc-timegrid-axis-cushion {
+            color: rgba(255,255,255,0.6) !important;
+            font-size: 0.8rem;
+        }
+
+        .fc-event {
+            border-radius: 6px !important;
+            padding: 2px 4px !important;
+            font-size: 0.8rem !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .fc-event:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            background-color: #1c0229;
+            border: 2px solid #00e5ff;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .form-control, .form-select {
+            background: #100118;
+            border: 1px solid #ff00ff;
+            color: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: #100118;
+            color: white;
+            border-color: #00e5ff;
+            box-shadow: 0 0 10px rgba(0,229,255,0.5);
+        }
+
+        .btn-cyan {
+            background: transparent;
+            color: var(--cyan-neon);
+            border: 1px solid var(--cyan-neon);
+            transition: 0.3s;
+        }
+        .btn-cyan:hover {
+            background: var(--cyan-neon);
+            color: black;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+        }
+        .btn-fucsia {
+            background: var(--fucsia-neon);
+            color: white;
+            border: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-fucsia:hover {
+            background: #d000d0;
+            box-shadow: 0 0 15px var(--fucsia-neon);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="sfx-click" preload="auto" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3?filename=bubble-sound-43207.mp3"></audio>
+
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand navbar-cyber sticky-top">
+        <div class="container-fluid px-2 px-md-4">
+            <a class="navbar-brand" href="/admin"><i class="bi bi-stars me-1 text-info"></i>Linda Mamá | <span style="font-family: 'Poppins'; font-size: 1rem; color: var(--cyan-neon);">AGENDA VIP</span></a>
+
+            <div class="d-flex align-items-center gap-2">
+                <a href="/admin" class="btn btn-sm btn-outline-light btn-nav-top"><i class="bi bi-speedometer2"></i> <span class="d-none d-md-inline">Dashboard</span></a>
+                <a href="/pos" class="btn btn-sm btn-outline-light btn-nav-top"><i class="bi bi-calculator"></i> <span class="d-none d-md-inline">POS</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="container-fluid px-3 px-md-4 py-4">
+        
+        <!-- Filter Controls -->
+        <div class="grid-card p-3 mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-md-6 d-flex align-items-center gap-2">
+                    <i class="bi bi-funnel-fill text-info fs-5"></i>
+                    <label class="form-label text-info fw-bold m-0 small text-uppercase">Filtrar por Profesional:</label>
+                    <select id="filtro-socia" class="form-select bg-dark text-white border-secondary w-auto" onchange="filtrarCalendario()">
+                        <option value="">Todas las profesionales</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-6 text-md-end">
+                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 fw-bold">🟢 Confirmado / Pagado</span>
+                    <span class="badge bg-warning-subtle text-warning border border-warning px-3 py-2 fw-bold">🟡 Pendiente / Reservado</span>
+                    <span class="badge bg-info-subtle text-info border border-info px-3 py-2 fw-bold">🟣 Agendada</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Google Calendar Frame -->
+        <div class="grid-card p-4">
+            <div id="calendar"></div>
+        </div>
+    </div>
+
+    <!-- Cita Details Modal -->
+    <div class="modal fade" id="modalDetalleCita" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title fw-bold" style="color: var(--cyan-neon);"><i class="bi bi-calendar-event me-2"></i>Detalle de la Reserva</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="detalleCitaId">
+                    
+                    <div class="mb-3">
+                        <small class="text-white-50 d-block fw-bold text-uppercase" style="font-size:0.75rem;">Servicio / Tratamiento</small>
+                        <h4 id="detalleServicio" class="fw-bold text-white mb-0">...</h4>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-white-50 d-block fw-bold text-uppercase" style="font-size:0.75rem;">Cliente</small>
+                            <span id="detalleCliente" class="fw-bold text-info fs-5">...</span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-white-50 d-block fw-bold text-uppercase" style="font-size:0.75rem;">Profesional Asignada</small>
+                            <span id="detalleSocia" class="fw-bold text-warning fs-5">...</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-white-50 d-block fw-bold text-uppercase" style="font-size:0.75rem;">Fecha y Hora</small>
+                            <span id="detalleFecha" class="fw-bold text-white">...</span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-white-50 d-block fw-bold text-uppercase" style="font-size:0.75rem;">Estado de la Cita</small>
+                            <div id="detalleEstadoBadge">...</div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 p-2 rounded" style="background: rgba(0,0,0,0.3);">
+                        <div class="col-6">
+                            <small class="text-white-50 d-block fw-bold text-uppercase" style="font-size:0.7rem;">Valor Servicio</small>
+                            <span id="detalleMontoTotal" class="fw-bold text-white">$0</span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-white-50 d-block fw-bold text-uppercase" style="font-size:0.7rem;">Abonado / Pagado</small>
+                            <span id="detalleMontoPagado" class="fw-bold text-success">$0</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-white-50 d-block fw-bold text-uppercase" style="font-size:0.75rem;">Contacto Cliente</small>
+                        <span id="detalleTelefono" class="text-white-50">...</span>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex flex-wrap gap-2 border-top border-secondary justify-content-between">
+                    <div class="d-flex gap-1 w-100">
+                        <button class="btn btn-sm btn-outline-danger flex-grow-1" onclick="cancelarCitaDesdeCalendar()"><i class="bi bi-trash"></i> Cancelar</button>
+                        <button class="btn btn-sm btn-primary flex-grow-1" onclick="abrirReagendarDesdeCalendar()"><i class="bi bi-clock"></i> Reagendar</button>
+                    </div>
+                    <div class="d-flex gap-1 w-100">
+                        <button class="btn btn-sm btn-cyan flex-grow-1" id="btnConfirmarPagoCal" onclick="confirmarCitaDesdeCalendar()"><i class="bi bi-check-circle"></i> Aprobar Cita</button>
+                        <button class="btn btn-sm btn-success flex-grow-1" onclick="enviarWhatsAppDesdeCalendar()"><i class="bi bi-whatsapp"></i> Confirmar WA</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reagendar Modal -->
+    <div class="modal fade" id="modalReagendar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content border border-info">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" style="color: var(--cyan-neon);">Reagendar Cita</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="reagendarCitaId">
+                    <label class="form-label text-info fw-bold">Nueva Fecha y Hora:</label>
+                    <input type="datetime-local" id="nuevaFechaInput" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cyan w-100 fw-bold" onclick="ejecutarReagendamiento(event)">Confirmar Cambio</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Scripts -->
+    <script>
+        let modalDetalle;
+        let modalReagendar;
+        let selectedSociaId = '';
+        let currentCitaData = {};
+
+        function reproducirClick() {
+            try {
+                document.getElementById('sfx-click').currentTime = 0;
+                document.getElementById('sfx-click').play().catch(()=>{});
+            } catch(e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            modalDetalle = new bootstrap.Modal(document.getElementById('modalDetalleCita'));
+            modalReagendar = new bootstrap.Modal(document.getElementById('modalReagendar'));
+
+            // Cargar select de profesionales
+            fetch('/api/socias')
+                .then(res => res.json())
+                .then(socias => {
+                    const select = document.getElementById('filtro-socia');
+                    socias.forEach(s => {
+                        if (s.activa) {
+                            select.innerHTML += `<option value="${s.id}">${s.nombre}</option>`;
+                        }
+                    });
+                });
+
+            // Inicializar FullCalendar
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+                },
+                locale: 'es',
+                firstDay: 1,
+                slotMinTime: '08:00:00',
+                slotMaxTime: '21:00:00',
+                allDaySlot: false,
+                slotDuration: '00:30:00',
+                slotLabelFormat: {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    omitZeroMinute: false,
+                    meridiem: 'short'
+                },
+                events: function(info, successCallback, failureCallback) {
+                    fetch('/api/citas')
+                        .then(res => res.json())
+                        .then(citas => {
+                            // Filtrar por profesional seleccionada en el dropdown
+                            if (selectedSociaId) {
+                                citas = citas.filter(c => c.socia && c.socia.id == selectedSociaId);
+                            }
+
+                            const events = [];
+                            citas.forEach(c => {
+                                if (!c.fechaHora) return;
+                                
+                                const startDate = new Date(c.fechaHora);
+                                if (isNaN(startDate.getTime())) return;
+                                
+                                const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+                                if (isNaN(endDate.getTime())) return;
+                                
+                                const cliNombre = c.cliente ? c.cliente.nombre : 'Cliente General';
+                                const title = `${cliNombre} (${c.nombreTratamiento || 'Servicio'})`;
+
+                                // Colores según el estado (soporta CONFIRMADO/CONFIRMADA, PENDIENTE, RESERVADO/RESERVADA)
+                                let color = '#ff00ff'; // default fucsia
+                                const state = (c.estado || '').toUpperCase();
+                                if (state === 'CONFIRMADA' || state === 'CONFIRMADO' || state === 'PAGADO') {
+                                    color = '#00e5ff'; // cian
+                                } else if (state === 'PENDIENTE' || state === 'RESERVADO' || state === 'RESERVADA') {
+                                    color = '#ff9800'; // naranja
+                                } else if (state === 'AGENDADA' || state === 'AGENDADO') {
+                                    color = '#af00ff'; // violeta
+                                }
+
+                                events.push({
+                                    id: c.id,
+                                    title: title,
+                                    start: c.fechaHora,
+                                    end: endDate.toISOString(),
+                                    backgroundColor: color,
+                                    borderColor: color,
+                                    extendedProps: {
+                                        cita: c
+                                    }
+                                });
+                            });
+                            successCallback(events);
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            failureCallback(err);
+                        });
+                },
+                eventClick: function(info) {
+                    reproducirClick();
+                    abrirModalDetalleCita(info.event.extendedProps.cita);
+                }
+            });
+
+            calendar.render();
+            window.fullCalendar = calendar;
+        });
+
+        function filtrarCalendario() {
+            reproducirClick();
+            selectedSociaId = document.getElementById('filtro-socia').value;
+            window.fullCalendar.refetchEvents();
+        }
+
+        function abrirModalDetalleCita(cita) {
+            currentCitaData = cita;
+            document.getElementById('detalleCitaId').value = cita.id;
+            document.getElementById('detalleServicio').innerText = cita.nombreTratamiento || 'Servicio';
+            document.getElementById('detalleCliente').innerText = cita.cliente ? cita.cliente.nombre : 'Cliente General';
+            document.getElementById('detalleSocia').innerText = cita.socia ? cita.socia.nombre : 'Sin profesional asignada';
+            
+            const fechaObj = new Date(cita.fechaHora);
+            document.getElementById('detalleFecha').innerText = fechaObj.toLocaleString('es-CL', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Estado Badge
+            const badge = document.getElementById('detalleEstadoBadge');
+            const state = cita.estado || 'PENDIENTE';
+            badge.innerText = state;
+            if (state === 'CONFIRMADA' || state === 'PAGADO') {
+                badge.className = 'badge bg-success-subtle text-success border border-success px-3 py-1 fw-bold';
+                document.getElementById('btnConfirmarPagoCal').style.display = 'none'; // Ya aprobado
+            } else if (state === 'PENDIENTE' || state === 'RESERVADO') {
+                badge.className = 'badge bg-warning-subtle text-warning border border-warning px-3 py-1 fw-bold';
+                document.getElementById('btnConfirmarPagoCal').style.display = 'inline-block';
+            } else {
+                badge.className = 'badge bg-info-subtle text-info border border-info px-3 py-1 fw-bold';
+                document.getElementById('btnConfirmarPagoCal').style.display = 'inline-block';
+            }
+
+            // Montos
+            document.getElementById('detalleMontoTotal').innerText = '$' + (cita.montoTotal || 0).toLocaleString('es-CL');
+            document.getElementById('detalleMontoPagado').innerText = '$' + (cita.montoPagado || 0).toLocaleString('es-CL');
+            document.getElementById('detalleTelefono').innerText = cita.cliente && cita.cliente.telefono ? cita.cliente.telefono : '---';
+
+            modalDetalle.show();
+        }
+
+        // ACCIONES DE CITA
+        function confirmarCitaDesdeCalendar() {
+            const id = document.getElementById('detalleCitaId').value;
+            if(confirm("¿Confirmar pago y aprobar esta cita?")) {
+                fetch('/api/admin/citas/confirmar/' + id, {method: 'POST'})
+                    .then(() => {
+                        modalDetalle.hide();
+                        window.fullCalendar.refetchEvents();
+                    });
+            }
+        }
+
+        function cancelarCitaDesdeCalendar() {
+            const id = document.getElementById('detalleCitaId').value;
+            if(confirm("¿Eliminar cita definitivamente de la agenda?")) {
+                fetch('/api/admin/citas/cancelar/' + id, {method: 'POST'})
+                    .then(() => {
+                        modalDetalle.hide();
+                        window.fullCalendar.refetchEvents();
+                    });
+            }
+        }
+
+        function abrirReagendarDesdeCalendar() {
+            reproducirClick();
+            const id = document.getElementById('detalleCitaId').value;
+            document.getElementById('reagendarCitaId').value = id;
+            modalDetalle.hide();
+            modalReagendar.show();
+        }
+
+        function ejecutarReagendamiento(event) {
+            const id = document.getElementById('reagendarCitaId').value;
+            const fecha = document.getElementById('nuevaFechaInput').value;
+            if(!fecha) return alert("Selecciona fecha");
+            
+            fetch(`/api/admin/citas/reagendar/${id}?nuevaFecha=${fecha}`, {method: 'POST'})
+                .then(res => {
+                    if(res.ok) {
+                        modalReagendar.hide();
+                        window.fullCalendar.refetchEvents();
+                    } else {
+                        alert("Error al reagendar");
+                    }
+                });
+        }
+
+        function enviarWhatsAppDesdeCalendar() {
+            reproducirClick();
+            const cita = currentCitaData;
+            if (!cita.cliente || !cita.cliente.telefono || cita.cliente.telefono === '---' || cita.cliente.telefono.trim() === '') {
+                return alert("⚠️ Este cliente no tiene número de teléfono registrado.");
+            }
+
+            let numeroLimpio = cita.cliente.telefono.replace(/\D/g, '');
+            if (numeroLimpio.length === 9) { numeroLimpio = '56' + numeroLimpio; }
+
+            let fechaLimpia = "Por definir";
+            if (cita.fechaHora) {
+                try {
+                    let d = new Date(cita.fechaHora);
+                    fechaLimpia = d.toLocaleDateString('es-CL') + " a las " + d.toLocaleTimeString('es-CL').substring(0,5);
+                } catch(e) {}
+            }
+
+            const mensaje = `🌸 *LINDA MAMÁ SPA* 🌸\n\nHola *${cita.cliente.nombre}* ✨,\nNos comunicamos para confirmar tu cita agendada para el servicio de *${cita.nombreTratamiento}*.\n\n📅 *Fecha y Hora:* ${fechaLimpia}\n\nPor favor, respóndenos con un *"Confirmo"* para asegurar tu cupo en la agenda.\n¡Te esperamos! 💆‍♀️`;
+            const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>

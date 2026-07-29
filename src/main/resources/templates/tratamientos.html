@@ -6,6 +6,22 @@
     <meta name="theme-color" content="#d63384">
     <link rel="manifest" href="/manifest.json">
     <script src="/pwa-init.js"></script>
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '3482702771989796');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=3482702771989796&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
     <title>Catálogo - Linda Mamá Spa</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -317,10 +333,10 @@
             display: block !important;
         }
 
-        /* Botones de subcategorías (Packs vs Sesiones) */
         .sub-categories-selector {
             display: flex;
             justify-content: center;
+            flex-wrap: wrap;
             gap: 15px;
             margin-top: 15px;
             margin-bottom: 25px;
@@ -978,16 +994,19 @@
 
             <!-- Selector de Categorías (Sub-Tabs) -->
             <div class="sub-categories-selector">
-                <button type="button" class="btn-sub-tab active" id="tab-sesiones" onclick="seleccionarSubCategoria('sesiones')">🌸 Sesiones Individuales</button>
-                <button type="button" class="btn-sub-tab" id="tab-packs-vip" onclick="seleccionarSubCategoria('packs')">💎 Packs VIP</button>
+                <button type="button" class="btn-sub-tab active" id="tab-reductivos" onclick="seleccionarSubCategoria('reductivos')">🌸 Reductivos</button>
+                <button type="button" class="btn-sub-tab" id="tab-pos-operatorios" onclick="seleccionarSubCategoria('pos-operatorios')">💎 Pos Operatorios</button>
+                <button type="button" class="btn-sub-tab" id="tab-faciales" onclick="seleccionarSubCategoria('faciales')">💆‍♀️ Faciales</button>
+                <button type="button" class="btn-sub-tab" id="tab-relajantes" onclick="seleccionarSubCategoria('relajantes')">✨ Relajantes</button>
             </div>
 
-            <div id="sub-sec-packs" style="display: none;">
-                <h2 class="titulo-categoria">Packs VIP (Método Crys 7T)</h2>
-    <div class="grid-catalogo">
-        <div th:each="pack : ${packs}" th:if="${pack.nombre != null and #strings.containsIgnoreCase(pack.nombre, 'Pack')}" class="card-packs-wrapper">
+            <div id="sub-sec-pos-operatorios" style="display: none;">
+                <h2 class="titulo-categoria">Tratamientos Pos Operatorios</h2>
+                <div class="grid-catalogo">
+                    <div th:each="pack : ${packs}" th:if="${pack.categoria == 'pos-operatorios'}" class="card-servicio-wrapper">
 
-            <div class="card-servicio" th:classappend="${pack.enPromocion == true} ? 'border-warning' : ''">
+            <div class="card-servicio" th:classappend="${pack.enPromocion == true} ? 'border-warning' : ''"
+                 th:attr="data-id=${pack.id}, data-nombre=${pack.nombre}, data-precio=${pack.enPromocion == true ? (pack.precioPromo != null ? pack.precioPromo : 0) : (pack.precio != null ? pack.precio : 0)}">
                 <div class="card-img-container" onclick="toggleDescription(this)">
                     <th:block th:if="${pack.enPromocion == true}">
                         <div class="etiqueta-oferta">OFERTA</div>
@@ -1010,7 +1029,7 @@
                         </p>
 
                         <button class="btn-spa Poppins btn-agregar"
-                                th:attr="data-nombre=${pack.nombre}, data-precio=${pack.enPromocion == true ? (pack.precioPromo != null ? pack.precioPromo : 0) : (pack.precio != null ? pack.precio : 0)}">
+                                th:attr="data-id=${pack.id}, data-nombre=${pack.nombre}, data-precio=${pack.enPromocion == true ? (pack.precioPromo != null ? pack.precioPromo : 0) : (pack.precio != null ? pack.precio : 0)}">
                             Añadir a Reserva
                         </button>
                     </div>
@@ -1021,12 +1040,13 @@
     </div>
     </div>
 
-    <div id="sub-sec-sesiones" style="display: block;">
-        <h2 class="titulo-categoria">Sesiones Individuales</h2>
+    <div id="sub-sec-reductivos" style="display: block;">
+        <h2 class="titulo-categoria">Tratamientos Reductivos</h2>
     <div class="grid-catalogo">
-        <div th:each="pack : ${packs}" th:unless="${pack.nombre != null and #strings.containsIgnoreCase(pack.nombre, 'Pack')}" class="card-servicio-wrapper">
+        <div th:each="pack : ${packs}" th:if="${pack.categoria == 'reductivos' or pack.categoria == null or pack.categoria == ''}" class="card-servicio-wrapper">
 
-            <div class="card-servicio" th:classappend="${pack.enPromocion == true} ? 'border-warning' : ''">
+            <div class="card-servicio" th:classappend="${pack.enPromocion == true} ? 'border-warning' : ''"
+                 th:attr="data-id=${pack.id}, data-nombre=${pack.nombre}, data-precio=${pack.enPromocion == true ? (pack.precioPromo != null ? pack.precioPromo : 0) : (pack.precio != null ? pack.precio : 0)}">
                 <div class="card-img-container" onclick="toggleDescription(this)">
                     <th:block th:if="${pack.enPromocion == true}">
                         <div class="etiqueta-oferta">OFERTA</div>
@@ -1049,7 +1069,7 @@
                         </p>
 
                         <button class="btn-spa Poppins btn-agregar"
-                                th:attr="data-nombre=${pack.nombre}, data-precio=${pack.enPromocion == true ? (pack.precioPromo != null ? pack.precioPromo : 0) : (pack.precio != null ? pack.precio : 0)}">
+                                th:attr="data-id=${pack.id}, data-nombre=${pack.nombre}, data-precio=${pack.enPromocion == true ? (pack.precioPromo != null ? pack.precioPromo : 0) : (pack.precio != null ? pack.precio : 0)}">
                             Añadir a Reserva
                         </button>
                     </div>
@@ -1058,6 +1078,80 @@
             </div>
         </div>
     </div>
+    </div>
+
+    <!-- Pestaña Faciales -->
+    <div id="sub-sec-faciales" style="display: none;">
+        <h2 class="titulo-categoria">Tratamientos Faciales</h2>
+        <div class="grid-catalogo">
+            <div th:each="pack : ${packs}" th:if="${pack.categoria == 'faciales'}" class="card-servicio-wrapper">
+                <div class="card-servicio" th:classappend="${pack.enPromocion == true} ? 'border-warning' : ''"
+                     th:attr="data-id=${pack.id}, data-nombre=${pack.nombre}, data-precio=${pack.enPromocion == true ? (pack.precioPromo != null ? pack.precioPromo : 0) : (pack.precio != null ? pack.precio : 0)}">
+                    <div class="card-img-container" onclick="toggleDescription(this)">
+                        <th:block th:if="${pack.enPromocion == true}">
+                            <div class="etiqueta-oferta">OFERTA</div>
+                        </th:block>
+                        <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Facial">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title Poppins" th:text="${pack.nombre}">Nombre</h4>
+                        <div class="mt-auto">
+                            <p class="card-precio Poppins" th:classappend="${pack.enPromocion == true} ? 'precio-promo' : ''">
+                                <th:block th:if="${pack.enPromocion == true}">
+                                    <span class="precio-tachado" th:text="'$' + ${pack.precio != null ? #numbers.formatDecimal(pack.precio, 0, 'COMMA', 0, 'POINT') : '0'}"></span>
+                                    $<span th:text="${pack.precioPromo != null ? #numbers.formatDecimal(pack.precioPromo, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>
+                                </th:block>
+                                <th:block th:unless="${pack.enPromocion == true}">
+                                    $<span th:text="${pack.precio != null ? #numbers.formatDecimal(pack.precio, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>
+                                </th:block>
+                            </p>
+                            <button class="btn-spa Poppins btn-agregar"
+                                    th:attr="data-id=${pack.id}, data-nombre=${pack.nombre}, data-precio=${pack.enPromocion == true ? (pack.precioPromo != null ? pack.precioPromo : 0) : (pack.precio != null ? pack.precio : 0)}">
+                                Añadir a Reserva
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-description-collapse Poppins" th:text="${pack.descripcion}">Descripción colapsada...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestaña Relajantes -->
+    <div id="sub-sec-relajantes" style="display: none;">
+        <h2 class="titulo-categoria">Masajes y Rituales Relajantes</h2>
+        <div class="grid-catalogo">
+            <div th:each="pack : ${packs}" th:if="${pack.categoria == 'relajantes'}" class="card-servicio-wrapper">
+                <div class="card-servicio" th:classappend="${pack.enPromocion == true} ? 'border-warning' : ''"
+                     th:attr="data-id=${pack.id}, data-nombre=${pack.nombre}, data-precio=${pack.enPromocion == true ? (pack.precioPromo != null ? pack.precioPromo : 0) : (pack.precio != null ? pack.precio : 0)}">
+                    <div class="card-img-container" onclick="toggleDescription(this)">
+                        <th:block th:if="${pack.enPromocion == true}">
+                            <div class="etiqueta-oferta">OFERTA</div>
+                        </th:block>
+                        <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Relajante">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title Poppins" th:text="${pack.nombre}">Nombre</h4>
+                        <div class="mt-auto">
+                            <p class="card-precio Poppins" th:classappend="${pack.enPromocion == true} ? 'precio-promo' : ''">
+                                <th:block th:if="${pack.enPromocion == true}">
+                                    <span class="precio-tachado" th:text="'$' + ${pack.precio != null ? #numbers.formatDecimal(pack.precio, 0, 'COMMA', 0, 'POINT') : '0'}"></span>
+                                    $<span th:text="${pack.precioPromo != null ? #numbers.formatDecimal(pack.precioPromo, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>
+                                </th:block>
+                                <th:block th:unless="${pack.enPromocion == true}">
+                                    $<span th:text="${pack.precio != null ? #numbers.formatDecimal(pack.precio, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>
+                                </th:block>
+                            </p>
+                            <button class="btn-spa Poppins btn-agregar"
+                                    th:attr="data-id=${pack.id}, data-nombre=${pack.nombre}, data-precio=${pack.enPromocion == true ? (pack.precioPromo != null ? pack.precioPromo : 0) : (pack.precio != null ? pack.precio : 0)}">
+                                Añadir a Reserva
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-description-collapse Poppins" th:text="${pack.descripcion}">Descripción colapsada...</div>
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -1405,6 +1499,178 @@
     let todasLasCitas = [];
     let cargandoDisponibilidad = false;
 
+    // ==========================================
+    // SEGUIMIENTO HÍBRIDO META (PIXEL + CAPI WEBHOOK)
+    // ==========================================
+    window.userLocation = { city: 'antofagasta', country: 'cl', ip: '' }; // Fallback inicial
+    let pageViewSent = false;
+
+    function sendPageView() {
+        if (pageViewSent) return;
+        pageViewSent = true;
+        
+        // Track PageView
+        trackEvent('PageView');
+        
+        // Procesar retorno de MercadoPago (Purchase) una vez cargada la ubicación
+        const urlParams = new URLSearchParams(window.location.search);
+        const pagoParam = urlParams.get('pago');
+        if (pagoParam === 'exito') {
+            lanzarConfeti();
+            new bootstrap.Modal(document.getElementById('modalMercadoPagoExitoW')).show();
+
+            const pending = localStorage.getItem('pendingPurchase');
+            if (pending) {
+                try {
+                    const pData = JSON.parse(pending);
+                    const orderId = urlParams.get('order_id') || ('MP-' + Date.now());
+                    pData.order_id = orderId;
+                    trackEvent('Purchase', pData);
+                } catch(e) {
+                    console.error("Error al disparar evento Purchase tras redirección:", e);
+                }
+                localStorage.removeItem('pendingPurchase');
+            }
+        }
+    }
+
+    function detectarUbicacionReal() {
+        fetch('https://ipapi.co/json/')
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.city && data.country_code) {
+                    window.userLocation.city = data.city.toLowerCase();
+                    window.userLocation.country = data.country_code.toLowerCase();
+                    window.userLocation.ip = data.ip || '';
+                    console.log("Ubicación real detectada (ipapi):", window.userLocation);
+                }
+                sendPageView();
+            })
+            .catch(error => {
+                console.warn("No se pudo detectar ubicación por ipapi.co, intentando respaldo...", error);
+                fetch('https://ipwho.is/')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data && data.city && data.country_code) {
+                            window.userLocation.city = data.city.toLowerCase();
+                            window.userLocation.country = data.country_code.toLowerCase();
+                            window.userLocation.ip = data.ip || '';
+                            console.log("Ubicación real detectada (ipwho.is):", window.userLocation);
+                        }
+                        sendPageView();
+                    }).catch(err => {
+                        console.warn("Todos los GeoIP fallaron, usando huso horario local...");
+                        try {
+                            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone.toLowerCase();
+                            if (tz.includes('bogota') || tz.includes('colombia')) {
+                                window.userLocation.country = 'co';
+                                window.userLocation.city = 'bogota';
+                            } else if (tz.includes('madrid') || tz.includes('europe')) {
+                                window.userLocation.country = 'es';
+                                window.userLocation.city = 'madrid';
+                            } else if (tz.includes('santiago') || tz.includes('chile')) {
+                                window.userLocation.country = 'cl';
+                                window.userLocation.city = 'antofagasta';
+                            }
+                        } catch(ex) {}
+                        sendPageView();
+                    });
+            });
+
+        // Timeout de respaldo: si las APIs tardan más de 2 segundos, lanzar PageView con lo que tengamos
+        setTimeout(() => {
+            sendPageView();
+        }, 2000);
+    }
+
+    // Iniciar detección de ubicación
+    detectarUbicacionReal();
+
+    function trackEvent(eventName, customData = {}) {
+        const eventId = eventName + '_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+        const getCookie = (name) => {
+            const val = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return val ? val.pop() : '';
+        };
+        const fbp = getCookie('_fbp') || '';
+        const fbc = getCookie('_fbc') || '';
+        const client_user_agent = navigator.userAgent;
+
+        const getInputValue = (id) => {
+            const el = document.getElementById(id);
+            return el ? el.value.trim() : '';
+        };
+
+        const rawNombre = getInputValue('cliente-nombre-w');
+        const rawTelefono = getInputValue('cliente-telefono-w');
+        const rawEmail = getInputValue('cliente-email-w');
+
+        let fn = '';
+        let ln = '';
+        if (rawNombre) {
+            const parts = rawNombre.split(/\s+/);
+            fn = parts[0] || '';
+            ln = parts.slice(1).join(' ') || '';
+        }
+
+        const ph = rawTelefono.replace(/\D/g, '');
+
+        let country = window.userLocation.country;
+        let ct = window.userLocation.city;
+
+        // Prioridad del teléfono si contiene prefijos internacionales explícitos
+        if (ph.startsWith('34')) {
+            country = 'es';
+            ct = 'madrid';
+        } else if (ph.startsWith('57')) {
+            country = 'co';
+            ct = 'bogota';
+        } else if (ph.startsWith('56')) {
+            country = 'cl';
+            if (ct !== 'antofagasta' && ct !== 'santiago') {
+                ct = 'antofagasta';
+            }
+        }
+
+        const user_data = {
+            em: rawEmail.toLowerCase(),
+            ph: ph,
+            fn: fn,
+            ln: ln,
+            ct: ct,
+            country: country,
+            zp: '',
+            fbp: fbp,
+            fbc: fbc,
+            client_ip_address: window.userLocation.ip,
+            client_user_agent: client_user_agent
+        };
+
+        if (typeof fbq === 'function') {
+            fbq('track', eventName, customData, { eventID: eventId });
+        } else {
+            console.warn('Meta Pixel (fbq) no está inicializado.');
+        }
+
+        const capiPayload = {
+            pixel_id: '3482702771989796',
+            event_name: eventName,
+            event_time: Math.floor(Date.now() / 1000),
+            event_id: eventId,
+            event_source_url: window.location.href,
+            action_source: 'website',
+            user_data: user_data,
+            custom_data: customData
+        };
+
+        fetch('https://bot.gomezz.space/webhook/capi_spa', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(capiPayload)
+        })
+        .catch(error => console.error('Error enviando CAPI event:', error));
+    }
+
     function toggleDescription(element) {
         sfxOpen.currentTime = 0; sfxOpen.play().catch(()=>{});
 
@@ -1421,6 +1687,19 @@
 
         descTarget.classList.toggle('show');
         cardTarget.classList.toggle('expanded');
+
+        if (cardTarget.classList.contains('expanded')) {
+            const id = cardTarget.getAttribute('data-id');
+            const nombre = cardTarget.getAttribute('data-nombre');
+            const precio = cardTarget.getAttribute('data-precio');
+            trackEvent('ViewContent', {
+                content_ids: [String(id)],
+                content_name: nombre,
+                value: parseFloat(precio),
+                currency: 'CLP',
+                content_type: 'product'
+            });
+        }
     }
 
     function actualizarCarritoUI() {
@@ -1464,8 +1743,20 @@
 
             sfxAdd.currentTime = 0; sfxAdd.play().catch(()=>{});
 
-            const item = { nombre: this.getAttribute('data-nombre'), precio: this.getAttribute('data-precio') };
+            const item = {
+                id: this.getAttribute('data-id'),
+                nombre: this.getAttribute('data-nombre'),
+                precio: this.getAttribute('data-precio')
+            };
             carrito.push(item); actualizarCarritoUI();
+
+            trackEvent('AddToCart', {
+                content_ids: [String(item.id)],
+                content_name: item.nombre,
+                value: parseFloat(item.precio),
+                currency: 'CLP',
+                content_type: 'product'
+            });
 
             this.classList.add('efecto-waooo');
             const textoOriginal = this.innerText;
@@ -1565,6 +1856,14 @@
 
         if (paso === 4) {
             validarFormDatos();
+            const total = carrito.reduce((sum, item) => sum + parseFloat(item.precio), 0);
+            trackEvent('InitiateCheckout', {
+                content_ids: carrito.map(item => String(item.id)),
+                contents: carrito.map(item => ({ id: String(item.id), quantity: 1 })),
+                value: total,
+                currency: 'CLP',
+                content_type: 'product'
+            });
         }
 
         if (paso === 5) {
@@ -1962,23 +2261,42 @@
 
     window.seleccionarSubCategoria = function(tipo) {
         try { document.getElementById('sfx-open').currentTime = 0; document.getElementById('sfx-open').play().catch(()=>{}); } catch(ex) {}
-        const tabPacks = document.getElementById('tab-packs-vip');
-        const tabSesiones = document.getElementById('tab-sesiones');
-        const secPacks = document.getElementById('sub-sec-packs');
-        const secSesiones = document.getElementById('sub-sec-sesiones');
+        const tabPosOp = document.getElementById('tab-pos-operatorios');
+        const tabReductivos = document.getElementById('tab-reductivos');
+        const tabFaciales = document.getElementById('tab-faciales');
+        const tabRelajantes = document.getElementById('tab-relajantes');
+        
+        const secPosOp = document.getElementById('sub-sec-pos-operatorios');
+        const secReductivos = document.getElementById('sub-sec-reductivos');
+        const secFaciales = document.getElementById('sub-sec-faciales');
+        const secRelajantes = document.getElementById('sub-sec-relajantes');
 
-        if (!tabPacks || !tabSesiones || !secPacks || !secSesiones) return;
+        if (!tabPosOp || !tabReductivos || !tabFaciales || !tabRelajantes || !secPosOp || !secReductivos || !secFaciales || !secRelajantes) return;
 
-        if (tipo === 'packs') {
-            tabPacks.classList.add('active');
-            tabSesiones.classList.remove('active');
-            secPacks.style.display = 'block';
-            secSesiones.style.display = 'none';
+        // Desactivar todas las pestañas y ocultar todas las secciones
+        tabPosOp.classList.remove('active');
+        tabReductivos.classList.remove('active');
+        tabFaciales.classList.remove('active');
+        tabRelajantes.classList.remove('active');
+
+        secPosOp.style.display = 'none';
+        secReductivos.style.display = 'none';
+        secFaciales.style.display = 'none';
+        secRelajantes.style.display = 'none';
+
+        // Activar la seleccionada
+        if (tipo === 'pos-operatorios') {
+            tabPosOp.classList.add('active');
+            secPosOp.style.display = 'block';
+        } else if (tipo === 'faciales') {
+            tabFaciales.classList.add('active');
+            secFaciales.style.display = 'block';
+        } else if (tipo === 'relajantes') {
+            tabRelajantes.classList.add('active');
+            secRelajantes.style.display = 'block';
         } else {
-            tabPacks.classList.remove('active');
-            tabSesiones.classList.add('active');
-            secPacks.style.display = 'none';
-            secSesiones.style.display = 'block';
+            tabReductivos.classList.add('active');
+            secReductivos.style.display = 'block';
         }
     };
 
@@ -2116,6 +2434,19 @@
         .then(res => res.text())
         .then(respuesta => {
             if (respuesta.startsWith("TRANSFERENCIA_OK")) {
+                const idCita = respuesta.split("|")[1];
+                
+                // Track Purchase Event for Wire Transfer
+                const totalCompra = carrito.reduce((sum, item) => sum + parseFloat(item.precio), 0);
+                trackEvent('Purchase', {
+                    value: totalCompra,
+                    currency: 'CLP',
+                    content_ids: carrito.map(item => String(item.id)),
+                    content_type: 'product',
+                    contents: carrito.map(item => ({ id: String(item.id), quantity: 1 })),
+                    order_id: idCita
+                });
+
                 localStorage.removeItem('spaCarrito');
                 carrito = [];
                 
@@ -2124,7 +2455,6 @@
                     new bootstrap.Modal(document.getElementById('modalMercadoPagoExitoW')).show();
                 } else {
                     document.getElementById('monto-transferencia-w').innerText = "$" + montoAbonoW.toLocaleString('es-CL');
-                    const idCita = respuesta.split("|")[1];
 
                     const fParts = fechaSeleccionada.split('-');
                     const fechaTextStr = `${fParts[2]}/${fParts[1]}`;
@@ -2141,6 +2471,17 @@
                     new bootstrap.Modal(document.getElementById('modalTransferenciaW')).show();
                 }
             } else if (respuesta.startsWith("http")) {
+                // Save purchase details before redirecting to MercadoPago
+                const totalCompra = carrito.reduce((sum, item) => sum + parseFloat(item.precio), 0);
+                const pendingPurchase = {
+                    value: totalCompra,
+                    currency: 'CLP',
+                    content_ids: carrito.map(item => String(item.id)),
+                    content_type: 'product',
+                    contents: carrito.map(item => ({ id: String(item.id), quantity: 1 }))
+                };
+                localStorage.setItem('pendingPurchase', JSON.stringify(pendingPurchase));
+
                 // Redirección MercadoPago
                 localStorage.removeItem('spaCarrito');
                 window.location.href = respuesta;
@@ -2166,7 +2507,7 @@
         seleccionarMetodoPagoW(document.getElementById('metodo-pago-w').value);
     }
 
-    // Detectar si el usuario viene de la agenda
+    // Detectar parámetros de URL en la carga
     window.addEventListener('load', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const pasoParam = urlParams.get('paso');

@@ -221,6 +221,7 @@ public class PagoRestController {
             @RequestParam(value = "collection_status", required = false) String collectionStatus,
             @RequestParam(value = "external_reference", required = false) String externalReference) {
 
+        String orderIdParam = "";
         if ("approved".equals(collectionStatus) && externalReference != null) {
             try {
                 if (externalReference.contains("_VENTA_")) {
@@ -228,6 +229,7 @@ public class PagoRestController {
                     if (parts[0].startsWith("CITA_")) {
                         Long idCita = Long.parseLong(parts[0].replace("CITA_", ""));
                         citaRepository.findById(idCita).ifPresent(c -> { c.setEstado("CONFIRMADO"); citaRepository.save(c); });
+                        orderIdParam = "&order_id=" + idCita;
                     }
                     Long idVenta = Long.parseLong(parts[1]);
                     ventaRepository.findById(idVenta).ifPresent(v -> { v.setEstado("PAGADO"); ventaRepository.save(v); });
@@ -237,11 +239,12 @@ public class PagoRestController {
                 } else {
                     Long rawId = Long.parseLong(externalReference);
                     citaRepository.findById(rawId).ifPresent(c -> { c.setEstado("CONFIRMADO"); citaRepository.save(c); });
+                    orderIdParam = "&order_id=" + rawId;
                 }
             } catch (Exception e) {
                 System.err.println("Error confirmando pago MP: " + e.getMessage());
             }
         }
-        return new RedirectView("/catalogo?pago=exito");
+        return new RedirectView("/catalogo?pago=exito" + orderIdParam);
     }
 }

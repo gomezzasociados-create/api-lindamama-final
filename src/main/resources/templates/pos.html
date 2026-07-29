@@ -382,6 +382,7 @@
 
     let vendedorActual = 'Caja General';
     let carrito = [];
+    let listaClientes = [];
 
     function validarAcceso() {
         const pin = document.getElementById('input-pin').value;
@@ -424,8 +425,50 @@
 
     function buscarMixto() {
         const q = document.getElementById('input-buscador').value.toLowerCase();
+        
+        // 1. Filtrar servicios
         document.querySelectorAll('.item-grid-servicio').forEach(el => {
             el.style.display = el.getAttribute('data-nombre-lower').includes(q) ? 'block' : 'none';
+        });
+
+        // 2. Buscar clientes en la lista cargada
+        const listaBusquedaDiv = document.getElementById('lista-busqueda');
+        listaBusquedaDiv.innerHTML = '';
+
+        if (q.length < 2) {
+            return;
+        }
+
+        const clientesFiltrados = listaClientes.filter(c => 
+            (c.nombre && c.nombre.toLowerCase().includes(q)) || 
+            (c.telefono && c.telefono.includes(q))
+        );
+
+        if (clientesFiltrados.length > 0) {
+            clientesFiltrados.forEach(c => {
+                const opt = document.createElement('div');
+                opt.className = 'cliente-opcion';
+                opt.innerHTML = `<i class="bi bi-person-fill me-2 text-info"></i><strong>${c.nombre}</strong> <span class="text-white-50">(${c.telefono || 'Sin Tel'})</span>`;
+                opt.onclick = () => seleccionarClientePOS(c);
+                listaBusquedaDiv.appendChild(opt);
+            });
+        }
+    }
+
+    function seleccionarClientePOS(c) {
+        sfxClick.play().catch(()=>{});
+        document.getElementById('cliente-nombre').value = c.nombre || '';
+        document.getElementById('cliente-telefono').value = c.telefono || '';
+        document.getElementById('cliente-correo').value = c.correo || '';
+        document.getElementById('cliente-id').value = c.id || '';
+        
+        // Limpiar el buscador
+        document.getElementById('input-buscador').value = '';
+        document.getElementById('lista-busqueda').innerHTML = '';
+        
+        // Restaurar todos los servicios a la vista
+        document.querySelectorAll('.item-grid-servicio').forEach(el => {
+            el.style.display = 'block';
         });
     }
 
@@ -596,10 +639,16 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        // Cargar socias
         fetch('/api/socias').then(r => r.json()).then(ss => {
             const sel = document.getElementById('socia-select');
             ss.forEach(s => sel.innerHTML += `<option value="${s.id}">${s.nombre}</option>`);
         });
+
+        // Cargar clientes
+        fetch('/api/clientes').then(r => r.json()).then(cls => {
+            listaClientes = cls;
+        }).catch(err => console.error("Error cargando clientes:", err));
     });
 
     // ==============================================

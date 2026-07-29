@@ -13,4 +13,6 @@ public interface EgresoRepository extends JpaRepository<Egreso, Long> {
     
     // Método agregado para el historial en Tesorería
     List<Egreso> findAllByOrderByFechaHoraDesc();
+
+    List<Egreso> findByFechaHoraBetweenOrderByFechaHoraDesc(java.time.LocalDateTime inicio, java.time.LocalDateTime fin);
 }

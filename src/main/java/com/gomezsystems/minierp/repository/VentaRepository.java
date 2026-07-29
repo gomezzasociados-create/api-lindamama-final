@@ -31,6 +31,8 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
 
     List<Venta> findBySociaIdAndFechaHoraBetweenOrderByFechaHoraDesc(Long sociaId, java.time.LocalDateTime inicio, java.time.LocalDateTime fin);
 
+    List<Venta> findByFechaHoraBetweenOrderByFechaHoraDesc(java.time.LocalDateTime inicio, java.time.LocalDateTime fin);
+
     @org.springframework.data.jpa.repository.Modifying
     @org.springframework.data.jpa.repository.Query("UPDATE Venta v SET v.cliente = null WHERE v.cliente.id = :clienteId")
     void desasociarCliente(@Param("clienteId") Long clienteId);

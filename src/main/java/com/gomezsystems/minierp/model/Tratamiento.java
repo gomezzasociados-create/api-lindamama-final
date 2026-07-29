@@ -27,6 +27,9 @@ public class Tratamiento {
     
     private Integer duracionMinutos; // Añadido para la agenda
 
+    @Column(columnDefinition = "TEXT")
+    private String categoria;
+
     // 🔥 PROMOCIONES Y FECHAS DE CADUCIDAD 🔥
     private boolean enPromocion;
     private Integer precioPromo;
@@ -81,4 +84,7 @@ public class Tratamiento {
     public void setFechaInicioPromo(LocalDate fechaInicioPromo) { this.fechaInicioPromo = fechaInicioPromo; }
     public LocalDate getFechaFinPromo() { return fechaFinPromo; }
     public void setFechaFinPromo(LocalDate fechaFinPromo) { this.fechaFinPromo = fechaFinPromo; }
+
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 }

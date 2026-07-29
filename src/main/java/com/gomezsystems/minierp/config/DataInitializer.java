@@ -26,6 +26,29 @@ public class DataInitializer implements CommandLineRunner {
             cargarDatos("data/PACKS.csv");
             cargarDatos("data/SESIONES.csv");
             System.out.println("✅ [GOMEZ SYSTEMS] ¡Catálogo cargado exitosamente en la base de datos!");
+        } else {
+            // Migrar tratamientos existentes sin categoría
+            long sinCat = tratamientoRepo.findAll().stream().filter(t -> t.getCategoria() == null || t.getCategoria().isEmpty()).count();
+            if (sinCat > 0) {
+                System.out.println("🔄 [GOMEZ SYSTEMS] Detectados " + sinCat + " tratamientos sin categoría. Clasificando...");
+                for (Tratamiento t : tratamientoRepo.findAll()) {
+                    if (t.getCategoria() == null || t.getCategoria().isEmpty()) {
+                        String nom = t.getNombre() != null ? t.getNombre().toLowerCase() : "";
+                        String dsc = t.getDescripcion() != null ? t.getDescripcion().toLowerCase() : "";
+                        if (nom.contains("facial") || dsc.contains("facial")) {
+                            t.setCategoria("faciales");
+                        } else if (nom.contains("relaj") || dsc.contains("relaj")) {
+                            t.setCategoria("relajantes");
+                        } else if (nom.contains("pack") || dsc.contains("pack")) {
+                            t.setCategoria("pos-operatorios");
+                        } else {
+                            t.setCategoria("reductivos");
+                        }
+                        tratamientoRepo.save(t);
+                    }
+                }
+                System.out.println("✅ [GOMEZ SYSTEMS] ¡Clasificación automática completada!");
+            }
         }
     }
 
@@ -63,6 +86,19 @@ public class DataInitializer implements CommandLineRunner {
                     t.setCantidad(record.get("CANTIDAD DE SESIONES") + " sesión(es)");
                 } else {
                     t.setCantidad("1 sesión");
+                }
+
+                // Clasificación automática por palabras clave
+                String nom = t.getNombre() != null ? t.getNombre().toLowerCase() : "";
+                String dsc = t.getDescripcion() != null ? t.getDescripcion().toLowerCase() : "";
+                if (nom.contains("facial") || dsc.contains("facial")) {
+                    t.setCategoria("faciales");
+                } else if (nom.contains("relaj") || dsc.contains("relaj")) {
+                    t.setCategoria("relajantes");
+                } else if (nom.contains("pack") || dsc.contains("pack")) {
+                    t.setCategoria("pos-operatorios");
+                } else {
+                    t.setCategoria("reductivos");
                 }
 
                 tratamientoRepo.save(t);

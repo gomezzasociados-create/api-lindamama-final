@@ -183,6 +183,7 @@
             <li class="nav-item"><button class="nav-link" id="crm-tab" data-bs-toggle="tab" data-bs-target="#crm" type="button" onclick="reproducirClick()"><i class="bi bi-people-fill me-2"></i>CRM Clientes</button></li>
             <li class="nav-item"><button class="nav-link" id="tesoreria-tab" data-bs-toggle="tab" data-bs-target="#tesoreria" type="button" onclick="reproducirClick()"><i class="bi bi-safe-fill me-2"></i>Tesorería y Caja</button></li>
             <li class="nav-item"><button class="nav-link" id="socias-tab" data-bs-toggle="tab" data-bs-target="#socias" type="button" onclick="reproducirClick()"><i class="bi bi-person-badge me-2"></i>Gestión de Socias</button></li>
+            <li class="nav-item"><button class="nav-link" id="ebitda-tab" data-bs-toggle="tab" data-bs-target="#ebitda" type="button" onclick="reproducirClick(); initEbitdaReport();"><i class="bi bi-graph-up-arrow me-2"></i>Análisis EBITDA</button></li>
         </ul>
 
         <div class="tab-content" id="adminTabsContent">
@@ -331,6 +332,7 @@
                                                         th:data-cantidad="${t.cantidad}" th:data-imagen="${t.imagen}" th:data-descripcion="${t.descripcion}"
                                                         th:data-en-promocion="${t.enPromocion}" th:data-precio-promo="${t.precioPromo}"
                                                         th:data-inicio-promo="${t.fechaInicioPromo}" th:data-fin-promo="${t.fechaFinPromo}"
+                                                        th:data-categoria="${t.categoria}"
                                                         onclick="editarServicio(this)"><i class="bi bi-pencil me-1"></i>Editar</button>
                                                 <button class="btn btn-sm btn-outline-danger" th:onclick="'borrarServicio(' + ${t.id} + ')'"><i class="bi bi-trash"></i></button>
                                             </div>
@@ -381,6 +383,7 @@
                                                         th:data-cantidad="${t.cantidad}" th:data-imagen="${t.imagen}" th:data-descripcion="${t.descripcion}"
                                                         th:data-en-promocion="${t.enPromocion}" th:data-precio-promo="${t.precioPromo}"
                                                         th:data-inicio-promo="${t.fechaInicioPromo}" th:data-fin-promo="${t.fechaFinPromo}"
+                                                        th:data-categoria="${t.categoria}"
                                                         onclick="editarServicio(this)"><i class="bi bi-pencil me-1"></i>Editar</button>
                                                 <button class="btn btn-sm btn-outline-danger" th:onclick="'borrarServicio(' + ${t.id} + ')'"><i class="bi bi-trash"></i></button>
                                             </div>
@@ -557,6 +560,160 @@
                 </div>
                 <div class="row g-3" id="grid-socias" style="max-height: 70vh; overflow-y: auto; overflow-x: hidden;">
                     <div class="col-12 text-center text-muted p-3">Cargando socias...</div>
+                </div>
+            </div>
+
+            <!-- NUEVA PESTAÑA: ANÁLISIS EBITDA -->
+            <div class="tab-pane fade" id="ebitda" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3 header-tab">
+                    <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">
+                        Cálculo & Análisis Minucioso del EBITDA
+                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Panel financiero detallado. Calcula el EBITDA bruto, neto y de flujo de caja según el rango de fechas seleccionado, contrastando ventas, gastos y comisiones pagadas.')"></i>
+                    </h4>
+                </div>
+
+                <!-- Filtro de Fechas y Quick Filters -->
+                <div class="grid-card p-3 mb-4">
+                    <div class="row align-items-end g-2">
+                        <div class="col-12 col-md-3">
+                            <label class="form-label text-info fw-bold small">Fecha Inicio</label>
+                            <input type="date" id="ebitda-inicio" class="form-control bg-dark text-white border-secondary">
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label text-info fw-bold small">Fecha Fin</label>
+                            <input type="date" id="ebitda-fin" class="form-control bg-dark text-white border-secondary">
+                        </div>
+                        <div class="col-12 col-md-6 d-flex flex-wrap gap-1 align-items-center mt-2 mt-md-0">
+                            <button class="btn btn-sm btn-outline-info flex-grow-1" onclick="setEbitdaRange('hoy')">Hoy</button>
+                            <button class="btn btn-sm btn-outline-info flex-grow-1" onclick="setEbitdaRange('semana')">Esta Semana</button>
+                            <button class="btn btn-sm btn-outline-info flex-grow-1" onclick="setEbitdaRange('mes')">Este Mes</button>
+                            <button class="btn btn-sm btn-outline-info flex-grow-1" onclick="setEbitdaRange('anio')">Este Año</button>
+                            <button class="btn btn-sm btn-cyan px-4 flex-grow-1 fw-bold" onclick="consultarEbitda()"><i class="bi bi-search me-1"></i>Filtrar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard de Indicadores Financieros -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="grid-card p-3" style="border-left: 4px solid #198754 !important;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-white-50 small fw-bold">EBITDA DEVENGADO</span>
+                                <i class="bi bi-calculator text-success fs-4"></i>
+                            </div>
+                            <h3 class="fw-bold text-success mb-1" id="ebitda-val-devengado">$0</h3>
+                            <small class="text-white-50" style="font-size:0.75rem;">(Ingresos Spa - Egresos)</small>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="grid-card p-3" style="border-left: 4px solid var(--cyan-neon) !important;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-white-50 small fw-bold">EBITDA DE CAJA</span>
+                                <i class="bi bi-piggy-bank text-info fs-4"></i>
+                            </div>
+                            <h3 class="fw-bold text-info mb-1" id="ebitda-val-caja">$0</h3>
+                            <small class="text-white-50" style="font-size:0.75rem;">(Ingresos Caja - Egresos - Comisiones Pagadas)</small>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="grid-card p-3" style="border-left: 4px solid var(--fucsia-neon) !important;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-white-50 small fw-bold">INGRESOS VENTAS</span>
+                                <i class="bi bi-cash-stack text-fucsia-neon fs-4" style="color: var(--fucsia-neon);"></i>
+                            </div>
+                            <h3 class="fw-bold text-white mb-1" id="ebitda-val-ventas">$0</h3>
+                            <span class="text-white-50 small d-block" style="font-size:0.7rem;">Spa: <span class="text-info" id="ebitda-val-spa">$0</span> | Socias: <span class="text-warning" id="ebitda-val-socia-dev">$0</span></span>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="grid-card p-3" style="border-left: 4px solid #dc3545 !important;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-white-50 small fw-bold">EGRESOS & COMISIONES</span>
+                                <i class="bi bi-graph-down-arrow text-danger fs-4"></i>
+                            </div>
+                            <h3 class="fw-bold text-danger mb-1" id="ebitda-val-gastos">$0</h3>
+                            <span class="text-white-50 small d-block" style="font-size:0.7rem;">Gastos: <span class="text-danger" id="ebitda-val-egresos">$0</span> | Comisiones: <span class="text-warning" id="ebitda-val-comisiones-pag">$0</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Libro de Transacciones (Detalle Minucioso) -->
+                <div class="grid-card p-4">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-journal-text text-info me-2"></i>Detalle de Transacciones del Periodo</h5>
+                    
+                    <ul class="nav nav-tabs mb-3" id="ebitdaTabs" role="tablist">
+                        <li class="nav-item"><button class="nav-link active py-2" id="eb-ventas-tab" data-bs-toggle="tab" data-bs-target="#eb-ventas" type="button">Ventas (Ingresos)</button></li>
+                        <li class="nav-item"><button class="nav-link py-2" id="eb-egresos-tab" data-bs-toggle="tab" data-bs-target="#eb-egresos" type="button">Egresos (Gastos)</button></li>
+                        <li class="nav-item"><button class="nav-link py-2" id="eb-pagos-tab" data-bs-toggle="tab" data-bs-target="#eb-pagos" type="button">Pagos Comisión</button></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- Ventas -->
+                        <div class="tab-pane fade show active" id="eb-ventas" role="tabpanel">
+                            <div class="table-responsive" style="max-height: 40vh; overflow-y: auto;">
+                                <table class="table table-dark table-hover align-middle table-sm" style="font-size:0.85rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha/Hora</th>
+                                            <th>Cliente</th>
+                                            <th>Detalle</th>
+                                            <th>Total Cobrado</th>
+                                            <th>Propina</th>
+                                            <th>Monto Spa</th>
+                                            <th>Comisión</th>
+                                            <th>Pago</th>
+                                            <th>Socia</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ebitda-tbl-ventas">
+                                        <tr><td colspan="9" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Egresos -->
+                        <div class="tab-pane fade" id="eb-egresos" role="tabpanel">
+                            <div class="table-responsive" style="max-height: 40vh; overflow-y: auto;">
+                                <table class="table table-dark table-hover align-middle table-sm" style="font-size:0.85rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha/Hora</th>
+                                            <th>Descripción</th>
+                                            <th>Monto</th>
+                                            <th>Método Salida</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ebitda-tbl-egresos">
+                                        <tr><td colspan="4" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Pagos Comisión -->
+                        <div class="tab-pane fade" id="eb-pagos" role="tabpanel">
+                            <div class="table-responsive" style="max-height: 40vh; overflow-y: auto;">
+                                <table class="table table-dark table-hover align-middle table-sm" style="font-size:0.85rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha/Hora</th>
+                                            <th>Profesional / Socia</th>
+                                            <th>Monto Pagado</th>
+                                            <th>Medio de Pago</th>
+                                            <th>Comentarios</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ebitda-tbl-pagos">
+                                        <tr><td colspan="5" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -903,6 +1060,16 @@
                         <div class="row">
                             <div class="col-6 mb-3"><label class="form-label text-info fw-bold">Precio Regular ($)</label><input type="number" class="form-control" id="precioTratamiento" required></div>
                             <div class="col-6 mb-3"><label class="form-label text-info fw-bold">Sesiones</label><input type="text" class="form-control" id="cantidadTratamiento"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-info fw-bold">Categoría del Catálogo</label>
+                            <select class="form-select bg-dark text-white border-secondary" id="categoriaTratamiento" required>
+                                <option value="reductivos">🌸 Reductivos</option>
+                                <option value="pos-operatorios">💎 Pos Operatorios</option>
+                                <option value="faciales">💆‍♀️ Faciales</option>
+                                <option value="relajantes">✨ Relajantes</option>
+                            </select>
                         </div>
 
                         <div class="border border-warning rounded p-3 mb-3" style="background: rgba(255, 193, 7, 0.05);">
@@ -1768,6 +1935,10 @@
         document.getElementById('imagenTratamiento').value = btn.getAttribute('data-imagen');
         document.getElementById('descripcionTratamiento').value = btn.getAttribute('data-descripcion');
 
+        // Extraer categoria con fallback automatico
+        const cat = btn.getAttribute('data-categoria') || '';
+        document.getElementById('categoriaTratamiento').value = cat ? cat : 'reductivos';
+
         // Extracción de datos de promoción EXACTOS A TU JAVA
         const enPromo = btn.getAttribute('data-en-promocion') === 'true';
         const pPromo = btn.getAttribute('data-precio-promo');
@@ -1798,6 +1969,7 @@
             cantidad: document.getElementById('cantidadTratamiento').value,
             imagen: document.getElementById('imagenTratamiento').value,
             descripcion: document.getElementById('descripcionTratamiento').value,
+            categoria: document.getElementById('categoriaTratamiento').value,
 
             enPromocion: isPromo,
             precioPromo: valPromo ? parseInt(valPromo) : null,
@@ -2532,6 +2704,126 @@
             }
         }
     });
+
+    // ==============================================
+    // LÓGICA DE CONTROL FINANCIERO: EBITDA
+    // ==============================================
+    window.initEbitdaReport = function() {
+        if (!document.getElementById('ebitda-inicio').value) {
+            const hoy = new Date();
+            const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            document.getElementById('ebitda-inicio').value = primerDia.toISOString().split('T')[0];
+            document.getElementById('ebitda-fin').value = hoy.toISOString().split('T')[0];
+        }
+        window.consultarEbitda();
+    };
+
+    window.setEbitdaRange = function(range) {
+        reproducirClick();
+        const hoy = new Date();
+        let inicio, fin;
+
+        if (range === 'hoy') {
+            inicio = hoy;
+            fin = hoy;
+        } else if (range === 'semana') {
+            const diaSemana = hoy.getDay();
+            const diferencia = hoy.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1);
+            inicio = new Date(hoy.setDate(diferencia));
+            fin = new Date();
+        } else if (range === 'mes') {
+            inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            fin = new Date();
+        } else if (range === 'anio') {
+            inicio = new Date(hoy.getFullYear(), 0, 1);
+            fin = new Date();
+        }
+
+        document.getElementById('ebitda-inicio').value = inicio.toISOString().split('T')[0];
+        document.getElementById('ebitda-fin').value = fin.toISOString().split('T')[0];
+        window.consultarEbitda();
+    };
+
+    window.consultarEbitda = function() {
+        const inicio = document.getElementById('ebitda-inicio').value;
+        const fin = document.getElementById('ebitda-fin').value;
+        if (!inicio || !fin) return alert("⚠️ Seleccione fechas válidas.");
+
+        fetch(`/api/finanzas/ebitda?inicio=${inicio}&fin=${fin}`)
+            .then(res => res.json())
+            .then(data => {
+                const s = data.summary || {};
+                document.getElementById('ebitda-val-devengado').innerText = '$' + Math.round(s.ebitdaDevengado || 0).toLocaleString('es-CL');
+                document.getElementById('ebitda-val-caja').innerText = '$' + Math.round(s.ebitdaCaja || 0).toLocaleString('es-CL');
+                document.getElementById('ebitda-val-ventas').innerText = '$' + Math.round(s.totalVentasGross || 0).toLocaleString('es-CL');
+                document.getElementById('ebitda-val-spa').innerText = '$' + Math.round(s.totalVentasSpa || 0).toLocaleString('es-CL');
+                document.getElementById('ebitda-val-socia-dev').innerText = '$' + Math.round(s.totalVentasSocia || 0).toLocaleString('es-CL');
+
+                const totalGastosYComisiones = (s.totalEgresos || 0) + (s.totalComisionesPagadas || 0);
+                document.getElementById('ebitda-val-gastos').innerText = '$' + Math.round(totalGastosYComisiones).toLocaleString('es-CL');
+                document.getElementById('ebitda-val-egresos').innerText = '$' + Math.round(s.totalEgresos || 0).toLocaleString('es-CL');
+                document.getElementById('ebitda-val-comisiones-pag').innerText = '$' + Math.round(s.totalComisionesPagadas || 0).toLocaleString('es-CL');
+
+                const tblVentas = document.getElementById('ebitda-tbl-ventas');
+                tblVentas.innerHTML = '';
+                if (!data.ventas || data.ventas.length === 0) {
+                    tblVentas.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-3">No hay ventas registradas en este periodo</td></tr>';
+                } else {
+                    data.ventas.forEach(v => {
+                        const fec = new Date(v.fecha).toLocaleString('es-CL', {dateStyle:'short', timeStyle:'short'});
+                        const estBadge = v.estado === 'PAGADO' ? '<span class="badge bg-success">PAGADO</span>' : '<span class="badge bg-warning text-dark">PENDIENTE</span>';
+                        tblVentas.innerHTML += `<tr>
+                            <td>${fec}</td>
+                            <td class="fw-bold">${v.clienteNombre}</td>
+                            <td class="small text-white-50">${v.detalle || 'Venta'}</td>
+                            <td class="fw-bold text-success">$${Math.round(v.montoTotal || 0).toLocaleString('es-CL')}</td>
+                            <td class="text-white-50">$${Math.round(v.propina || 0).toLocaleString('es-CL')}</td>
+                            <td class="text-info">$${Math.round(v.montoSpa || 0).toLocaleString('es-CL')}</td>
+                            <td class="text-warning">$${Math.round(v.montoSocia || 0).toLocaleString('es-CL')}</td>
+                            <td class="small">${v.tipoPago}</td>
+                            <td>${estBadge} ${v.sociaNombre}</td>
+                        </tr>`;
+                    });
+                }
+
+                const tblEgresos = document.getElementById('ebitda-tbl-egresos');
+                tblEgresos.innerHTML = '';
+                if (!data.egresos || data.egresos.length === 0) {
+                    tblEgresos.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No hay egresos registrados en este periodo</td></tr>';
+                } else {
+                    data.egresos.forEach(e => {
+                        const fec = new Date(e.fecha).toLocaleString('es-CL', {dateStyle:'short', timeStyle:'short'});
+                        tblEgresos.innerHTML += `<tr>
+                            <td>${fec}</td>
+                            <td>${e.descripcion}</td>
+                            <td class="fw-bold text-danger">-$${Math.round(e.monto || 0).toLocaleString('es-CL')}</td>
+                            <td class="small">${e.metodoSalida}</td>
+                        </tr>`;
+                    });
+                }
+
+                const tblPagos = document.getElementById('ebitda-tbl-pagos');
+                tblPagos.innerHTML = '';
+                if (!data.pagosComisiones || data.pagosComisiones.length === 0) {
+                    tblPagos.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No hay pagos de comisión registrados en este periodo</td></tr>';
+                } else {
+                    data.pagosComisiones.forEach(p => {
+                        const fec = new Date(p.fecha).toLocaleString('es-CL', {dateStyle:'short', timeStyle:'short'});
+                        tblPagos.innerHTML += `<tr>
+                            <td>${fec}</td>
+                            <td class="fw-bold text-warning">${p.sociaNombre}</td>
+                            <td class="fw-bold text-danger">-$${Math.round(p.monto || 0).toLocaleString('es-CL')}</td>
+                            <td class="small">${p.medioPago}</td>
+                            <td class="small text-white-50">${p.comentarios || '--'}</td>
+                        </tr>`;
+                    });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("⚠️ Error al obtener reporte financiero.");
+            });
+    };
 
     // ==============================================
     // MOTOR DE AUDIO MANUAL

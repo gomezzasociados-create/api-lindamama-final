@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface PagoComisionRepository extends JpaRepository<PagoComision, Long> {
     List<PagoComision> findBySociaIdOrderByFechaHoraDesc(Long sociaId);
+    List<PagoComision> findByFechaHoraBetweenOrderByFechaHoraDesc(java.time.LocalDateTime inicio, java.time.LocalDateTime fin);
 }

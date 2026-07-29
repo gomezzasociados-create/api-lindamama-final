@@ -28,10 +28,15 @@ public class SpaController {
         return "tratamientos";
     }
 
-    // 📅 LA PUERTA DE LA AGENDA
-    @GetMapping({"/portal-reservas", "/agenda"})
-    public String abrirAgenda() {
-        // Esto busca el archivo agenda.html en la carpeta templates
+    // 📅 LA PUERTA DE LA AGENDA DE CLIENTES (REDIRECCIÓN)
+    @GetMapping("/portal-reservas")
+    public String abrirPortalReservas() {
         return "agenda";
+    }
+
+    // 📅 LA PUERTA DE LA AGENDA REAL DEL ADMINISTRADOR
+    @GetMapping("/agenda")
+    public String abrirAgendaReal() {
+        return "admin_agenda";
     }
 }
