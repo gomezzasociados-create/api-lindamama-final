@@ -624,7 +624,15 @@
         fetch('/api/pos/egresos', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ descripcion: desc, monto: monto, metodoSalida: 'EFECTIVO' })
+            body: JSON.stringify({ 
+                descripcion: desc, 
+                monto: monto, 
+                metodoSalida: 'EFECTIVO',
+                esInversion: false,
+                vidaUtilMeses: 0,
+                categoria: 'OTROS',
+                valorResidual: 0.0
+            })
         }).then(() => {
             document.getElementById('egreso-descripcion').value = '';
             document.getElementById('egreso-monto').value = '';

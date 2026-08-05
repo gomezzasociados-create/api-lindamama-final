@@ -15,4 +15,7 @@ public interface EgresoRepository extends JpaRepository<Egreso, Long> {
     List<Egreso> findAllByOrderByFechaHoraDesc();
 
     List<Egreso> findByFechaHoraBetweenOrderByFechaHoraDesc(java.time.LocalDateTime inicio, java.time.LocalDateTime fin);
+
+    // Obtener todos los egresos que corresponden a inversiones (CAPEX)
+    List<Egreso> findByEsInversionTrue();
 }

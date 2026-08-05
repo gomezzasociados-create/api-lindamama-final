@@ -570,6 +570,9 @@
                         Cálculo & Análisis Minucioso del EBITDA
                         <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Panel financiero detallado. Calcula el EBITDA bruto, neto y de flujo de caja según el rango de fechas seleccionado, contrastando ventas, gastos y comisiones pagadas.')"></i>
                     </h4>
+                    <button class="btn btn-cyan btn-sm fw-bold px-3 py-2 rounded-pill shadow-sm" onclick="imprimirPdfGlobalEbitda()">
+                        <i class="bi bi-file-earmark-bar-graph-fill me-1"></i> Informe Didáctico Global (PDF)
+                    </button>
                 </div>
 
                 <!-- Filtro de Fechas y Quick Filters -->
@@ -594,48 +597,222 @@
                 </div>
 
                 <!-- Dashboard de Indicadores Financieros -->
-                <div class="row g-3 mb-4">
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <div class="grid-card p-3" style="border-left: 4px solid #198754 !important;">
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-4">
+                        <div class="grid-card p-3 h-100" style="border-left: 4px solid #198754 !important; background: rgba(25, 135, 84, 0.03);">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="text-white-50 small fw-bold">EBITDA DEVENGADO</span>
-                                <i class="bi bi-calculator text-success fs-4"></i>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="bi bi-volume-up-fill text-success fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Ebitda devengado. Muestra el rendimiento operativo puro del spa al restar los gastos operativos de las ventas netas del local, excluyendo depreciaciones.')"></i>
+                                    <i class="bi bi-printer-fill text-white fs-5" style="cursor:pointer;" onclick="imprimirPdfIndicador('EBITDA_DEVENGADO')" title="Exportar PDF de EBITDA Devengado"></i>
+                                    <i class="bi bi-calculator text-success fs-4"></i>
+                                </div>
                             </div>
                             <h3 class="fw-bold text-success mb-1" id="ebitda-val-devengado">$0</h3>
-                            <small class="text-white-50" style="font-size:0.75rem;">(Ingresos Spa - Egresos)</small>
+                            <small class="text-white-50" style="font-size:0.72rem;">(Ingresos Spa - Gastos Operativos)</small>
+                            <a href="#desc-ebitda-dev" class="text-success text-decoration-none small d-block mt-2" data-bs-toggle="collapse" style="font-size: 0.68rem;">
+                                <i class="bi bi-info-circle me-1"></i>Guía Rápida <i class="bi bi-chevron-down ms-1"></i>
+                            </a>
+                            <div class="collapse text-white-50 mt-1" id="desc-ebitda-dev" style="font-size: 0.68rem; line-height: 1.2;">
+                                Mide la rentabilidad del día a día de tu Spa. Resta los gastos operativos (OPEX) como insumos rápidos y arriendos a las ventas netas, sin contar desgaste ni compras grandes de activos.
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <div class="grid-card p-3" style="border-left: 4px solid var(--cyan-neon) !important;">
+                    <div class="col-12 col-md-4">
+                        <div class="grid-card p-3 h-100" style="border-left: 4px solid var(--cyan-neon) !important; background: rgba(0, 229, 255, 0.03);">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="text-white-50 small fw-bold">EBITDA DE CAJA</span>
-                                <i class="bi bi-piggy-bank text-info fs-4"></i>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="bi bi-volume-up-fill text-info fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Ebitda de caja. Indica el flujo de dinero físico real libre en caja tras descontar todos los egresos del periodo, inversiones ejecutadas y comisiones pagadas a profesionales.')"></i>
+                                    <i class="bi bi-printer-fill text-white fs-5" style="cursor:pointer;" onclick="imprimirPdfIndicador('EBITDA_CAJA')" title="Exportar PDF de EBITDA de Caja"></i>
+                                    <i class="bi bi-piggy-bank text-info fs-4"></i>
+                                </div>
                             </div>
                             <h3 class="fw-bold text-info mb-1" id="ebitda-val-caja">$0</h3>
-                            <small class="text-white-50" style="font-size:0.75rem;">(Ingresos Caja - Egresos - Comisiones Pagadas)</small>
+                            <small class="text-white-50" style="font-size:0.72rem;">(Flujo Caja - Inversiones - Comisiones Pagadas)</small>
+                            <a href="#desc-ebitda-caja" class="text-info text-decoration-none small d-block mt-2" data-bs-toggle="collapse" style="font-size: 0.68rem;">
+                                <i class="bi bi-info-circle me-1"></i>Guía Rápida <i class="bi bi-chevron-down ms-1"></i>
+                            </a>
+                            <div class="collapse text-white-50 mt-1" id="desc-ebitda-caja" style="font-size: 0.68rem; line-height: 1.2;">
+                                Representa el dinero físico real que ingresó o salió de tu Spa. Resta las inversiones completas en equipamiento realizadas en el mes y las comisiones reales ya pagadas a tus socias.
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <div class="grid-card p-3" style="border-left: 4px solid var(--fucsia-neon) !important;">
+                    <div class="col-12 col-md-4">
+                        <div class="grid-card p-3 h-100" style="border-left: 4px solid var(--fucsia-neon) !important; background: rgba(255, 0, 127, 0.03);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-white-50 small fw-bold">EBIT (UTILIDAD REAL)</span>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="bi bi-volume-up-fill text-fucsia-neon fs-5" style="cursor:pointer; color: var(--fucsia-neon);" onclick="reproducirVozInstruccion('Ebit o utilidad operativa real. Representa la ganancia real del spa descontando el desgaste diario de tus camillas, piedras y toallas de masaje durante el rango de fechas seleccionado.')"></i>
+                                    <i class="bi bi-printer-fill text-white fs-5" style="cursor:pointer;" onclick="imprimirPdfIndicador('EBIT')" title="Exportar PDF de EBIT"></i>
+                                    <i class="bi bi-graph-up-arrow text-fucsia-neon fs-4" style="color: var(--fucsia-neon);"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold text-white mb-1" id="ebitda-val-ebit">$0</h3>
+                            <small class="text-white-50" style="font-size:0.72rem;">(EBITDA Devengado - Desgaste de Implementos)</small>
+                            <a href="#desc-ebit" class="text-fucsia-neon text-decoration-none small d-block mt-2" data-bs-toggle="collapse" style="font-size: 0.68rem; color: var(--fucsia-neon) !important;">
+                                <i class="bi bi-info-circle me-1"></i>Guía Rápida <i class="bi bi-chevron-down ms-1"></i>
+                            </a>
+                            <div class="collapse text-white-50 mt-1" id="desc-ebit" style="font-size: 0.68rem; line-height: 1.2;">
+                                Utilidad neta operativa real. Resta la pérdida de valor (desgaste) de tus implementos e inversiones al EBITDA devengado. Muestra el rendimiento del Spa con los activos ya desgastados.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-4">
+                        <div class="grid-card p-3 h-100" style="border-left: 4px solid #ffffff !important;">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="text-white-50 small fw-bold">INGRESOS VENTAS</span>
-                                <i class="bi bi-cash-stack text-fucsia-neon fs-4" style="color: var(--fucsia-neon);"></i>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="bi bi-volume-up-fill text-white-50 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Ingresos por ventas. Muestra el dinero total bruto facturado, detallando la proporción correspondiente al Spa y las comisiones devengadas por las socias.')"></i>
+                                    <i class="bi bi-printer-fill text-white fs-5" style="cursor:pointer;" onclick="imprimirPdfIndicador('INGRESOS_VENTAS')" title="Exportar PDF de Ventas"></i>
+                                    <i class="bi bi-cash-stack text-white-50 fs-4"></i>
+                                </div>
                             </div>
                             <h3 class="fw-bold text-white mb-1" id="ebitda-val-ventas">$0</h3>
                             <span class="text-white-50 small d-block" style="font-size:0.7rem;">Spa: <span class="text-info" id="ebitda-val-spa">$0</span> | Socias: <span class="text-warning" id="ebitda-val-socia-dev">$0</span></span>
+                            <a href="#desc-ventas" class="text-white-50 text-decoration-none small d-block mt-2" data-bs-toggle="collapse" style="font-size: 0.68rem;">
+                                <i class="bi bi-info-circle me-1"></i>Guía Rápida <i class="bi bi-chevron-down ms-1"></i>
+                            </a>
+                            <div class="collapse text-white-50 mt-1" id="desc-ventas" style="font-size: 0.68rem; line-height: 1.2;">
+                                El volumen total de ventas facturadas en el Spa durante el periodo, detallando la porción del local (Spa) frente a la comisión de las profesionales/socias.
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6 col-lg-3">
-                        <div class="grid-card p-3" style="border-left: 4px solid #dc3545 !important;">
+                    <div class="col-12 col-md-4">
+                        <div class="grid-card p-3 h-100" style="border-left: 4px solid #dc3545 !important;">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="text-white-50 small fw-bold">EGRESOS & COMISIONES</span>
-                                <i class="bi bi-graph-down-arrow text-danger fs-4"></i>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="bi bi-volume-up-fill text-danger fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Egresos y comisiones. Suma de todas las salidas de dinero, detallando los gastos operativos y las comisiones pagadas a socias.')"></i>
+                                    <i class="bi bi-printer-fill text-white fs-5" style="cursor:pointer;" onclick="imprimirPdfIndicador('EGRESOS_COMISIONES')" title="Exportar PDF de Egresos"></i>
+                                    <i class="bi bi-graph-down-arrow text-danger fs-4"></i>
+                                </div>
                             </div>
                             <h3 class="fw-bold text-danger mb-1" id="ebitda-val-gastos">$0</h3>
                             <span class="text-white-50 small d-block" style="font-size:0.7rem;">Gastos: <span class="text-danger" id="ebitda-val-egresos">$0</span> | Comisiones: <span class="text-warning" id="ebitda-val-comisiones-pag">$0</span></span>
+                            <a href="#desc-egresos" class="text-danger text-decoration-none small d-block mt-2" data-bs-toggle="collapse" style="font-size: 0.68rem;">
+                                <i class="bi bi-info-circle me-1"></i>Guía Rápida <i class="bi bi-chevron-down ms-1"></i>
+                            </a>
+                            <div class="collapse text-white-50 mt-1" id="desc-egresos" style="font-size: 0.68rem; line-height: 1.2;">
+                                Sumatoria de todas las salidas de caja y banco. Desglosa los egresos generales del local y los pagos efectuados de comisiones a las profesionales.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="grid-card p-3 h-100" style="border-left: 4px solid #ffc107 !important; background: rgba(255, 193, 7, 0.03);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-white-50 small fw-bold">DESGASTE DE IMPLEMENTOS (D&A)</span>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="bi bi-volume-up-fill text-warning fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Desgaste de implementos. Es el valor estimado de pérdida de valor por uso de todos tus activos e implementos de masaje activos durante este periodo.')"></i>
+                                    <i class="bi bi-printer-fill text-white fs-5" style="cursor:pointer;" onclick="imprimirPdfIndicador('DESGASTE_IMPLEMENTOS')" title="Exportar PDF de Desgaste"></i>
+                                    <i class="bi bi-hourglass-split text-warning fs-4"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold text-warning mb-1" id="ebitda-val-depreciacion">$0</h3>
+                            <small class="text-white-50" style="font-size:0.72rem;">Depreciación de activos e implementos</small>
+                            <a href="#desc-depreciacion" class="text-warning text-decoration-none small d-block mt-2" data-bs-toggle="collapse" style="font-size: 0.68rem;">
+                                <i class="bi bi-info-circle me-1"></i>Guía Rápida <i class="bi bi-chevron-down ms-1"></i>
+                            </a>
+                            <div class="collapse text-white-50 mt-1" id="desc-depreciacion" style="font-size: 0.68rem; line-height: 1.2;">
+                                Pérdida de valor diaria acumulada en el periodo de todas tus camillas, piedras y toallas de masaje, basada en su vida útil estimada. No es dinero en efectivo que sale, sino pérdida de valor.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario de Registro Detallado y Desglose por Categorías -->
+                <div class="row g-3 mb-4">
+                    <!-- REGISTRO AVANZADO DE GASTOS / INVERSIONES -->
+                    <div class="col-12 col-md-5">
+                        <div class="grid-card p-3 h-100">
+                            <h6 class="fw-bold text-white mb-3"><i class="bi bi-plus-circle text-cyan me-2"></i>Registrar Gasto o Inversión en Spa</h6>
+                            <div class="mb-2">
+                                <label class="form-label text-white-50 small fw-bold" style="font-size:0.75rem;">Descripción / Implemento</label>
+                                <input type="text" id="adv-egreso-descripcion" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Ej: Camilla reclinable de masajes, Toallas microfibra">
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label text-white-50 small fw-bold" style="font-size:0.75rem;">Monto ($)</label>
+                                    <input type="number" id="adv-egreso-monto" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="0">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label text-white-50 small fw-bold" style="font-size:0.75rem;">Medio de Pago</label>
+                                    <select id="adv-egreso-metodo" class="form-select form-select-sm bg-dark text-white border-secondary">
+                                        <option value="EFECTIVO">EFECTIVO</option>
+                                        <option value="TRANSFERENCIA">TRANSFERENCIA</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label text-white-50 small fw-bold" style="font-size:0.75rem;">Tipo Egreso</label>
+                                    <select id="adv-egreso-tipo" class="form-select form-select-sm bg-dark text-white border-secondary" onchange="toggleInversionFields()">
+                                        <option value="OPEX">Gasto Operativo (OPEX)</option>
+                                        <option value="CAPEX">Inversión Activo (CAPEX)</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label text-white-50 small fw-bold" style="font-size:0.75rem;">Categoría</label>
+                                    <select id="adv-egreso-categoria" class="form-select form-select-sm bg-dark text-white border-secondary">
+                                        <!-- OPEX -->
+                                        <option value="INSUMO_DESECHABLE">Insumos Desechables (Sábanas, aceites)</option>
+                                        <option value="SERVICIOS_BASICOS">Servicios Básicos (Luz, agua, internet)</option>
+                                        <option value="ARRIENDO">Arriendo de Local</option>
+                                        <option value="PUBLICIDAD">Publicidad y Redes Sociales</option>
+                                        <option value="MANTENIMIENTO">Mantenimiento de Local</option>
+                                        <option value="SUELDO_ADMIN">Sueldos Administrativos</option>
+                                        <option value="OTROS_OPEX">Otros Gastos OPEX</option>
+                                        <!-- CAPEX (se ocultan inicialmente) -->
+                                        <option value="IMPLEMENTO_MASAJE" style="display:none;">Implementos Masaje (Camillas, piedras)</option>
+                                        <option value="EQUIPO_TECNOLOGICO" style="display:none;">Equipos y Aparatología</option>
+                                        <option value="INFRAESTRUCTURA" style="display:none;">Mejoras Locales / Mobiliario</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Campos de Inversión (CAPEX) -->
+                            <div id="inversion-fields" class="p-3 rounded border border-secondary mb-2 d-none" style="background: rgba(255,255,255,0.02);">
+                                <h6 class="small fw-bold text-warning mb-2"><i class="bi bi-clock-history me-1"></i>Detalles de Inversión & Vida Útil</h6>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label text-white-50 small fw-bold" style="font-size:0.7rem;">Vida Útil (Meses)</label>
+                                        <input type="number" id="adv-egreso-vida-util" class="form-control form-control-sm bg-dark text-white border-secondary" value="12" placeholder="Meses">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label text-white-50 small fw-bold" style="font-size:0.7rem;">Valor Residual ($)</label>
+                                        <input type="number" id="adv-egreso-residual" class="form-control form-control-sm bg-dark text-white border-secondary" value="0" placeholder="0">
+                                    </div>
+                                </div>
+                                <small class="text-white-50 d-block mt-2" style="font-size: 0.65rem;">El costo del activo se distribuirá mensualmente según el tiempo de vida asignado.</small>
+                            </div>
+                            <button class="btn btn-sm btn-cyan w-100 fw-bold py-2 mt-2" onclick="guardarEgresoAvanzado()"><i class="bi bi-check-circle me-1"></i>GUARDAR EGRESO</button>
+                        </div>
+                    </div>
+
+                    <!-- DESGLOSE DE GASTOS POR CATEGORÍAS -->
+                    <div class="col-12 col-md-7">
+                        <div class="grid-card p-3 h-100 d-flex flex-column">
+                            <h6 class="fw-bold text-white mb-3"><i class="bi bi-pie-chart text-cyan me-2"></i>Desglose Quirúrgico de Gastos e Inversiones</h6>
+                            <div class="row g-3 flex-grow-1">
+                                <div class="col-12 col-lg-6">
+                                    <h6 class="text-success fw-bold border-bottom border-success pb-1 mb-2 small" style="font-size:0.75rem;"><i class="bi bi-wallet2 me-1"></i>GASTOS OPERATIVOS (OPEX)</h6>
+                                    <div id="desglose-opex-container" class="pe-2" style="max-height:200px; overflow-y:auto;">
+                                        <span class="text-muted small">Cargando desglose OPEX...</span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <h6 class="text-warning fw-bold border-bottom border-warning pb-1 mb-2 small" style="font-size:0.75rem;"><i class="bi bi-box-seam me-1"></i>INVERSIONES DE CAPITAL (CAPEX)</h6>
+                                    <div id="desglose-capex-container" class="pe-2" style="max-height:200px; overflow-y:auto;">
+                                        <span class="text-muted small">Cargando desglose CAPEX...</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -648,6 +825,7 @@
                         <li class="nav-item"><button class="nav-link active py-2" id="eb-ventas-tab" data-bs-toggle="tab" data-bs-target="#eb-ventas" type="button">Ventas (Ingresos)</button></li>
                         <li class="nav-item"><button class="nav-link py-2" id="eb-egresos-tab" data-bs-toggle="tab" data-bs-target="#eb-egresos" type="button">Egresos (Gastos)</button></li>
                         <li class="nav-item"><button class="nav-link py-2" id="eb-pagos-tab" data-bs-toggle="tab" data-bs-target="#eb-pagos" type="button">Pagos Comisión</button></li>
+                        <li class="nav-item"><button class="nav-link py-2" id="eb-inversiones-tab" data-bs-toggle="tab" data-bs-target="#eb-inversiones" type="button">Inversiones & Vida Útil (CAPEX)</button></li>
                     </ul>
 
                     <div class="tab-content">
@@ -683,12 +861,14 @@
                                         <tr>
                                             <th>Fecha/Hora</th>
                                             <th>Descripción</th>
+                                            <th>Categoría</th>
                                             <th>Monto</th>
+                                            <th>Tipo</th>
                                             <th>Método Salida</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ebitda-tbl-egresos">
-                                        <tr><td colspan="4" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
+                                        <tr><td colspan="6" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -709,6 +889,29 @@
                                     </thead>
                                     <tbody id="ebitda-tbl-pagos">
                                         <tr><td colspan="5" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Inversiones & Vida Útil (CAPEX) -->
+                        <div class="tab-pane fade" id="eb-inversiones" role="tabpanel">
+                            <div class="table-responsive" style="max-height: 40vh; overflow-y: auto;">
+                                <table class="table table-dark table-hover align-middle table-sm" style="font-size:0.85rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha Adq.</th>
+                                            <th>Implemento / Activo</th>
+                                            <th>Costo Original</th>
+                                            <th>Vida Útil</th>
+                                            <th>Depreciación Periodo</th>
+                                            <th>Depreciación Acumulada</th>
+                                            <th>Vida Útil Restante</th>
+                                            <th style="width: 25%;">Desgaste de Implemento</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ebitda-tbl-inversiones">
+                                        <tr><td colspan="8" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -2744,6 +2947,87 @@
         window.consultarEbitda();
     };
 
+    window.toggleInversionFields = function() {
+        const tipo = document.getElementById('adv-egreso-tipo').value;
+        const panel = document.getElementById('inversion-fields');
+        const catSelect = document.getElementById('adv-egreso-categoria');
+        
+        const categories = catSelect.options;
+        if (tipo === 'CAPEX') {
+            panel.classList.remove('d-none');
+            for (let i = 0; i < categories.length; i++) {
+                const val = categories[i].value;
+                if (val.includes('INSUMO') || val.includes('SERVICIOS') || val.includes('ARRIENDO') || val.includes('PUBLICIDAD') || val.includes('MANTENIMIENTO') || val.includes('SUELDO') || val.includes('OTROS_OPEX')) {
+                    categories[i].style.display = 'none';
+                } else {
+                    categories[i].style.display = 'block';
+                }
+            }
+            catSelect.value = 'IMPLEMENTO_MASAJE';
+        } else {
+            panel.classList.add('d-none');
+            for (let i = 0; i < categories.length; i++) {
+                const val = categories[i].value;
+                if (val.includes('IMPLEMENTO') || val.includes('EQUIPO') || val.includes('INFRAESTRUCTURA')) {
+                    categories[i].style.display = 'none';
+                } else {
+                    categories[i].style.display = 'block';
+                }
+            }
+            catSelect.value = 'INSUMO_DESECHABLE';
+        }
+    };
+
+    window.guardarEgresoAvanzado = function() {
+        const desc = document.getElementById('adv-egreso-descripcion').value.trim();
+        const monto = parseInt(document.getElementById('adv-egreso-monto').value);
+        const metodo = document.getElementById('adv-egreso-metodo').value;
+        const tipo = document.getElementById('adv-egreso-tipo').value;
+        const categoria = document.getElementById('adv-egreso-categoria').value;
+        
+        if (!desc || !monto) {
+            return alert("⚠️ Complete los datos del egreso.");
+        }
+        
+        const esInversion = tipo === 'CAPEX';
+        const vidaUtil = esInversion ? parseInt(document.getElementById('adv-egreso-vida-util').value) : 0;
+        const residual = esInversion ? parseInt(document.getElementById('adv-egreso-residual').value) : 0;
+        
+        if (esInversion && (!vidaUtil || vidaUtil <= 0)) {
+            return alert("⚠️ Especifique una vida útil válida mayor a 0 meses.");
+        }
+        
+        const bodyData = {
+            descripcion: desc,
+            monto: monto,
+            metodoSalida: metodo,
+            esInversion: esInversion,
+            vidaUtilMeses: vidaUtil,
+            categoria: categoria,
+            valorResidual: residual
+        };
+        
+        fetch('/api/pos/egresos', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(bodyData)
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Error guardando egreso");
+            return res.json();
+        })
+        .then(() => {
+            document.getElementById('adv-egreso-descripcion').value = '';
+            document.getElementById('adv-egreso-monto').value = '';
+            alert("✅ Egreso registrado exitosamente.");
+            window.consultarEbitda();
+        })
+        .catch(err => {
+            console.error(err);
+            alert("⚠️ No se pudo registrar el egreso.");
+        });
+    };
+
     window.consultarEbitda = function() {
         const inicio = document.getElementById('ebitda-inicio').value;
         const fin = document.getElementById('ebitda-fin').value;
@@ -2752,9 +3036,14 @@
         fetch(`/api/finanzas/ebitda?inicio=${inicio}&fin=${fin}`)
             .then(res => res.json())
             .then(data => {
+                // Almacenar el último reporte en el objeto window para la exportación a PDF
+                window.ultimoReporteEbitda = data;
                 const s = data.summary || {};
+                
+                // KPIs del EBITDA & EBIT
                 document.getElementById('ebitda-val-devengado').innerText = '$' + Math.round(s.ebitdaDevengado || 0).toLocaleString('es-CL');
                 document.getElementById('ebitda-val-caja').innerText = '$' + Math.round(s.ebitdaCaja || 0).toLocaleString('es-CL');
+                document.getElementById('ebitda-val-ebit').innerText = '$' + Math.round(s.ebitDevengado || 0).toLocaleString('es-CL');
                 document.getElementById('ebitda-val-ventas').innerText = '$' + Math.round(s.totalVentasGross || 0).toLocaleString('es-CL');
                 document.getElementById('ebitda-val-spa').innerText = '$' + Math.round(s.totalVentasSpa || 0).toLocaleString('es-CL');
                 document.getElementById('ebitda-val-socia-dev').innerText = '$' + Math.round(s.totalVentasSocia || 0).toLocaleString('es-CL');
@@ -2763,7 +3052,73 @@
                 document.getElementById('ebitda-val-gastos').innerText = '$' + Math.round(totalGastosYComisiones).toLocaleString('es-CL');
                 document.getElementById('ebitda-val-egresos').innerText = '$' + Math.round(s.totalEgresos || 0).toLocaleString('es-CL');
                 document.getElementById('ebitda-val-comisiones-pag').innerText = '$' + Math.round(s.totalComisionesPagadas || 0).toLocaleString('es-CL');
+                document.getElementById('ebitda-val-depreciacion').innerText = '$' + Math.round(s.totalDepreciacion || 0).toLocaleString('es-CL');
 
+                // Categorías de Gastos
+                const opexCont = document.getElementById('desglose-opex-container');
+                const capexCont = document.getElementById('desglose-capex-container');
+                opexCont.innerHTML = '';
+                capexCont.innerHTML = '';
+                
+                const catLabels = {
+                    'INSUMO_DESECHABLE': 'Insumos Desechables',
+                    'SERVICIOS_BASICOS': 'Servicios Básicos',
+                    'ARRIENDO': 'Arriendo de Local',
+                    'PUBLICIDAD': 'Publicidad y Marketing',
+                    'MANTENIMIENTO': 'Mantenimiento',
+                    'SUELDO_ADMIN': 'Sueldos Administrativos',
+                    'OTROS_OPEX': 'Otros Gastos OPEX',
+                    'OTROS': 'Otros Gastos',
+                    'IMPLEMENTO_MASAJE': 'Implementos de Masaje',
+                    'EQUIPO_TECNOLOGICO': 'Equipos y Aparatología',
+                    'INFRAESTRUCTURA': 'Mejoras de Infraestructura'
+                };
+
+                // Desglose OPEX
+                const opexKeys = Object.keys(data.opexPorCategoria || {});
+                if (opexKeys.length === 0) {
+                    opexCont.innerHTML = '<span class="text-muted small d-block py-2">Sin gastos OPEX registrados</span>';
+                } else {
+                    opexKeys.forEach(k => {
+                        const val = data.opexPorCategoria[k];
+                        const label = catLabels[k] || k;
+                        opexCont.innerHTML += `
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between text-white small mb-1" style="font-size:0.75rem;">
+                                    <span>${label}</span>
+                                    <span class="fw-bold text-success">$${Math.round(val).toLocaleString('es-CL')}</span>
+                                </div>
+                                <div class="progress" style="height: 4px; background: rgba(255,255,255,0.1);">
+                                    <div class="progress-bar bg-success" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                // Desglose CAPEX
+                const capexKeys = Object.keys(data.capexPorCategoria || {});
+                if (capexKeys.length === 0) {
+                    capexCont.innerHTML = '<span class="text-muted small d-block py-2">Sin inversiones CAPEX registradas</span>';
+                } else {
+                    capexKeys.forEach(k => {
+                        const val = data.capexPorCategoria[k];
+                        const label = catLabels[k] || k;
+                        capexCont.innerHTML += `
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between text-white small mb-1" style="font-size:0.75rem;">
+                                    <span>${label}</span>
+                                    <span class="fw-bold text-warning">$${Math.round(val).toLocaleString('es-CL')}</span>
+                                </div>
+                                <div class="progress" style="height: 4px; background: rgba(255,255,255,0.1);">
+                                    <div class="progress-bar bg-warning" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                // Tabla Ventas
                 const tblVentas = document.getElementById('ebitda-tbl-ventas');
                 tblVentas.innerHTML = '';
                 if (!data.ventas || data.ventas.length === 0) {
@@ -2786,22 +3141,28 @@
                     });
                 }
 
+                // Tabla Egresos
                 const tblEgresos = document.getElementById('ebitda-tbl-egresos');
                 tblEgresos.innerHTML = '';
                 if (!data.egresos || data.egresos.length === 0) {
-                    tblEgresos.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No hay egresos registrados en este periodo</td></tr>';
+                    tblEgresos.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">No hay egresos registrados en este periodo</td></tr>';
                 } else {
                     data.egresos.forEach(e => {
                         const fec = new Date(e.fecha).toLocaleString('es-CL', {dateStyle:'short', timeStyle:'short'});
+                        const tipoBadge = e.esInversion ? '<span class="badge bg-warning text-dark" style="font-size:0.65rem;">CAPEX</span>' : '<span class="badge bg-success" style="font-size:0.65rem;">OPEX</span>';
+                        const catLabel = catLabels[e.categoria] || e.categoria;
                         tblEgresos.innerHTML += `<tr>
                             <td>${fec}</td>
                             <td>${e.descripcion}</td>
+                            <td><span class="text-white-50">${catLabel}</span></td>
                             <td class="fw-bold text-danger">-$${Math.round(e.monto || 0).toLocaleString('es-CL')}</td>
+                            <td>${tipoBadge}</td>
                             <td class="small">${e.metodoSalida}</td>
                         </tr>`;
                     });
                 }
 
+                // Tabla Pagos de Comisión
                 const tblPagos = document.getElementById('ebitda-tbl-pagos');
                 tblPagos.innerHTML = '';
                 if (!data.pagosComisiones || data.pagosComisiones.length === 0) {
@@ -2818,11 +3179,875 @@
                         </tr>`;
                     });
                 }
+
+                // Tabla Inversiones & Depreciación
+                const tblInversiones = document.getElementById('ebitda-tbl-inversiones');
+                tblInversiones.innerHTML = '';
+                if (!data.inversionesDepreciacion || data.inversionesDepreciacion.length === 0) {
+                    tblInversiones.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">No hay activos o implementos activos en este periodo</td></tr>';
+                } else {
+                    data.inversionesDepreciacion.forEach(i => {
+                        const fecAdq = new Date(i.fechaAdquisicion).toLocaleDateString('es-CL');
+                        const original = i.monto || 0;
+                        const depPer = i.depreciacionPeriodo || 0;
+                        const depAcum = i.depreciacionAcumulada || 0;
+                        const lifeRemaining = i.vidaUtilRestanteMeses;
+                        const progressPct = i.porcentajeDesgaste || 0;
+                        const catLabel = catLabels[i.categoria] || i.categoria;
+                        
+                        let barColor = 'bg-success';
+                        if (progressPct > 75) barColor = 'bg-danger';
+                        else if (progressPct > 40) barColor = 'bg-warning';
+                        
+                        tblInversiones.innerHTML += `<tr>
+                            <td>${fecAdq}</td>
+                            <td>
+                                <div class="fw-bold text-white">${i.descripcion}</div>
+                                <span class="badge bg-secondary" style="font-size:0.65rem;">${catLabel}</span>
+                            </td>
+                            <td class="fw-bold text-info">$${Math.round(original).toLocaleString('es-CL')}</td>
+                            <td class="small text-white-50">${i.vidaUtilMeses} meses</td>
+                            <td class="fw-bold text-warning">$${Math.round(depPer).toLocaleString('es-CL')}</td>
+                            <td class="text-warning-50">$${Math.round(depAcum).toLocaleString('es-CL')}</td>
+                            <td class="fw-bold text-success">${lifeRemaining} meses</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 6px; background: rgba(255,255,255,0.1);">
+                                        <div class="progress-bar ${barColor}" style="width: ${progressPct}%;"></div>
+                                    </div>
+                                    <span class="small fw-bold ${progressPct > 75 ? 'text-danger' : progressPct > 40 ? 'text-warning' : 'text-success'}" style="font-size: 0.7rem;">${Math.round(progressPct)}%</span>
+                                </div>
+                            </td>
+                        </tr>`;
+                    });
+                }
             })
             .catch(err => {
                 console.error(err);
                 alert("⚠️ Error al obtener reporte financiero.");
             });
+    };
+
+    window.imprimirPdfIndicador = function(tipo) {
+        if (!window.ultimoReporteEbitda) {
+            return alert("⚠️ Primero filtre y cargue los datos del periodo.");
+        }
+        
+        const data = window.ultimoReporteEbitda;
+        const inicio = document.getElementById('ebitda-inicio').value;
+        const fin = document.getElementById('ebitda-fin').value;
+        const s = data.summary || {};
+        
+        let tituloReporte = "";
+        let htmlTabla = "";
+        let htmlResumen = "";
+        
+        const fmt = (num) => '$' + Math.round(num || 0).toLocaleString('es-CL');
+        const fmtFecha = (fStr) => new Date(fStr).toLocaleString('es-CL', {dateStyle:'short', timeStyle:'short'});
+        const fmtSoloFecha = (fStr) => new Date(fStr).toLocaleDateString('es-CL');
+        
+        if (tipo === 'EBITDA_DEVENGADO') {
+            tituloReporte = "Reporte EBITDA Devengado (Operativo)";
+            htmlTabla = `
+                <h3>1. Ingresos Netos del Spa</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Servicio / Detalle</th>
+                            <th>Monto Spa (Neto)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            let ventasSpa = data.ventas.filter(v => v.estado === 'PAGADO');
+            if (ventasSpa.length === 0) {
+                htmlTabla += `<tr><td colspan="4" style="text-align:center; color:gray;">Sin ingresos netos en el periodo</td></tr>`;
+            } else {
+                ventasSpa.forEach(v => {
+                    htmlTabla += `
+                        <tr>
+                            <td>${fmtFecha(v.fecha)}</td>
+                            <td>${v.clienteNombre}</td>
+                            <td>${v.detalle || 'Venta'}</td>
+                            <td class="text-success" style="text-align:right;">${fmt(v.montoSpa)}</td>
+                        </tr>
+                    `;
+                });
+            }
+            htmlTabla += `
+                    </tbody>
+                </table>
+                
+                <h3 style="margin-top:20px;">2. Gastos Operativos (OPEX)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            let egresosOpex = data.egresos.filter(e => !e.esInversion);
+            if (egresosOpex.length === 0) {
+                htmlTabla += `<tr><td colspan="4" style="text-align:center; color:gray;">Sin egresos OPEX en el periodo</td></tr>`;
+            } else {
+                egresosOpex.forEach(e => {
+                    htmlTabla += `
+                        <tr>
+                            <td>${fmtFecha(e.fecha)}</td>
+                            <td>${e.descripcion}</td>
+                            <td>${e.categoria}</td>
+                            <td class="text-danger" style="text-align:right;">-${fmt(e.monto)}</td>
+                        </tr>
+                    `;
+                });
+            }
+            htmlTabla += `
+                    </tbody>
+                </table>
+            `;
+            
+            htmlResumen = `
+                <div class="resumen-card">
+                    <p><span>Total Ingresos Netos Spa:</span> <strong>${fmt(s.totalVentasSpa)}</strong></p>
+                    <p><span>Total Gastos OPEX:</span> <strong class="text-danger">-${fmt(s.totalOpex)}</strong></p>
+                    <hr>
+                    <p style="font-size: 1.2em; color: #198754;"><span>EBITDA DEVENGADO:</span> <strong>${fmt(s.ebitdaDevengado)}</strong></p>
+                </div>
+            `;
+            
+        } else if (tipo === 'EBITDA_CAJA') {
+            tituloReporte = "Reporte EBITDA de Caja (Flujo Efectivo)";
+            htmlTabla = `
+                <h3>1. Flujo de Ingresos de Caja (Ventas Brutas + Propinas)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Monto Cobrado</th>
+                            <th>Propina</th>
+                            <th>Total Recibido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            let ventasPagadas = data.ventas.filter(v => v.estado === 'PAGADO');
+            if (ventasPagadas.length === 0) {
+                htmlTabla += `<tr><td colspan="5" style="text-align:center; color:gray;">Sin ventas pagadas en el periodo</td></tr>`;
+            } else {
+                ventasPagadas.forEach(v => {
+                    const totalRec = (v.montoTotal || 0) + (v.propina || 0);
+                    htmlTabla += `
+                        <tr>
+                            <td>${fmtFecha(v.fecha)}</td>
+                            <td>${v.clienteNombre}</td>
+                            <td style="text-align:right;">${fmt(v.montoTotal)}</td>
+                            <td style="text-align:right;">${fmt(v.propina)}</td>
+                            <td class="text-success" style="text-align:right;">${fmt(totalRec)}</td>
+                        </tr>
+                    `;
+                });
+            }
+            htmlTabla += `
+                    </tbody>
+                </table>
+                
+                <h3 style="margin-top:20px;">2. Egresos de Caja (OPEX + CAPEX)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                            <th>Clasificación</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            if (data.egresos.length === 0) {
+                htmlTabla += `<tr><td colspan="4" style="text-align:center; color:gray;">Sin egresos en el periodo</td></tr>`;
+            } else {
+                data.egresos.forEach(e => {
+                    htmlTabla += `
+                        <tr>
+                            <td>${fmtFecha(e.fecha)}</td>
+                            <td>${e.descripcion}</td>
+                            <td>${e.esInversion ? 'CAPEX (Inversión)' : 'OPEX (Gasto)'}</td>
+                            <td class="text-danger" style="text-align:right;">-${fmt(e.monto)}</td>
+                        </tr>
+                    `;
+                });
+            }
+            htmlTabla += `
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top:20px;">3. Pagos de Comisión a Socias</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Profesional / Socia</th>
+                            <th>Comentarios</th>
+                            <th>Monto Pagado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            if (data.pagosComisiones.length === 0) {
+                htmlTabla += `<tr><td colspan="4" style="text-align:center; color:gray;">Sin pagos de comisión en el periodo</td></tr>`;
+            } else {
+                data.pagosComisiones.forEach(p => {
+                    htmlTabla += `
+                        <tr>
+                            <td>${fmtFecha(p.fecha)}</td>
+                            <td>${p.sociaNombre}</td>
+                            <td>${p.comentarios || '--'}</td>
+                            <td class="text-danger" style="text-align:right;">-${fmt(p.monto)}</td>
+                        </tr>
+                    `;
+                });
+            }
+            htmlTabla += `
+                    </tbody>
+                </table>
+            `;
+            
+            htmlResumen = `
+                <div class="resumen-card">
+                    <p><span>Ingresos Caja:</span> <strong>${fmt((s.totalVentasGross || 0) + (s.totalPropinas || 0))}</strong></p>
+                    <p><span>Gastos OPEX:</span> <strong class="text-danger">-${fmt(s.totalOpex)}</strong></p>
+                    <p><span>Inversiones CAPEX:</span> <strong class="text-danger">-${fmt(s.totalCapex)}</strong></p>
+                    <p><span>Comisiones Pagadas:</span> <strong class="text-danger">-${fmt(s.totalComisionesPagadas)}</strong></p>
+                    <hr>
+                    <p style="font-size: 1.2em; color: #00e5ff;"><span>EBITDA DE CAJA:</span> <strong>${fmt(s.ebitdaCaja)}</strong></p>
+                </div>
+            `;
+            
+        } else if (tipo === 'EBIT') {
+            tituloReporte = "Reporte EBIT (Utilidad Operativa Real)";
+            htmlTabla = `
+                <h3>Desgaste y Depreciación de Implementos</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Implemento / Activo</th>
+                            <th>Categoría</th>
+                            <th>Fecha Adquisición</th>
+                            <th>Costo Original</th>
+                            <th>Vida Útil</th>
+                            <th>Desgaste en Periodo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            if (data.inversionesDepreciacion.length === 0) {
+                htmlTabla += `<tr><td colspan="6" style="text-align:center; color:gray;">Sin desgaste de implementos en el periodo</td></tr>`;
+            } else {
+                data.inversionesDepreciacion.forEach(i => {
+                    htmlTabla += `
+                        <tr>
+                            <td class="fw-bold">${i.descripcion}</td>
+                            <td>${i.categoria}</td>
+                            <td>${fmtSoloFecha(i.fechaAdquisicion)}</td>
+                            <td style="text-align:right;">${fmt(i.monto)}</td>
+                            <td>${i.vidaUtilMeses} meses</td>
+                            <td class="text-danger" style="text-align:right;">-${fmt(i.depreciacionPeriodo)}</td>
+                        </tr>
+                    `;
+                });
+            }
+            htmlTabla += `
+                    </tbody>
+                </table>
+            `;
+            
+            htmlResumen = `
+                <div class="resumen-card">
+                    <p><span>EBITDA Devengado:</span> <strong>${fmt(s.ebitdaDevengado)}</strong></p>
+                    <p><span>Desgaste de Implementos (D&A):</span> <strong class="text-danger">-${fmt(s.totalDepreciacion)}</strong></p>
+                    <hr>
+                    <p style="font-size: 1.2em; color: #ff007f;"><span>EBIT (UTILIDAD REAL):</span> <strong>${fmt(s.ebitDevengado)}</strong></p>
+                </div>
+            `;
+            
+        } else if (tipo === 'INGRESOS_VENTAS') {
+            tituloReporte = "Reporte Detallado: Ingresos por Ventas";
+            htmlTabla = `
+                <h3>Ventas Cobradas (Detalle)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Servicio / Detalle</th>
+                            <th>Monto Cobrado</th>
+                            <th>Propina</th>
+                            <th>Monto Spa</th>
+                            <th>Comisión Socia</th>
+                            <th>Socia</th>
+                            <th>Método Pago</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            let ventas = data.ventas.filter(v => v.estado === 'PAGADO');
+            if (ventas.length === 0) {
+                htmlTabla += `<tr><td colspan="9" style="text-align:center; color:gray;">Sin ventas pagadas en el periodo</td></tr>`;
+            } else {
+                ventas.forEach(v => {
+                    htmlTabla += `
+                        <tr>
+                            <td>${fmtFecha(v.fecha)}</td>
+                            <td><strong>${v.clienteNombre}</strong></td>
+                            <td>${v.detalle || 'Venta'}</td>
+                            <td style="text-align:right; font-weight:bold;">${fmt(v.montoTotal)}</td>
+                            <td style="text-align:right; color:gray;">${fmt(v.propina)}</td>
+                            <td class="text-info" style="text-align:right;">${fmt(v.montoSpa)}</td>
+                            <td class="text-warning" style="text-align:right;">${fmt(v.montoSocia)}</td>
+                            <td>${v.sociaNombre}</td>
+                            <td>${v.tipoPago}</td>
+                        </tr>
+                    `;
+                });
+            }
+            htmlTabla += `
+                    </tbody>
+                </table>
+            `;
+            
+            htmlResumen = `
+                <div class="resumen-card">
+                    <p><span>Ventas Brutas:</span> <strong>${fmt(s.totalVentasGross)}</strong></p>
+                    <p><span>Total Propinas:</span> <strong>${fmt(s.totalPropinas)}</strong></p>
+                    <p><span>Ingreso Neto Spa:</span> <strong class="text-info">${fmt(s.totalVentasSpa)}</strong></p>
+                    <p><span>Comisiones Devengadas:</span> <strong class="text-warning">${fmt(s.totalVentasSocia)}</strong></p>
+                </div>
+            `;
+            
+        } else if (tipo === 'EGRESOS_COMISIONES') {
+            tituloReporte = "Reporte Detallado: Egresos y Comisiones";
+            htmlTabla = `
+                <h3>1. Egresos del Local</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                            <th>Tipo</th>
+                            <th>Monto</th>
+                            <th>Método</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            if (data.egresos.length === 0) {
+                htmlTabla += `<tr><td colspan="6" style="text-align:center; color:gray;">Sin egresos en el periodo</td></tr>`;
+            } else {
+                data.egresos.forEach(e => {
+                    htmlTabla += `
+                        <tr>
+                            <td>${fmtFecha(e.fecha)}</td>
+                            <td>${e.descripcion}</td>
+                            <td>${e.categoria}</td>
+                            <td>${e.esInversion ? 'CAPEX (Inversión)' : 'OPEX (Gasto)'}</td>
+                            <td class="text-danger" style="text-align:right;">-${fmt(e.monto)}</td>
+                            <td>${e.metodoSalida}</td>
+                        </tr>
+                    `;
+                });
+            }
+            htmlTabla += `
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top:20px;">2. Comisiones Pagadas a Socias</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Profesional / Socia</th>
+                            <th>Comentarios</th>
+                            <th>Monto Pagado</th>
+                            <th>Medio de Pago</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            if (data.pagosComisiones.length === 0) {
+                htmlTabla += `<tr><td colspan="5" style="text-align:center; color:gray;">Sin pagos de comisión en el periodo</td></tr>`;
+            } else {
+                data.pagosComisiones.forEach(p => {
+                    htmlTabla += `
+                        <tr>
+                            <td>${fmtFecha(p.fecha)}</td>
+                            <td><strong>${p.sociaNombre}</strong></td>
+                            <td>${p.comentarios || '--'}</td>
+                            <td class="text-danger" style="text-align:right;">-${fmt(p.monto)}</td>
+                            <td>${p.medioPago}</td>
+                        </tr>
+                    `;
+                });
+            }
+            htmlTabla += `
+                    </tbody>
+                </table>
+            `;
+            
+            htmlResumen = `
+                <div class="resumen-card">
+                    <p><span>Total OPEX (Gastos):</span> <strong>-${fmt(s.totalOpex)}</strong></p>
+                    <p><span>Total CAPEX (Inversión):</span> <strong>-${fmt(s.totalCapex)}</strong></p>
+                    <p><span>Comisiones Pagadas:</span> <strong>-${fmt(s.totalComisionesPagadas)}</strong></p>
+                    <hr>
+                    <p style="font-size: 1.1em; color: #dc3545;"><span>Total Egresos:</span> <strong>-${fmt((s.totalEgresos || 0) + (s.totalComisionesPagadas || 0))}</strong></p>
+                </div>
+            `;
+            
+        } else if (tipo === 'DESGASTE_IMPLEMENTOS') {
+            tituloReporte = "Reporte Detallado: Desgaste de Implementos (D&A)";
+            htmlTabla = `
+                <h3>Inventario de Implementos & Desgaste de Activos</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha Compra</th>
+                            <th>Implemento / Activo</th>
+                            <th>Costo Original</th>
+                            <th>Vida Útil</th>
+                            <th>Desgaste Periodo</th>
+                            <th>Desgaste Acumulado</th>
+                            <th>Vida Restante</th>
+                            <th>% Desgaste</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            if (data.inversionesDepreciacion.length === 0) {
+                htmlTabla += `<tr><td colspan="8" style="text-align:center; color:gray;">No hay activos depreciándose en este periodo</td></tr>`;
+            } else {
+                data.inversionesDepreciacion.forEach(i => {
+                    htmlTabla += `
+                        <tr>
+                            <td>${fmtSoloFecha(i.fechaAdquisicion)}</td>
+                            <td><strong>${i.descripcion}</strong><br><small style="color:gray;">${i.categoria}</small></td>
+                            <td style="text-align:right;">${fmt(i.monto)}</td>
+                            <td>${i.vidaUtilMeses} meses</td>
+                            <td class="text-danger" style="text-align:right;">-${fmt(i.depreciacionPeriodo)}</td>
+                            <td style="text-align:right;">${fmt(i.depreciacionAcumulada)}</td>
+                            <td class="text-success">${i.vidaUtilRestanteMeses} meses</td>
+                            <td style="text-align:center; font-weight:bold;">${Math.round(i.porcentajeDesgaste)}%</td>
+                        </tr>
+                    `;
+                });
+            }
+            htmlTabla += `
+                    </tbody>
+                </table>
+            `;
+            
+            htmlResumen = `
+                <div class="resumen-card">
+                    <p><span>Total Desgaste Periodo:</span> <strong class="text-danger">-${fmt(s.totalDepreciacion)}</strong></p>
+                </div>
+            `;
+        }
+        
+        const win = window.open("", "_blank");
+        win.document.write(`
+            <html>
+            <head>
+                <title>${tituloReporte}</title>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; padding: 30px; line-height: 1.4; }
+                    .header { border-bottom: 3px solid #1c0229; padding-bottom: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+                    .logo-title h1 { margin: 0; font-size: 26px; color: #1c0229; font-weight: 800; }
+                    .logo-title p { margin: 4px 0 0 0; color: #666; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+                    .meta-info { text-align: right; font-size: 11px; color: #555; line-height: 1.5; }
+                    h2 { margin-top: 0; color: #1c0229; font-size: 20px; font-weight: 700; border-bottom: 1px solid #1c0229; padding-bottom: 8px; }
+                    h3 { color: #222; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #eee; padding-bottom: 6px; margin-top: 25px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 11px; }
+                    th, td { border: 1px solid #ddd; padding: 7px 10px; text-align: left; }
+                    th { background-color: #f8f9fa; font-weight: 700; color: #333; }
+                    tr:nth-child(even) { background-color: #fdfdfd; }
+                    .text-success { color: #198754; font-weight: bold; }
+                    .text-info { color: #0dcaf0; font-weight: bold; }
+                    .text-danger { color: #dc3545; font-weight: bold; }
+                    .text-warning { color: #b58100; font-weight: bold; }
+                    .resumen-card { background-color: #fdfdfd; border: 2px solid #1c0229; padding: 15px; border-radius: 6px; margin-top: 30px; width: 340px; margin-left: auto; font-size: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+                    .resumen-card p { margin: 6px 0; display: flex; justify-content: space-between; }
+                    .resumen-card hr { border: 0; border-top: 1px solid #ddd; margin: 8px 0; }
+                    @media print {
+                        body { padding: 0; }
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="logo-title">
+                        <h1>LINDA MAMÁ SPA</h1>
+                        <p>Auditoría Financiera & Control Operativo</p>
+                    </div>
+                    <div class="meta-info">
+                        <p><strong>Reporte:</strong> ${tituloReporte}</p>
+                        <p><strong>Rango Consulta:</strong> ${inicio} al ${fin}</p>
+                        <p><strong>Fecha Emisión:</strong> ${new Date().toLocaleString('es-CL')}</p>
+                    </div>
+                </div>
+                
+                <h2>${tituloReporte}</h2>
+                <p style="font-size:12px;">Auditoría contable detallada para el rango de fechas: <strong>${inicio}</strong> hasta <strong>${fin}</strong>.</p>
+                
+                ${htmlTabla}
+                
+                ${htmlResumen}
+                
+                <div class="no-print" style="margin-top:40px; text-align:center; border-top: 1px solid #eee; padding-top: 20px;">
+                    <button onclick="window.print();" style="padding: 10px 24px; font-size: 13px; background: #1c0229; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Imprimir Reporte a PDF</button>
+                    <button onclick="window.close();" style="padding: 10px 24px; font-size: 13px; background: #666; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-left:10px;">Cerrar Vista</button>
+                </div>
+                
+                <script>
+                    window.onload = function() {
+                        setTimeout(function() {
+                            window.print();
+                        }, 500);
+                    }
+                <\/script>
+            </body>
+            </html>
+        `);
+        win.document.close();
+    };
+
+    window.imprimirPdfGlobalEbitda = function() {
+        if (!window.ultimoReporteEbitda) {
+            return alert("⚠️ Primero filtre y cargue los datos del periodo para generar el reporte global.");
+        }
+        
+        const data = window.ultimoReporteEbitda;
+        const inicio = document.getElementById('ebitda-inicio').value;
+        const fin = document.getElementById('ebitda-fin').value;
+        const s = data.summary || {};
+        
+        const fmt = (num) => '$' + Math.round(num || 0).toLocaleString('es-CL');
+        const fmtSoloFecha = (fStr) => new Date(fStr).toLocaleDateString('es-CL');
+        
+        const catLabels = {
+            'INSUMO_DESECHABLE': 'Insumos Desechables',
+            'SERVICIOS_BASICOS': 'Servicios Básicos',
+            'ARRIENDO': 'Arriendo de Local',
+            'PUBLICIDAD': 'Publicidad y Marketing',
+            'MANTENIMIENTO': 'Mantenimiento',
+            'SUELDO_ADMIN': 'Sueldos Administrativos',
+            'OTROS_OPEX': 'Otros Gastos OPEX',
+            'OTROS': 'Otros Gastos',
+            'IMPLEMENTO_MASAJE': 'Implementos de Masaje',
+            'EQUIPO_TECNOLOGICO': 'Equipos y Aparatología',
+            'INFRAESTRUCTURA': 'Mejoras de Infraestructura'
+        };
+
+        // Construir tabla de Opex por Categoría
+        let opexRows = "";
+        const opexKeys = Object.keys(data.opexPorCategoria || {});
+        if (opexKeys.length === 0) {
+            opexRows = `<tr><td colspan="2" style="color:gray; text-align:center;">Sin gastos OPEX registrados en este periodo</td></tr>`;
+        } else {
+            opexKeys.forEach(k => {
+                const label = catLabels[k] || k;
+                const val = data.opexPorCategoria[k];
+                opexRows += `<tr><td>${label}</td><td style="text-align:right;" class="text-danger">-${fmt(val)}</td></tr>`;
+            });
+        }
+
+        // Construir tabla de Capex por Categoría
+        let capexRows = "";
+        const capexKeys = Object.keys(data.capexPorCategoria || {});
+        if (capexKeys.length === 0) {
+            capexRows = `<tr><td colspan="2" style="color:gray; text-align:center;">Sin inversiones CAPEX registradas en este periodo</td></tr>`;
+        } else {
+            capexKeys.forEach(k => {
+                const label = catLabels[k] || k;
+                const val = data.capexPorCategoria[k];
+                capexRows += `<tr><td>${label}</td><td style="text-align:right;" class="text-warning">-${fmt(val)}</td></tr>`;
+            });
+        }
+
+        // Construir tabla de Desgaste
+        let depreciacionRows = "";
+        if (!data.inversionesDepreciacion || data.inversionesDepreciacion.length === 0) {
+            depreciacionRows = `<tr><td colspan="5" style="color:gray; text-align:center;">Sin implementos activos bajo depreciación en este periodo</td></tr>`;
+        } else {
+            data.inversionesDepreciacion.forEach(i => {
+                depreciacionRows += `
+                    <tr>
+                        <td><strong>${i.descripcion}</strong><br><small style="color:gray;">${catLabels[i.categoria] || i.categoria}</small></td>
+                        <td style="text-align:right;">${fmt(i.monto)}</td>
+                        <td>${i.vidaUtilMeses} meses</td>
+                        <td style="text-align:right;" class="text-danger">-${fmt(i.depreciacionPeriodo)}</td>
+                        <td style="text-align:center; font-weight:bold;">${Math.round(i.porcentajeDesgaste)}%</td>
+                    </tr>
+                `;
+            });
+        }
+
+        const win = window.open("", "_blank");
+        win.document.write(`
+            <html>
+            <head>
+                <title>Informe EBITDA Didáctico Global</title>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; padding: 40px; line-height: 1.5; background-color: #fcfcfc; }
+                    .header { border-bottom: 4px solid #1c0229; padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+                    .logo-title h1 { margin: 0; font-size: 28px; color: #1c0229; font-weight: 800; }
+                    .logo-title p { margin: 4px 0 0 0; color: #666; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; }
+                    .meta-info { text-align: right; font-size: 11px; color: #444; line-height: 1.6; }
+                    h2 { color: #1c0229; font-size: 20px; font-weight: 700; border-bottom: 2px solid #1c0229; padding-bottom: 8px; margin-top: 30px; }
+                    h3 { color: #1c0229; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #1c0229; padding-left: 10px; }
+                    p.didactico-intro { font-size: 13px; color: #555; background-color: #f1f3f9; border-left: 4px solid #0dcaf0; padding: 12px 15px; border-radius: 4px; margin-bottom: 25px; }
+                    
+                    /* Bloques Didácticos */
+                    .didactico-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+                    .didactico-card h4 { margin-top: 0; margin-bottom: 10px; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+                    .didactico-card p.explicacion { font-size: 12.5px; color: #555; font-style: italic; margin-bottom: 12px; line-height: 1.4; padding-left: 12px; border-left: 2px solid #ccc; }
+                    .didactico-card .kpi-val { font-size: 22px; font-weight: 800; }
+                    
+                    /* Tablas */
+                    table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; font-size: 11.5px; }
+                    th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+                    th { background-color: #f8f9fa; font-weight: 700; color: #333; }
+                    tr:nth-child(even) { background-color: #fcfcfc; }
+                    
+                    .text-success { color: #198754; font-weight: bold; }
+                    .text-info { color: #0b78d6; font-weight: bold; }
+                    .text-danger { color: #dc3545; font-weight: bold; }
+                    .text-warning { color: #b58100; font-weight: bold; }
+                    
+                    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+                    
+                    .glosario-item { margin-bottom: 12px; font-size: 12px; }
+                    .glosario-item strong { color: #1c0229; }
+                    
+                    @media print {
+                        body { padding: 0; background-color: white; }
+                        .no-print { display: none; }
+                        .didactico-card { page-break-inside: avoid; }
+                        table { page-break-inside: avoid; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="logo-title">
+                        <h1>LINDA MAMÁ SPA</h1>
+                        <p>Informe Contable Didáctico & Auditoría Global</p>
+                    </div>
+                    <div class="meta-info">
+                        <p><strong>Rango de Consulta:</strong> ${inicio} al ${fin}</p>
+                        <p><strong>Fecha Emisión:</strong> ${new Date().toLocaleString('es-CL')}</p>
+                        <p><strong>Generado por:</strong> Sistema MiniERP</p>
+                    </div>
+                </div>
+                
+                <p class="didactico-intro">
+                    <strong>💡 ¿Qué es este informe?</strong> Este documento traduce los complejos números de la contabilidad tradicional a un lenguaje sencillo, explicándote el rendimiento de tu negocio "con manzanas". Sirve para que cualquier socia, inversionista o administrador entienda si el local es realmente rentable, si tiene dinero físico disponible y cuánto se está desgastando tu equipamiento.
+                </p>
+                
+                <h2>1. Resultados Clave "Explicados con Manzanas"</h2>
+                
+                <div class="didactico-card" style="border-left: 5px solid #198754;">
+                    <h4>
+                        <span>🟢 EBITDA Devengado (Salud y Fuerza Operativa)</span>
+                        <span class="text-success kpi-val">${fmt(s.ebitdaDevengado)}</span>
+                    </h4>
+                    <p class="explicacion">
+                        "¿El Spa es un buen negocio en su día a día?" - Muestra el rendimiento puro de la operación al restar los costos cotidianos del Spa (arriendos, insumos desechables, sueldos) de los ingresos por ventas de masajes, sin importar el desgaste del equipamiento a largo plazo ni comisiones. Si este número es positivo y alto, significa que la actividad operativa del Spa es fuerte y muy saludable.
+                    </p>
+                    <div style="font-size:11px; color:#666;">
+                        <strong>Fórmula Simple:</strong> Ingresos del Spa (${fmt(s.totalVentasSpa)}) - Gastos Operativos Totales (${fmt(s.totalOpex)})
+                    </div>
+                </div>
+
+                <div class="didactico-card" style="border-left: 5px solid #0b78d6;">
+                    <h4>
+                        <span>🔵 EBITDA de Caja (Dinero Real en Bolsillo)</span>
+                        <span class="text-info kpi-val">${fmt(s.ebitdaCaja)}</span>
+                    </h4>
+                    <p class="explicacion">
+                        "¿Cuánta plata física nos quedó al final del período?" - Esto no es contabilidad teórica, es el flujo real del dinero. Toma los cobros en efectivo/transferencia recibidos y les resta todo el dinero que efectivamente salió de la caja física o del banco: los gastos operativos diarios, las inversiones de capital completas (como comprar camillas nuevas al contado) y las comisiones reales pagadas en efectivo a las profesionales. Si es positivo, tienes efectivo acumulado; si es negativo, tu Spa consumió más efectivo del que ingresó.
+                    </p>
+                    <div style="font-size:11px; color:#666;">
+                        <strong>Fórmula Simple:</strong> Ventas Brutas (${fmt(s.totalVentasGross)}) - Egresos de Caja (${fmt(s.totalEgresos)}) - Comisiones Pagadas (${fmt(s.totalComisionesPagadas)})
+                    </div>
+                </div>
+
+                <div class="didactico-card" style="border-left: 5px solid #ff007f;">
+                    <h4>
+                        <span>🔴 EBIT (Utilidad Operativa Real Descontando Desgaste)</span>
+                        <span class="kpi-val" style="color: #ff007f;">${fmt(s.ebitDevengado)}</span>
+                    </h4>
+                    <p class="explicacion">
+                        "La ganancia neta real tras considerar que tus implementos envejecen" - Las camillas, piedras y toallas se van deteriorando con cada masaje. Si no consideras esto, crees que ganas más dinero de lo real. El EBIT toma el EBITDA Devengado y le resta el desgaste (depreciación) diario de tus herramientas en base a su vida útil. Te dice cuánto de verdad ganas y te advierte cuánto dinero debes ir ahorrando en el tiempo para reponer esos implementos cuando dejen de servir.
+                    </p>
+                    <div style="font-size:11px; color:#666;">
+                        <strong>Fórmula Simple:</strong> EBITDA Devengado (${fmt(s.ebitdaDevengado)}) - Desgaste del Período (${fmt(s.totalDepreciacion)})
+                    </div>
+                </div>
+
+                <div style="page-break-after: always;"></div>
+
+                <h2>2. Consolidado Financiero Detallado</h2>
+                <table style="font-size:12px;">
+                    <thead>
+                        <tr style="background-color:#1c0229; color:white;">
+                            <th>Concepto</th>
+                            <th style="text-align:right;">Monto del Periodo</th>
+                            <th>Significado del Concepto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Total Ventas Brutas (Facturado)</strong></td>
+                            <td style="text-align:right; font-weight:bold;">${fmt(s.totalVentasGross)}</td>
+                            <td>Todo el dinero total que pagaron los clientes por servicios y propinas.</td>
+                        </tr>
+                        <tr>
+                            <td>(-) Propinas de Socias (Flujo de Terceros)</td>
+                            <td style="text-align:right; color:#777;">-${fmt(s.totalPropinas)}</td>
+                            <td>Dinero de los clientes destinado directo a las profesionales, no es del Spa.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>(=) Ingreso Neto del Spa</strong></td>
+                            <td style="text-align:right; font-weight:bold; color: #198754;">${fmt(s.totalVentasSpa)}</td>
+                            <td>La parte del dinero facturado que corresponde puramente al Spa.</td>
+                        </tr>
+                        <tr>
+                            <td>(-) Comisiones Devengadas por Socias</td>
+                            <td style="text-align:right; color:#777;">-${fmt(s.totalVentasSocia)}</td>
+                            <td>Las comisiones generadas por el personal (obligación de pago).</td>
+                        </tr>
+                        <tr style="background-color: #f8f9fa;">
+                            <td><strong>(=) EBITDA Devengado</strong></td>
+                            <td style="text-align:right; font-weight:bold; color: #198754;">${fmt(s.ebitdaDevengado)}</td>
+                            <td>Margen de ganancia operativa teórica del local.</td>
+                        </tr>
+                        <tr>
+                            <td>(-) Desgaste de Implementos (Depreciación)</td>
+                            <td style="text-align:right; color:#dc3545;">-${fmt(s.totalDepreciacion)}</td>
+                            <td>Pérdida de valor acumulada de los implementos por el uso diario.</td>
+                        </tr>
+                        <tr style="background-color: #f8f9fa; border-bottom: 2px solid #1c0229;">
+                            <td><strong>(=) EBIT (Utilidad Operativa Real)</strong></td>
+                            <td style="text-align:right; font-weight:bold; color: #ff007f;">${fmt(s.ebitDevengado)}</td>
+                            <td>La rentabilidad neta final de la operación.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="grid-2">
+                    <div>
+                        <h3>Gastos Operativos (OPEX)</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Categoría de Gasto</th>
+                                    <th style="text-align:right;">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${opexRows}
+                                <tr style="font-weight:bold; background-color:#f1f3f9;">
+                                    <td>Total OPEX</td>
+                                    <td style="text-align:right;" class="text-danger">-${fmt(s.totalOpex)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h3>Inversiones de Capital (CAPEX)</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Categoría de Inversión</th>
+                                    <th style="text-align:right;">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${capexRows}
+                                <tr style="font-weight:bold; background-color:#f1f3f9;">
+                                    <td>Total CAPEX</td>
+                                    <td style="text-align:right;" class="text-warning">-${fmt(s.totalCapex)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="page-break-after: always;"></div>
+
+                <h2>3. Auditoría de Desgaste de Implementos (Depreciación)</h2>
+                <p style="font-size:11px; color:#555; margin-bottom:10px;">
+                    Listado de activos fijos del Spa que están perdiendo valor con el tiempo y restando utilidad operativa real:
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Implemento / Activo</th>
+                            <th style="text-align:right;">Valor Compra</th>
+                            <th>Vida Útil</th>
+                            <th style="text-align:right;">Desgaste en Periodo</th>
+                            <th>Desgaste Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${depreciacionRows}
+                        <tr style="font-weight:bold; background-color:#f8f9fa;">
+                            <td>Total Depreciación de Implementos</td>
+                            <td colspan="2"></td>
+                            <td style="text-align:right;" class="text-danger">-${fmt(s.totalDepreciacion)}</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>4. Glosario de Términos para Socias</h2>
+                <div class="glosario-item">
+                    <strong>OPEX (Gastos Operativos):</strong> Son las compras que se consumen rápido o los cobros mensuales obligatorios para que el local pueda abrir. Ejemplos: sábanas desechables, arriendo, luz, sueldos administrativos.
+                </div>
+                <div class="glosario-item">
+                    <strong>CAPEX (Inversión de Capital):</strong> Compras de cosas duraderas (activos) que no desaparecen en el mes, sino que duran meses o años. Ejemplos: camillas, piedras volcánicas, aparatos de radiofrecuencia.
+                </div>
+                <div class="glosario-item">
+                    <strong>Depreciación (Desgaste):</strong> Es la pérdida de valor que sufren las herramientas de trabajo por el paso del tiempo y su uso. Es un gasto invisible porque no le pagas a nadie por él, pero representa un costo real para tu negocio.
+                </div>
+                <div class="glosario-item">
+                    <strong>Devengado vs. Caja:</strong> El criterio <em>Devengado</em> calcula ingresos y gastos en el momento en que se generan (cuando realizas el masaje y adquieres el compromiso), mientras que el de <em>Caja</em> mide únicamente cuando el dinero físico entra o sale de la cuenta del banco.
+                </div>
+
+                <div class="no-print" style="margin-top:40px; text-align:center; border-top: 1px solid #eee; padding-top: 20px;">
+                    <button onclick="window.print();" style="padding: 10px 24px; font-size: 13px; background: #1c0229; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Imprimir Reporte a PDF</button>
+                    <button onclick="window.close();" style="padding: 10px 24px; font-size: 13px; background: #666; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-left:10px;">Cerrar Vista</button>
+                </div>
+                
+                <script>
+                    window.onload = function() {
+                        setTimeout(function() {
+                            window.print();
+                        }, 500);
+                    }
+                <\/script>
+            </body>
+            </html>
+        `);
+        win.document.close();
     };
 
     // ==============================================

@@ -18,6 +18,12 @@ public class Egreso {
 
     private LocalDateTime fechaHora = LocalDateTime.now();
 
+    // Nuevos campos para análisis de EBITDA & Depreciación (CAPEX vs OPEX)
+    private Boolean esInversion = false;
+    private Integer vidaUtilMeses = 0;
+    private String categoria = "OTROS";
+    private Double valorResidual = 0.0;
+
     public Egreso() {
     }
 
@@ -42,4 +48,32 @@ public class Egreso {
 
     public LocalDateTime getFechaHora() { return fechaHora; }
     public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
+
+    public Boolean getEsInversion() {
+        return esInversion != null ? esInversion : false;
+    }
+    public void setEsInversion(Boolean esInversion) {
+        this.esInversion = esInversion;
+    }
+
+    public Integer getVidaUtilMeses() {
+        return vidaUtilMeses != null ? vidaUtilMeses : 0;
+    }
+    public void setVidaUtilMeses(Integer vidaUtilMeses) {
+        this.vidaUtilMeses = vidaUtilMeses;
+    }
+
+    public String getCategoria() {
+        return categoria != null ? categoria : "OTROS";
+    }
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+
+    public Double getValorResidual() {
+        return valorResidual != null ? valorResidual : 0.0;
+    }
+    public void setValorResidual(Double valorResidual) {
+        this.valorResidual = valorResidual;
+    }
 }
