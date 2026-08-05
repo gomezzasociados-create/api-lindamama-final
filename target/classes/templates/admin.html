@@ -2255,44 +2255,301 @@
         window.open(url, '_blank');
     }
 
-    function imprimirKardexRecibo() {
-        const nombre = document.getElementById('k-cli-nombre').value || 'Paciente Spa';
-        const fecha = new Date().toLocaleDateString('es-CL');
-        const finanzasEl = document.getElementById('f-total-pack');
-        const finanzas = finanzasEl ? finanzasEl.value || '$0' : '$0';
+    function obtenerDatosKardex() {
+        const val = (id) => {
+            let el = document.getElementById(id);
+            return (el && el.value && el.value.trim() !== '') ? el.value.trim() : '--';
+        };
+        const checked = (id) => {
+            let el = document.getElementById(id);
+            return el ? (el.checked ? 'Sí' : 'No') : 'No';
+        };
         
-        let htmlPrint = `
-            <div style="text-align: center; margin-bottom: 15px; font-family: monospace;">
-                <h3>LINDA MAMÁ SPA</h3>
-                <p style="margin: 0;">Reporte de Paciente Kardex</p>
-                <p style="margin: 0;">Fecha: ${fecha}</p>
-                <div style="border-top: 1px dashed black; margin: 10px 0;"></div>
-                <div style="text-align: left; font-size: 14px;">
-                    <p><strong>Paciente:</strong> ${nombre}</p>
-                    <p><strong>Saldo Activo Contratado:</strong> ${finanzas}</p>
-                </div>
-                <div style="border-top: 1px dashed black; margin: 10px 0;"></div>
-                <p>Las últimas 3 sesiones:</p>
-                <ul style="text-align: left; font-size: 12px; list-style: none; padding: 0;">
-        `;
-        
-        // Agregar las ltimas 3 visitas
-        let cnt = 0;
-        visitasKardexTemporal.forEach(v => {
-            if(cnt < 3) {
-                htmlPrint += `<li>- ${v.fecha}: ${v.proc}</li>`;
-                cnt++;
-            }
-        });
+        return {
+            nombre: val('k-cli-nombre'),
+            telefono: val('k-cli-telefono'),
+            correo: val('k-cli-correo'),
+            cumple: val('k-cli-cumple'),
+            notasRecepcion: val('k-cli-notas'),
+            fechaCreacion: val('k-fecha-creacion'),
+            fechaNac: val('k-fecha-nac'),
+            estatura: val('k-estatura'),
+            edad: val('k-edad'),
+            profesion: val('k-profesion'),
+            estadoCivil: val('k-estado-civil'),
+            embarazos: val('k-embarazos'),
+            partos: val('k-partos'),
+            edadHijo: val('k-edad-hijo'),
+            mca: val('k-mca'),
+            desayuno: checked('hab-desayuno'),
+            almuerzo: checked('hab-almuerzo'),
+            once: checked('hab-once'),
+            cena: checked('hab-cena'),
+            colacion: checked('hab-colacion'),
+            tabaco: checked('hab-tabaco'),
+            alcohol: checked('hab-alcohol'),
+            marihuana: checked('hab-marihuana'),
+            agua: checked('hab-agua'),
+            actFisica: checked('hab-act-fisica'),
+            enfermedades: val('hist-enfermedades'),
+            cirugias: val('hist-cirugias'),
+            digestion: val('hist-digestion'),
+            energia: val('hist-energia'),
+            evalFecha: { i: val('m-fecha-i'), 1: val('m-fecha-1'), f: val('m-fecha-f') },
+            peso: { i: val('m-peso-i'), 1: val('m-peso-1'), f: val('m-peso-f') },
+            imc: { i: val('m-imc-i'), 1: val('m-imc-1'), f: val('m-imc-f') },
+            grasaCorp: { i: val('m-grac-i'), 1: val('m-grac-1'), f: val('m-grac-f') },
+            grasaVisc: { i: val('m-grav-i'), 1: val('m-grav-1'), f: val('m-grav-f') },
+            masaMusc: { i: val('m-masm-i'), 1: val('m-masm-1'), f: val('m-masm-f') },
+            calorias: { i: val('m-cal-i'), 1: val('m-cal-1'), f: val('m-cal-f') },
+            edadMet: { i: val('m-edmet-i'), 1: val('m-edmet-1'), f: val('m-edmet-f') },
+            axi: { i: val('m-axi-i'), 1: val('m-axi-1'), f: val('m-axi-f') },
+            bus: { i: val('m-bus-i'), 1: val('m-bus-1'), f: val('m-bus-f') },
+            cin: { i: val('m-cin-i'), 1: val('m-cin-1'), f: val('m-cin-f') },
+            sbc: { i: val('m-sbc-i'), 1: val('m-sbc-1'), f: val('m-sbc-f') },
+            cad: { i: val('m-cad-i'), 1: val('m-cad-1'), f: val('m-cad-f') },
+            glu: { i: val('m-glu-i'), 1: val('m-glu-1'), f: val('m-glu-f') },
+            brd: { i: val('m-brd-i'), 1: val('m-brd-1'), f: val('m-brd-f') },
+            bri: { i: val('m-bri-i'), 1: val('m-bri-1'), f: val('m-bri-f') },
+            pid: { i: val('m-pid-i'), 1: val('m-pid-1'), f: val('m-pid-f') },
+            pii: { i: val('m-pii-i'), 1: val('m-pii-1'), f: val('m-pii-f') },
+            packs: {
+                senos: val('pack-senos'),
+                abd: val('pack-abd'),
+                brazos: val('pack-brazos'),
+                piernas: val('pack-piernas'),
+                papada: val('pack-papada'),
+                gluteos: val('pack-gluteos'),
+                masaje: val('pack-masaje'),
+                facial: val('pack-facial'),
+                lipo: val('pack-lipo'),
+                plat: val('pack-plat'),
+                aplic: val('pack-aplic'),
+                pulpas: val('pack-pulpas'),
+                electro: val('pack-electro'),
+                vacum: val('pack-vacum'),
+                crio: val('pack-crio'),
+                galva: val('pack-galva'),
+                radio: val('pack-radio'),
+                carboxi: val('pack-carboxi')
+            },
+            comp: {
+                prodNombre: val('comp-prod-nombre'),
+                prodCant: val('comp-prod-cant'),
+                ampNombre: val('comp-amp-nombre'),
+                ampCant: val('comp-amp-cant'),
+                galvaCant: val('comp-galva-cant')
+            },
+            totalPack: val('f-total-pack'),
+            abonado: document.getElementById('f-lbl-abonado') ? document.getElementById('f-lbl-abonado').innerText : '$0',
+            deuda: document.getElementById('f-lbl-deuda') ? document.getElementById('f-lbl-deuda').innerText : '$0'
+        };
+    }
 
-        htmlPrint += `
-                </ul>
-                <div style="border-top: 1px dashed black; margin: 10px 0;"></div>
-                <p>¡Gracias por elegir Linda Mamá Spa!</p>
-            </div>
-        `;
-        document.getElementById('print-area').innerHTML = htmlPrint;
-        window.print();
+    function imprimirKardexRecibo() {
+        reproducirClick();
+        const d = obtenerDatosKardex();
+        const fecha = new Date().toLocaleDateString('es-CL');
+        
+        // Historial de visitas HTML
+        let visitasHtml = "";
+        if (visitasKardexTemporal.length === 0) {
+            visitasHtml = "<tr><td colspan='3' style='text-align:center; color:gray;'>Sin visitas registradas</td></tr>";
+        } else {
+            visitasKardexTemporal.forEach(v => {
+                visitasHtml += `<tr><td>${v.fecha}</td><td colspan='2'>${v.proc}</td></tr>`;
+            });
+        }
+
+        // Historial de pagos HTML
+        const manuales = pagosKardexTemporal || [];
+        const reales = (ventasRealesKardex || []).map(v => ({
+            fecha: v.fechaHora ? v.fechaHora.split('T')[0] : '---',
+            monto: v.totalPagado,
+            nota: `Venta POS: ${v.detalle || 'Venta'} (${v.tipoPago || 'Efectivo'})`
+        }));
+        const todosPagos = [...manuales, ...reales].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+
+        let pagosHtml = "";
+        if (todosPagos.length === 0) {
+            pagosHtml = "<tr><td colspan='3' style='text-align:center; color:gray;'>Sin pagos registrados</td></tr>";
+        } else {
+            todosPagos.forEach(p => {
+                pagosHtml += `<tr><td>${p.fecha}</td><td>${p.nota}</td><td style='text-align:right;' class='text-success'>$${Math.round(p.monto).toLocaleString('es-CL')}</td></tr>`;
+            });
+        }
+
+        // Sesiones activas HTML
+        const packNames = {
+            senos: 'Levant. Senos', abd: 'Reduc. Abdomen', brazos: 'Reduc. Brazos', piernas: 'Reduc. Piernas', papada: 'Reduc. Papada',
+            gluteos: 'Levant. Glúteos', masaje: 'Masaje Relajante', facial: 'Limp. Facial', lipo: 'Lipólisis', plat: 'Plat. Vibratoria',
+            aplic: 'Aplicaciones', pulpas: 'Pulpas', electro: 'Electrodos', vacum: 'Vacunterapia', crio: 'Criolipólisis',
+            galva: 'Galvánica', radio: 'Radio Frecuencia', carboxi: 'Carboxiterapia'
+        };
+        let packsHtml = "";
+        let packsCount = 0;
+        for (let k in d.packs) {
+            const val = parseInt(d.packs[k]);
+            if (val > 0) {
+                packsHtml += `<tr><td>${packNames[k]}</td><td style='text-align:center; font-weight:bold;'>${val}</td></tr>`;
+                packsCount++;
+            }
+        }
+        if (packsCount === 0) {
+            packsHtml = "<tr><td colspan='2' style='text-align:center; color:gray;'>Sin sesiones contratadas/activas</td></tr>";
+        }
+
+        const win = window.open("", "_blank");
+        win.document.write(`
+            <html>
+            <head>
+                <title>Ficha Clínica e Historial - ${d.nombre}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; color: #333; padding: 30px; line-height: 1.4; font-size: 11px; }
+                    .header { border-bottom: 2px solid #1c0229; padding-bottom: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+                    .header h1 { margin: 0; font-size: 20px; color: #1c0229; font-weight: bold; }
+                    h2 { font-size: 13px; color: #1c0229; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-top: 20px; text-transform: uppercase; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 15px; }
+                    th, td { border: 1px solid #ccc; padding: 5px 8px; text-align: left; }
+                    th { background-color: #f5f5f5; font-weight: bold; }
+                    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+                    .text-success { color: #198754; font-weight: bold; }
+                    .text-danger { color: #dc3545; font-weight: bold; }
+                    .financial-summary { background: #fdfdfd; border: 1px solid #1c0229; padding: 12px; border-radius: 4px; font-size: 12px; margin-top: 10px; }
+                    .financial-summary p { margin: 4px 0; display: flex; justify-content: space-between; }
+                    @media print {
+                        body { padding: 0; }
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div>
+                        <h1>LINDA MAMÁ SPA</h1>
+                        <p style="margin: 2px 0 0 0; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px; color:#555;">Ficha Clínica e Historial de Paciente</p>
+                    </div>
+                    <div style="text-align: right; font-size: 10px;">
+                        <p style="margin: 0;"><strong>Fecha Emisión:</strong> ${fecha}</p>
+                        <p style="margin: 2px 0 0 0;"><strong>Paciente:</strong> ${d.nombre}</p>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div>
+                        <h2>1. Datos Personales & Vitales</h2>
+                        <table>
+                            <tr><td><strong>Nombre Completo</strong></td><td>${d.nombre}</td></tr>
+                            <tr><td><strong>WhatsApp / Tel</strong></td><td>${d.telefono}</td></tr>
+                            <tr><td><strong>Cumpleaños</strong></td><td>${d.cumple}</td></tr>
+                            <tr><td><strong>Fecha Nacimiento</strong></td><td>${d.fechaNac}</td></tr>
+                            <tr><td><strong>Edad / Estatura</strong></td><td>${d.edad} años / ${d.estatura} cm</td></tr>
+                            <tr><td><strong>Profesión / Est. Civil</strong></td><td>${d.profesion} / ${d.estadoCivil}</td></tr>
+                            <tr><td><strong>Embarazos / Partos</strong></td><td>${d.embarazos} / ${d.partos} (Edad últ. hijo: ${d.edadHijo} años)</td></tr>
+                            <tr><td><strong>Método Anticonceptivo (MCA)</strong></td><td>${d.mca}</td></tr>
+                        </table>
+                    </div>
+                    <div>
+                        <h2>2. Hábitos Diarios e Historial Médico</h2>
+                        <table>
+                            <tr><td><strong>Comidas Diarias</strong></td><td>Desayuno: ${d.desayuno} | Almuerzo: ${d.almuerzo} | Once: ${d.once} | Cena: ${d.cena} | Colación: ${d.colacion}</td></tr>
+                            <tr><td><strong>Consumos / Ejercicio</strong></td><td>Tabaco: ${d.tabaco} | Alcohol: ${d.alcohol} | Marihuana: ${d.marihuana} | Agua: ${d.agua} | Act. Física: ${d.actFisica}</td></tr>
+                            <tr><td><strong>Enfermedades</strong></td><td>${d.enfermedades}</td></tr>
+                            <tr><td><strong>Cirugías</strong></td><td>${d.cirugias}</td></tr>
+                            <tr><td><strong>Digestión / Energía</strong></td><td>${d.digestion} / ${d.energia}</td></tr>
+                            <tr><td><strong>Notas Adicionales</strong></td><td>${d.notasRecepcion}</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <h2>3. Evaluación Antropométrica & Medidas Corporales</h2>
+                <table>
+                    <thead>
+                        <tr style="background:#f5f5f5;">
+                            <th>Parámetro Clínico</th>
+                            <th style="text-align:center;">INICIO (${d.evalFecha.i})</th>
+                            <th style="text-align:center;">1ra EVAL. (${d.evalFecha['1']})</th>
+                            <th style="text-align:center;">EVAL. FINAL (${d.evalFecha.f})</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Peso (Kg)</strong></td><td style="text-align:center;">${d.peso.i}</td><td style="text-align:center;">${d.peso['1']}</td><td style="text-align:center;">${d.peso.f}</td></tr>
+                        <tr><td><strong>IMC / BMI</strong></td><td style="text-align:center;">${d.imc.i}</td><td style="text-align:center;">${d.imc['1']}</td><td style="text-align:center;">${d.imc.f}</td></tr>
+                        <tr><td><strong>Grasa Corporal (%)</strong></td><td style="text-align:center;">${d.grasaCorp.i}</td><td style="text-align:center;">${d.grasaCorp['1']}</td><td style="text-align:center;">${d.grasaCorp.f}</td></tr>
+                        <tr><td><strong>Grasa Visceral</strong></td><td style="text-align:center;">${d.grasaVisc.i}</td><td style="text-align:center;">${d.grasaVisc['1']}</td><td style="text-align:center;">${d.grasaVisc.f}</td></tr>
+                        <tr><td><strong>Masa Muscular (%)</strong></td><td style="text-align:center;">${d.masaMusc.i}</td><td style="text-align:center;">${d.masaMusc['1']}</td><td style="text-align:center;">${d.masaMusc.f}</td></tr>
+                        <tr><td><strong>Calorías Diarias</strong></td><td style="text-align:center;">${d.calorias.i}</td><td style="text-align:center;">${d.calorias['1']}</td><td style="text-align:center;">${d.calorias.f}</td></tr>
+                        <tr><td><strong>Edad Metabólica</strong></td><td style="text-align:center;">${d.edadMet.i}</td><td style="text-align:center;">${d.edadMet['1']}</td><td style="text-align:center;">${d.edadMet.f}</td></tr>
+                        
+                        <tr style="background:#fafafa;"><td colspan="4"><strong>MEDIDAS EN CENTÍMETROS</strong></td></tr>
+                        <tr><td>Axilar</td><td style="text-align:center;">${d.axi.i} cm</td><td style="text-align:center;">${d.axi['1']} cm</td><td style="text-align:center;">${d.axi.f} cm</td></tr>
+                        <tr><td>Busto</td><td style="text-align:center;">${d.bus.i} cm</td><td style="text-align:center;">${d.bus['1']} cm</td><td style="text-align:center;">${d.bus.f} cm</td></tr>
+                        <tr><td>Cintura</td><td style="text-align:center;">${d.cin.i} cm</td><td style="text-align:center;">${d.cin['1']} cm</td><td style="text-align:center;">${d.cin.f} cm</td></tr>
+                        <tr><td>SOB. Cintura</td><td style="text-align:center;">${d.sbc.i} cm</td><td style="text-align:center;">${d.sbc['1']} cm</td><td style="text-align:center;">${d.sbc.f} cm</td></tr>
+                        <tr><td>Cadera</td><td style="text-align:center;">${d.cad.i} cm</td><td style="text-align:center;">${d.cad['1']} cm</td><td style="text-align:center;">${d.cad.f} cm</td></tr>
+                        <tr><td>Glúteos</td><td style="text-align:center;">${d.glu.i} cm</td><td style="text-align:center;">${d.glu['1']} cm</td><td style="text-align:center;">${d.glu.f} cm</td></tr>
+                        <tr><td>Brazo Derecho / Izquierdo</td><td style="text-align:center;">${d.brd.i} / ${d.bri.i} cm</td><td style="text-align:center;">${d.brd['1']} / ${d.bri['1']} cm</td><td style="text-align:center;">${d.brd.f} / ${d.bri.f} cm</td></tr>
+                        <tr><td>Pierna Derecha / Izquierda</td><td style="text-align:center;">${d.pid.i} / ${d.pii.i} cm</td><td style="text-align:center;">${d.pid['1']} / ${d.pii['1']} cm</td><td style="text-align:center;">${d.pid.f} / ${d.pii.f} cm</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="grid-2" style="margin-top:20px;">
+                    <div>
+                        <h2>4. Control de Sesiones en Tratamiento</h2>
+                        <table>
+                            <thead>
+                                <tr><th>Tratamiento / Servicio</th><th style="text-align:center;">Restantes</th></tr>
+                            </thead>
+                            <tbody>
+                                ${packsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h2>5. Historial Reciente de Visitas</h2>
+                        <table>
+                            <thead>
+                                <tr><th>Fecha</th><th>Servicio Aplicado</th></tr>
+                            </thead>
+                            <tbody>
+                                ${visitasHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <h2>6. Estado de Cuenta & Historial de Pagos</h2>
+                <table>
+                    <thead>
+                        <tr><th>Fecha Pago</th><th>Concepto / Detalle del Pago</th><th style="text-align:right;">Monto Abonado</th></tr>
+                    </thead>
+                    <tbody>
+                        ${pagosHtml}
+                    </tbody>
+                </table>
+
+                <div class="financial-summary">
+                    <p><span>Valor Total Contratado:</span> <strong>$${parseInt(d.totalPack || 0).toLocaleString('es-CL')}</strong></p>
+                    <p><span>Total Abonado:</span> <strong class="text-success">${d.abonado}</strong></p>
+                    <p><span>Saldo Deudor / Pendiente:</span> <strong class="text-danger">${d.deuda}</strong></p>
+                </div>
+
+                <div class="no-print" style="margin-top:30px; text-align:center;">
+                    <button onclick="window.print();" style="padding: 8px 20px; font-size:12px; background:#1c0229; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">Imprimir Ficha Completa</button>
+                    <button onclick="window.close();" style="padding: 8px 20px; font-size:12px; background:#666; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer; margin-left:10px;">Cerrar Ficha</button>
+                </div>
+
+                <script>
+                    window.onload = function() {
+                        setTimeout(function() {
+                            window.print();
+                        }, 500);
+                    }
+                <\/script>
+            </body>
+            </html>
+        `);
+        win.document.close();
     }
 
     // ==========================================
@@ -2300,49 +2557,90 @@
     // ==========================================
     function enviarReporteKardexWhatsApp() {
         reproducirClick();
+        const d = obtenerDatosKardex();
 
-        const telefono = document.getElementById('k-cli-telefono').value;
-        const nombre = document.getElementById('k-cli-nombre').value;
-
-        if (!telefono || telefono === '---' || telefono.trim() === '') {
+        if (!d.telefono || d.telefono === '---' || d.telefono.trim() === '') {
             alert("⚠️ Este paciente no tiene un número de teléfono registrado en el sistema.");
             return;
         }
 
         // Limpieza de número
-        let numeroLimpio = telefono.replace(/\D/g, '');
+        let numeroLimpio = d.telefono.replace(/\D/g, '');
         if (numeroLimpio.length === 9) { numeroLimpio = '56' + numeroLimpio; }
-
-        // Función de ayuda para extraer valores o poner guiones si están vacíos
-        const val = (id) => {
-            let v = document.getElementById(id).value;
-            return (v && v.trim() !== '') ? v : '--';
-        };
 
         // Obtenemos la fecha actual
         const hoy = new Date().toLocaleDateString('es-CL');
 
         // Construcción del mensaje clínico nivel Dios
-        const mensaje = `📋 *REPORTE CLÍNICO DE EVOLUCIÓN* 📋
-*Linda Mamá Spa* 🌸
+        let mensaje = `📋 *REPORTE CLÍNICO & KARDEX INTEGRAL* 📋\n`;
+        mensaje += `*Linda Mamá Spa* 🌸\n\n`;
+        mensaje += `👤 *Paciente:* ${d.nombre}\n`;
+        mensaje += `📅 *Fecha Emisión:* ${hoy}\n\n`;
+        
+        mensaje += `📊 *DATOS VITALES & HÁBITOS:* \n`;
+        mensaje += `• Edad: ${d.edad} años | Estatura: ${d.estatura} cm\n`;
+        mensaje += `• Profesión: ${d.profesion} | Est. Civil: ${d.estadoCivil}\n`;
+        mensaje += `• Embarazos/Partos: ${d.embarazos}/${d.partos} (Últ. Hijo: ${d.edadHijo} años)\n`;
+        mensaje += `• Anticonceptivo (MCA): ${d.mca}\n`;
+        mensaje += `• Hábitos: Desayuno: ${d.desayuno} | Almuerzo: ${d.almuerzo} | Once: ${d.once} | Cena: ${d.cena} | Colación: ${d.colacion}\n`;
+        mensaje += `• Consumos: Tabaco: ${d.tabaco} | Alcohol: ${d.alcohol} | Marihuana: ${d.marihuana} | Agua: ${d.agua} | Act. Física: ${d.actFisica}\n\n`;
+        
+        mensaje += `🏥 *HISTORIAL MÉDICO:*\n`;
+        mensaje += `• Enfermedades: ${d.enfermedades}\n`;
+        mensaje += `• Cirugías: ${d.cirugias}\n`;
+        mensaje += `• Digestión/Energía: ${d.digestion} / ${d.energia}\n\n`;
 
-👤 *Paciente:* ${nombre}
-📅 *Fecha de Emisión:* ${hoy}
+        mensaje += `📊 *EVOLUCIÓN ANTROPOMÉTRICA (Inicio ➡️ Final)*\n`;
+        mensaje += `• Peso: ${d.peso.i} kg ➡️ *${d.peso.f} kg*\n`;
+        mensaje += `• IMC: ${d.imc.i} ➡️ *${d.imc.f}*\n`;
+        mensaje += `• Grasa Corp: ${d.grasaCorp.i}% ➡️ *${d.grasaCorp.f}%*\n`;
+        mensaje += `• Grasa Visc: ${d.grasaVisc.i} ➡️ *${d.grasaVisc.f}*\n`;
+        mensaje += `• M. Muscular: ${d.masaMusc.i}% ➡️ *${d.masaMusc.f}%*\n`;
+        mensaje += `• E. Metabólica: ${d.edadMet.i} ➡️ *${d.edadMet.f}*\n\n`;
 
-📊 *EVOLUCIÓN ANTROPOMÉTRICA*
-⚖️ *Peso:* ${val('m-peso-i')} kg ➡️ *${val('m-peso-f')} kg*
-📉 *IMC:* ${val('m-imc-i')} ➡️ *${val('m-imc-f')}*
-🔥 *Grasa Corp:* ${val('m-grac-i')}% ➡️ *${val('m-grac-f')}%*
+        mensaje += `📏 *MEDIDAS CORPORALES (Inicio ➡️ Final)*\n`;
+        mensaje += `• Axilar: ${d.axi.i} cm ➡️ *${d.axi.f} cm*\n`;
+        mensaje += `• Busto: ${d.bus.i} cm ➡️ *${d.bus.f} cm*\n`;
+        mensaje += `• Cintura: ${d.cin.i} cm ➡️ *${d.cin.f} cm*\n`;
+        mensaje += `• SOB. Cintura: ${d.sbc.i} cm ➡️ *${d.sbc.f} cm*\n`;
+        mensaje += `• Cadera: ${d.cad.i} cm ➡️ *${d.cad.f} cm*\n`;
+        mensaje += `• Glúteos: ${d.glu.i} cm ➡️ *${d.glu.f} cm*\n`;
+        mensaje += `• Brazos (D/I): ${d.brd.i}/${d.bri.i} cm ➡️ *${d.brd.f}/${d.bri.f} cm*\n`;
+        mensaje += `• Piernas (D/I): ${d.pid.i}/${d.pii.i} cm ➡️ *${d.pid.f}/${d.pii.f} cm*\n\n`;
 
-📏 *REDUCCIÓN DE MEDIDAS*
-🔸 *Cintura:* ${val('m-cin-i')} cm ➡️ *${val('m-cin-f')} cm*
-🔸 *Abdomen:* ${val('m-sbc-i')} cm ➡️ *${val('m-sbc-f')} cm*
-🔸 *Cadera:* ${val('m-cad-i')} cm ➡️ *${val('m-cad-f')} cm*
-🔸 *Brazos (D/I):* ${val('m-brd-i')} / ${val('m-bri-i')} ➡️ *${val('m-brd-f')} / ${val('m-bri-f')}*
-🔸 *Piernas (D/I):* ${val('m-pid-i')} / ${val('m-pii-i')} ➡️ *${val('m-pid-f')} / ${val('m-pii-f')}*
+        mensaje += `📅 *SESIONES CONTRATADAS / RESTANTES:*\n`;
+        const packNames = {
+            senos: 'Levant. Senos', abd: 'Reduc. Abdomen', brazos: 'Reduc. Brazos', piernas: 'Reduc. Piernas', papada: 'Reduc. Papada',
+            gluteos: 'Levant. Glúteos', masaje: 'Masaje Relajante', facial: 'Limp. Facial', lipo: 'Lipólisis', plat: 'Plat. Vibratoria',
+            aplic: 'Aplicaciones', pulpas: 'Pulpas', electro: 'Electrodos', vacum: 'Vacunterapia', crio: 'Criolipólisis',
+            galva: 'Galvánica', radio: 'Radio Frecuencia', carboxi: 'Carboxiterapia'
+        };
+        let packList = [];
+        for (let k in d.packs) {
+            const val = parseInt(d.packs[k]);
+            if (val > 0) {
+                packList.push(`• ${packNames[k]}: *${val} restantes*`);
+            }
+        }
+        mensaje += packList.length > 0 ? packList.join('\n') + '\n\n' : '• Sin sesiones registradas.\n\n';
 
-✨ _¡Felicidades por tu progreso! Nos enorgullece acompañarte en este proceso._
-👩‍⚕️ *Atte: Equipo Clínico - Linda Mamá Spa*`;
+        mensaje += `🕒 *HISTORIAL DE VISITAS RECIENTES:*\n`;
+        if (visitasKardexTemporal.length === 0) {
+            mensaje += '• Sin visitas registradas.\n\n';
+        } else {
+            visitasKardexTemporal.forEach(v => {
+                mensaje += `• ${v.fecha}: ${v.proc}\n`;
+            });
+            mensaje += '\n';
+        }
+
+        mensaje += `💳 *RESUMEN DE CUENTA & FINANZAS:*\n`;
+        mensaje += `• Valor Total Plan: $${parseInt(d.totalPack || 0).toLocaleString('es-CL')}\n`;
+        mensaje += `• Total Abonado: ${d.abonado}\n`;
+        mensaje += `• Saldo Pendiente: ${d.deuda}\n\n`;
+
+        mensaje += `✨ _¡Felicidades por tu progreso! Nos enorgullece acompañarte en este proceso._\n`;
+        mensaje += `👩‍⚕️ *Atte: Equipo Clínico - Linda Mamá Spa*`;
 
         // Codificamos y abrimos
         const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
