@@ -247,4 +247,55 @@ public class PagoRestController {
         }
         return new RedirectView("/catalogo?pago=exito" + orderIdParam);
     }
+
+    // 🧾 ENDPOINT DE SUBIDA DE COMPROBANTES DE PAGO DESDE WIDGET CHAT
+    @PostMapping("/subir-comprobante")
+    public org.springframework.http.ResponseEntity<Map<String, Object>> subirComprobante(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+            @RequestParam(value = "nombre", required = false) String nombre,
+            @RequestParam(value = "telefono", required = false) String telefono,
+            @RequestParam(value = "citaId", required = false) Long citaId) {
+        
+        Map<String, Object> response = new HashMap<>();
+        if (file.isEmpty()) {
+            response.put("status", "ERROR");
+            response.put("mensaje", "El archivo adjunto está vacío.");
+            return org.springframework.http.ResponseEntity.badRequest().body(response);
+        }
+        
+        try {
+            String uploadDir = "uploads/comprobantes/";
+            java.io.File dir = new java.io.File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String newFilename = "comprobante_" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().substring(0, 8) + extension;
+            java.nio.file.Path filePath = java.nio.file.Paths.get(uploadDir + newFilename);
+            java.nio.file.Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            
+            if (citaId != null) {
+                citaRepository.findById(citaId).ifPresent(c -> {
+                    c.setEstado("VERIFICANDO_PAGO");
+                    citaRepository.save(c);
+                });
+            }
+            
+            response.put("status", "OK");
+            response.put("mensaje", "Comprobante recibido exitosamente.");
+            response.put("archivoUrl", "/uploads/comprobantes/" + newFilename);
+            return org.springframework.http.ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("status", "ERROR");
+            response.put("mensaje", "Error guardando el comprobante: " + e.getMessage());
+            return org.springframework.http.ResponseEntity.internalServerError().body(response);
+        }
+    }
 }
+

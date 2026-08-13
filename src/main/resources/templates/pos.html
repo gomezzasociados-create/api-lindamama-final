@@ -6,105 +6,317 @@
     <meta name="theme-color" content="#d63384">
     <link rel="manifest" href="/manifest.json">
     <script src="/pwa-init.js"></script>
-    <title>Linda Mamá Spa - POS Neón</title>
+    <title>Linda Mamá Spa - POS Neón VIP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
-        :root { --violeta-profundo: #100118; --violeta-tarjeta: #1c0229; --fucsia-neon: #ff00ff; --cyan-neon: #00e5ff; --blanco-puro: #ffffff; --verde-neon: #00ff00; --naranja-neon: #ff9900;}
-        body { background-color: var(--violeta-profundo); color: var(--blanco-puro); font-family: 'Poppins', sans-serif; overflow-x: hidden; }
+        :root {
+            --violeta-profundo: #0c0214;
+            --violeta-tarjeta: rgba(25, 4, 38, 0.7);
+            --fucsia-neon: #ff007f;
+            --fucsia-glow: rgba(255, 0, 127, 0.5);
+            --cyan-neon: #00e5ff;
+            --cyan-glow: rgba(0, 229, 255, 0.4);
+            --blanco-puro: #ffffff;
+            --verde-neon: #00ff88;
+            --naranja-neon: #ff9900;
+        }
+
+        body {
+            background: radial-gradient(ellipse at 30% 0%, #2b0442 0%, var(--violeta-profundo) 70%);
+            color: var(--blanco-puro);
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
 
         /* EFECTOS WAOOO Y ANIMACIONES */
-        .efecto-waooo { animation: estallidoNeon 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: var(--cyan-neon) !important; color: black !important; box-shadow: 0 0 40px var(--cyan-neon), inset 0 0 10px white !important; border-color: var(--cyan-neon) !important; }
-        @keyframes estallidoNeon { 0% { transform: scale(1); } 50% { transform: scale(1.1); box-shadow: 0 0 50px var(--cyan-neon); } 100% { transform: scale(1); } }
-        @keyframes latido { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } }
-        .shake-error { animation: shake 0.4s ease-in-out; border-color: red !important; box-shadow: 0 0 30px rgba(255,0,0,0.8) !important; }
+        .efecto-waooo { 
+            animation: estallidoNeon 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            background: var(--cyan-neon) !important; 
+            color: black !important; 
+            box-shadow: 0 0 40px var(--cyan-neon), inset 0 0 10px white !important; 
+            border-color: var(--cyan-neon) !important; 
+        }
+        @keyframes estallidoNeon { 
+            0% { transform: scale(1); } 
+            50% { transform: scale(1.1); box-shadow: 0 0 50px var(--cyan-neon); } 
+            100% { transform: scale(1); } 
+        }
+        @keyframes latido { 
+            0% { opacity: 1; transform: scale(1); } 
+            50% { opacity: 0.7; transform: scale(1.05); } 
+            100% { opacity: 1; transform: scale(1); } 
+        }
+        @keyframes shake { 
+            0%, 100% { transform: translateX(0); } 
+            25% { transform: translateX(-10px); } 
+            50% { transform: translateX(10px); } 
+            75% { transform: translateX(-10px); } 
+        }
+        .shake-error { 
+            animation: shake 0.4s ease-in-out; 
+            border-color: #ff0055 !important; 
+            box-shadow: 0 0 35px rgba(255,0,85,0.8) !important; 
+        }
 
-        /* PANTALLA DE LOGIN */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--violeta-profundo); z-index: 10000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
-        .login-box { background: rgba(28, 2, 41, 0.9); border: 2px solid var(--cyan-neon); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 420px; box-shadow: 0 0 30px rgba(0,229,255,0.2); transition: 0.3s; }
-        .pin-input { background: #100118; color: var(--fucsia-neon); font-size: 2.5rem; text-align: center; letter-spacing: 20px; border: 1px solid var(--fucsia-neon); border-radius: 10px; width: 100%; margin-bottom: 20px; padding: 10px; font-weight: bold;}
-        .pin-input:focus { outline: none; box-shadow: 0 0 15px rgba(255,0,255,0.5); }
+        /* PANTALLA DE LOGIN Y TECLADO PIN */
+        #login-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: radial-gradient(circle at center, #2b0442 0%, var(--violeta-profundo) 90%); 
+            z-index: 10000; display: flex; justify-content: center; align-items: center; flex-direction: column; 
+        }
+        .login-box { 
+            background: rgba(24, 3, 38, 0.85); 
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 229, 255, 0.3); 
+            padding: 35px 30px; 
+            border-radius: 28px; 
+            text-align: center; 
+            width: 90%; 
+            max-width: 420px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(0, 229, 255, 0.15); 
+            transition: all 0.3s ease; 
+        }
+        .pin-input { 
+            background: rgba(12, 2, 20, 0.9); 
+            color: var(--fucsia-neon); 
+            font-size: 2.2rem; 
+            text-align: center; 
+            letter-spacing: 16px; 
+            border: 1.5px solid rgba(255, 0, 127, 0.5); 
+            border-radius: 16px; 
+            width: 100%; 
+            margin-bottom: 20px; 
+            padding: 12px; 
+            font-weight: 800;
+            transition: all 0.3s ease;
+        }
+        .pin-input:focus { 
+            outline: none; 
+            border-color: var(--cyan-neon);
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); 
+        }
 
         /* PANTALLA DE BIENVENIDA VIP */
-        #welcome-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(42, 3, 66, 0.95) 0%, rgba(16, 1, 24, 1) 100%); z-index: 10005; display: none; justify-content: center; align-items: center; flex-direction: column; }
-        .welcome-text { font-family: 'Playfair Display', serif; font-size: 3.5rem; color: #fff; text-align: center; text-shadow: 0 0 20px var(--fucsia-neon), 0 0 40px var(--cyan-neon); animation: zoomInBounce 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .welcome-sub { color: var(--cyan-neon); font-family: 'Poppins'; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin-top: 15px; animation: latido 1.5s infinite; }
+        #welcome-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: radial-gradient(circle at center, rgba(50, 4, 80, 0.95) 0%, rgba(12, 2, 20, 1) 100%); 
+            z-index: 10005; display: none; justify-content: center; align-items: center; flex-direction: column; 
+        }
+        .welcome-text { 
+            font-family: 'Playfair Display', serif; font-size: 3.8rem; color: #fff; text-align: center; 
+            text-shadow: 0 0 25px var(--fucsia-neon), 0 0 50px var(--cyan-neon); 
+            animation: zoomInBounce 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+        }
+        .welcome-sub { 
+            color: var(--cyan-neon); font-family: 'Poppins'; font-weight: 600; letter-spacing: 3px; 
+            text-transform: uppercase; margin-top: 15px; animation: latido 1.5s infinite; 
+        }
         @keyframes zoomInBounce { 0% { transform: scale(0); opacity: 0; } 80% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* HEADER POS */
-        #app-pos { display: none; animation: fadeIn 1s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* HEADER POS CYBERPUNK */
+        #app-pos { display: none; animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .navbar-cyber { background: rgba(28, 2, 41, 0.95); border-bottom: 2px solid var(--cyan-neon); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); backdrop-filter: blur(10px); margin-bottom: 20px;}
-        .navbar-brand { font-family: 'Playfair Display', serif; font-weight: 900; color: var(--blanco-puro) !important; text-shadow: 0 0 10px var(--cyan-neon); letter-spacing: 1px; }
-
-        .pos-container { height: calc(100vh - 80px); padding: 0 20px; }
-        .contenedor-servicios { max-height: 75vh; overflow-y: auto; overflow-x: hidden; padding-right: 10px; }
-
-        /* Tarjetas de Tratamiento con Oferta */
-        .card-servicio {
-            background: linear-gradient(145deg, var(--violeta-tarjeta), #2a0342); border: 1px solid rgba(0, 229, 255, 0.2);
-            border-radius: 15px; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            height: 200px !important; display: flex; flex-direction: column; justify-content: center; 
-            align-items: center; text-align: center; padding: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.6); 
-            position: relative; overflow: hidden;
+        .navbar-cyber { 
+            background: rgba(20, 3, 32, 0.85); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.25); 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); 
+            margin-bottom: 20px;
+            padding: 12px 0;
         }
-        .card-servicio:hover, .card-servicio:active { border-color: var(--cyan-neon); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 229, 255, 0.4); background: #2a0342; }
-        .card-servicio img { width: 100%; height: 130px; object-fit: cover; opacity: 1; transition: 0.5s; position: absolute; top: 0; left: 0; z-index: 1;}
-        .card-servicio:hover img { transform: scale(1.08); }
-        .card-servicio h5 { font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; color: var(--blanco-puro); text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index: 2;}
-        .card-servicio .precio { color: var(--cyan-neon); font-weight: 800; font-size: 1.2rem; text-shadow: 0 0 10px #000; z-index: 3;}
+        .navbar-brand { 
+            font-family: 'Playfair Display', serif; font-weight: 900; color: var(--blanco-puro) !important; 
+            text-shadow: 0 0 12px var(--cyan-neon); letter-spacing: 1px; font-size: 1.4rem;
+        }
+
+        .pos-container { min-height: calc(100vh - 90px); padding: 0 20px; }
+        .contenedor-servicios { max-height: 72vh; overflow-y: auto; overflow-x: hidden; padding-right: 8px; }
+        .contenedor-servicios::-webkit-scrollbar { width: 6px; }
+        .contenedor-servicios::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.3); border-radius: 6px; }
+
+        /* CATEGORY FILTER TABS */
+        .pos-category-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+        .pos-category-tabs::-webkit-scrollbar { height: 4px; }
+        .pos-category-tabs::-webkit-scrollbar-thumb { background: rgba(255, 0, 127, 0.3); border-radius: 4px; }
+
+        .btn-pos-tab {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-pos-tab:hover, .btn-pos-tab.active {
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.25) 0%, rgba(0, 229, 255, 0.25) 100%);
+            border-color: var(--fucsia-neon);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(255, 0, 127, 0.3);
+        }
+
+        /* TARJETAS DE SERVICIO LUXURY */
+        .card-servicio {
+            background: rgba(28, 4, 42, 0.7); 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px; 
+            cursor: pointer; 
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            height: 190px !important; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-end; 
+            align-items: center; 
+            text-align: center; 
+            padding: 0; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5); 
+            position: relative; 
+            overflow: hidden;
+        }
+        .card-servicio:hover { 
+            border-color: var(--cyan-neon); 
+            transform: translateY(-6px) scale(1.02); 
+            box-shadow: 0 15px 35px rgba(0, 229, 255, 0.35); 
+        }
+        .card-servicio img { 
+            width: 100%; height: 100%; object-fit: cover; opacity: 0.65; 
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease; 
+            position: absolute; top: 0; left: 0; z-index: 1;
+        }
+        .card-servicio:hover img { 
+            transform: scale(1.12); 
+            opacity: 0.85; 
+        }
+        .card-servicio h5 { 
+            font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; color: var(--blanco-puro); 
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9); z-index: 3; padding: 0 10px;
+        }
+        .card-servicio .precio { 
+            color: var(--cyan-neon); font-weight: 800; font-size: 1.25rem; 
+            text-shadow: 0 0 10px rgba(0,229,255,0.6); z-index: 3;
+        }
         .card-servicio .info-overlay { 
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; padding: 10px; 
-            background: linear-gradient(to top, var(--violeta-tarjeta) 50%, transparent); 
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; padding: 14px 10px; 
+            background: linear-gradient(to top, rgba(12, 2, 20, 0.95) 35%, rgba(12, 2, 20, 0.2) 80%, transparent 100%); 
             z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
         }
 
-        .etiqueta-promo { position: absolute; top: 10px; right: -30px; background: var(--fucsia-neon); color: white; font-weight: 900; font-size: 0.7rem; padding: 3px 30px; transform: rotate(45deg); box-shadow: 0 0 10px var(--fucsia-neon); letter-spacing: 1px; z-index: 3;}
-        .precio-viejo { font-size: 0.8rem; color: #888; text-decoration: line-through; display: block; margin-bottom: -5px;}
-        .precio-oferta { color: var(--fucsia-neon) !important; font-size: 1.4rem !important; text-shadow: 0 0 15px var(--fucsia-neon) !important; }
+        .etiqueta-promo { 
+            position: absolute; top: 12px; right: -32px; 
+            background: linear-gradient(135deg, var(--fucsia-neon), var(--naranja-neon)); 
+            color: white; font-weight: 900; font-size: 0.68rem; padding: 4px 34px; 
+            transform: rotate(45deg); box-shadow: 0 0 12px rgba(255,0,127,0.6); 
+            letter-spacing: 1px; z-index: 4;
+        }
+        .precio-viejo { 
+            font-size: 0.78rem; color: rgba(255,255,255,0.5); text-decoration: line-through; display: block; margin-bottom: -3px;
+        }
+        .precio-oferta { 
+            color: var(--fucsia-neon) !important; font-size: 1.35rem !important; 
+            text-shadow: 0 0 18px var(--fucsia-neon) !important; 
+        }
 
-        /* Botones de Método de Pago Neón */
-        .pay-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .pay-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 10px; cursor: pointer; text-align: center; transition: 0.3s; font-size: 0.85rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center;}
-        .pay-btn i { font-size: 1.5rem; margin-bottom: 5px; }
+        /* BOTONES DE MÉTODO DE PAGO WAOO */
+        .pay-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .pay-btn { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.12); 
+            color: white; padding: 12px 8px; border-radius: 14px; cursor: pointer; 
+            text-align: center; transition: all 0.3s ease; font-size: 0.82rem; font-weight: 600; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .pay-btn i { font-size: 1.6rem; margin-bottom: 4px; }
         .pay-btn input { display: none; }
         .pay-btn:has(input:checked) { transform: translateY(-3px); }
 
-        .pay-efectivo:has(input:checked) { border-color: var(--verde-neon); background: rgba(0, 255, 0, 0.1); color: var(--verde-neon); box-shadow: 0 0 15px rgba(0, 255, 0, 0.4); }
-        .pay-tarjeta:has(input:checked) { border-color: var(--cyan-neon); background: rgba(0, 229, 255, 0.1); color: var(--cyan-neon); box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
-        .pay-transfer:has(input:checked) { border-color: var(--fucsia-neon); background: rgba(255, 0, 255, 0.1); color: var(--fucsia-neon); box-shadow: 0 0 15px rgba(255, 0, 255, 0.4); }
-        .pay-mercadopago:has(input:checked) { border-color: var(--naranja-neon); background: rgba(255, 153, 0, 0.1); color: var(--naranja-neon); box-shadow: 0 0 15px rgba(255, 153, 0, 0.4); }
+        .pay-efectivo:has(input:checked) { border-color: var(--verde-neon); background: rgba(0, 255, 136, 0.12); color: var(--verde-neon); box-shadow: 0 0 20px rgba(0, 255, 136, 0.35); }
+        .pay-tarjeta:has(input:checked) { border-color: var(--cyan-neon); background: rgba(0, 229, 255, 0.12); color: var(--cyan-neon); box-shadow: 0 0 20px rgba(0, 229, 255, 0.35); }
+        .pay-transfer:has(input:checked) { border-color: var(--fucsia-neon); background: rgba(255, 0, 127, 0.12); color: var(--fucsia-neon); box-shadow: 0 0 20px rgba(255, 0, 127, 0.35); }
+        .pay-mercadopago:has(input:checked) { border-color: var(--naranja-neon); background: rgba(255, 153, 0, 0.12); color: var(--naranja-neon); box-shadow: 0 0 20px rgba(255, 153, 0, 0.35); }
 
-        /* Barra Lateral del Carrito */
-        .carrito { background: rgba(28, 2, 41, 0.85); backdrop-filter: blur(15px); border-radius: 20px; padding: 25px; height: 85vh; border: 1px solid var(--fucsia-neon); box-shadow: 0 0 30px rgba(255, 0, 255, 0.15); position: sticky; top: 20px; display: flex; flex-direction: column; }
-        .btn-fucsia { background: var(--fucsia-neon); border: none; color: white; font-weight: 800; transition: 0.3s; box-shadow: 0 4px 15px rgba(255,0,255,0.3); letter-spacing: 1px;}
-        .btn-fucsia:hover, .btn-fucsia:active { transform: scale(1.02); box-shadow: 0 6px 20px rgba(255,0,255,0.6); background: #d000d0; color: white;}
-        .item-carrito { display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,0,255,0.3); padding: 12px 0; font-size: 0.95rem; animation: fadeIn 0.3s ease-in-out;}
+        /* BARRA LATERAL DEL CARRITO POS */
+        .carrito { 
+            background: rgba(22, 3, 34, 0.85); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px; 
+            padding: 22px; 
+            min-height: 85vh; 
+            border: 1px solid rgba(255, 0, 127, 0.3); 
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1); 
+            position: sticky; top: 20px; display: flex; flex-direction: column; 
+        }
+        .btn-fucsia { 
+            background: linear-gradient(135deg, var(--fucsia-neon) 0%, #c4007f 100%); 
+            border: none; color: white; font-weight: 800; transition: all 0.3s ease; 
+            box-shadow: 0 6px 20px rgba(255, 0, 127, 0.4); letter-spacing: 1px; border-radius: 16px;
+        }
+        .btn-fucsia:hover, .btn-fucsia:active { 
+            transform: scale(1.02); box-shadow: 0 8px 25px rgba(255, 0, 127, 0.7); 
+            background: linear-gradient(135deg, #ff1a8c 0%, var(--fucsia-neon) 100%); color: white;
+        }
+        .item-carrito { 
+            display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,0,127,0.25); 
+            padding: 10px 0; font-size: 0.9rem; animation: fadeIn 0.3s ease-in-out;
+        }
 
-        #lista-busqueda { position: absolute; z-index: 1000; width: 100%; background: var(--violeta-tarjeta); border: 1px solid var(--cyan-neon); border-top: none; border-radius: 0 0 10px 10px; box-shadow: 0 5px 15px rgba(0,229,255,0.2); }
-        .cliente-opcion { padding: 12px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); transition: 0.2s;}
-        .cliente-opcion:hover { background: rgba(0,229,255,0.2); color: var(--cyan-neon); padding-left: 18px;}
+        #lista-busqueda { 
+            position: absolute; z-index: 1000; width: 100%; 
+            background: rgba(20, 3, 32, 0.95); 
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--cyan-neon); border-top: none; 
+            border-radius: 0 0 14px 14px; box-shadow: 0 10px 25px rgba(0,229,255,0.3); 
+        }
+        .cliente-opcion { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.08); transition: all 0.2s;}
+        .cliente-opcion:hover { background: rgba(0,229,255,0.15); color: var(--cyan-neon); padding-left: 20px;}
 
-        .input-dark { background-color: #100118; border: 1px solid rgba(255,255,255,0.2); color: white; }
-        .input-dark:focus { background-color: #100118; color: white; border-color: var(--fucsia-neon); box-shadow: 0 0 10px rgba(255,0,255,0.4); }
+        .input-dark { 
+            background-color: rgba(12, 2, 20, 0.8) !important; 
+            border: 1px solid rgba(255,255,255,0.15) !important; 
+            color: white !important; 
+            border-radius: 12px;
+        }
+        .input-dark:focus { 
+            background-color: rgba(12, 2, 20, 0.95) !important; 
+            border-color: var(--fucsia-neon) !important; 
+            box-shadow: 0 0 12px rgba(255,0,127,0.4) !important; 
+        }
 
         /* MINI CARDS POS HEADER */
         .mini-card {
-            background: rgba(28, 2, 41, 0.7); border: 1px solid rgba(0, 229, 255, 0.3);
-            border-radius: 10px; padding: 5px 15px; display: flex; flex-direction: column;
-            justify-content: center; min-width: 110px; transition: 0.3s;
+            background: rgba(255, 255, 255, 0.04); 
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            border-radius: 14px; padding: 6px 16px; display: flex; flex-direction: column;
+            justify-content: center; min-width: 115px; transition: all 0.3s;
         }
-        .mini-card .label { font-size: 0.65rem; opacity: 0.6; text-transform: uppercase; font-weight: 700; }
-        .mini-card .value { font-size: 1rem; color: var(--cyan-neon); font-weight: 800; }
+        .mini-card:hover {
+            border-color: var(--cyan-neon);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+        }
+        .mini-card .label { font-size: 0.65rem; opacity: 0.65; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        .mini-card .value { font-size: 1.05rem; color: var(--cyan-neon); font-weight: 800; }
 
         /* LEDGER NOTEBOOK STYLES */
-        .notebook-modal { background: #100118 !important; border: 2px solid var(--fucsia-neon) !important; }
-        .notebook-tab { background: rgba(28, 2, 41, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; height: 400px; overflow-y: auto; }
-        .notebook-entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); font-size: 0.85rem; }
+        .notebook-modal { background: var(--violeta-profundo) !important; border: 1.5px solid var(--fucsia-neon) !important; border-radius: 24px !important; }
+        .notebook-tab { background: rgba(28, 4, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 18px; height: 400px; overflow-y: auto; }
+        .notebook-entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); font-size: 0.85rem; }
         .notebook-title { font-family: 'Playfair Display', serif; font-weight: 900; color: var(--fucsia-neon); border-bottom: 2px solid var(--fucsia-neon); display: inline-block; padding-bottom: 5px; margin-bottom: 15px; }
 
         /* ESTILOS DEL TICKET IMPRIMIBLE */
@@ -127,15 +339,12 @@
         @media (max-width: 768px) {
             .pos-container { height: auto; overflow: visible; padding-bottom: 80px; }
             .contenedor-servicios { max-height: none; overflow: visible; padding-right: 0; }
-            .carrito { position: relative; top: 0; height: auto; margin-top: 20px; margin-bottom: 60px; box-shadow: 0 -10px 30px rgba(0,0,0,0.5); }
+            .carrito { position: relative; top: 0; min-height: auto; margin-top: 20px; margin-bottom: 60px; box-shadow: 0 -10px 30px rgba(0,0,0,0.5); }
             .navbar-cyber .navbar-brand { font-size: 1.2rem; }
             .card-servicio { height: 160px !important; }
-            .card-servicio img { height: 100px; }
             .card-servicio h5 { font-size: 0.8rem; }
             .card-servicio .precio { font-size: 1rem; }
             #btn-mobile-cart { display: flex !important; align-items: center; justify-content: center; }
-            
-            /* Ajustes Libro de Turno móvil */
             .notebook-tab { height: auto !important; max-height: 250px; overflow-y: auto; margin-bottom: 15px; }
             .notebook-modal .modal-body { padding: 15px !important; }
         }
@@ -149,25 +358,28 @@
 <audio id="sfx-click" preload="auto" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3?filename=bubble-sound-43207.mp3"></audio>
 <audio id="sfx-delete" preload="auto" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=error-126627.mp3"></audio>
 
+<!-- PANTALLA DE LOGIN PIN -->
 <div id="login-screen">
     <div class="login-box" id="login-box">
-        <h2 class="fw-bold mb-1" style="color: var(--cyan-neon); font-family: 'Playfair Display';"><i class="bi bi-cart-check-fill"></i> Caja POS</h2>
-        <p class="text-white mb-4 opacity-75">Control de Venta Directa</p>
+        <h2 class="fw-bold mb-1" style="color: var(--cyan-neon); font-family: 'Playfair Display';"><i class="bi bi-cart-check-fill me-2"></i>Caja POS Neón</h2>
+        <p class="text-white mb-4 opacity-75">Control de Venta Directa Linda Mamá Spa</p>
         <input type="password" id="input-pin" class="pin-input" maxlength="4" placeholder="••••" onkeypress="if(event.key === 'Enter') validarAcceso(event)">
-        <button type="button" class="btn btn-fucsia w-100 py-3 fs-5 mt-2" onclick="validarAcceso(event)">ABRIR TURNO</button>
+        <button type="button" class="btn btn-fucsia w-100 py-3 fs-5 mt-2" onclick="validarAcceso(event)">✨ ABRIR TURNO</button>
     </div>
 </div>
 
+<!-- PANTALLA DE BIENVENIDA VIP -->
 <div id="welcome-screen">
-    <i class="bi bi-calculator" style="font-size: 5rem; color: var(--cyan-neon); animation: latido 1.5s infinite;"></i>
+    <i class="bi bi-calculator" style="font-size: 5.5rem; color: var(--cyan-neon); animation: latido 1.5s infinite;"></i>
     <h1 class="welcome-text" id="welcome-message">¡Bienvenida!</h1>
-    <p class="welcome-sub">Preparando Caja Registradora...</p>
+    <p class="welcome-sub">Iniciando Terminal de Caja Registradora...</p>
 </div>
 
+<!-- APLICACIÓN POS -->
 <div id="app-pos">
     <nav class="navbar navbar-expand navbar-cyber">
         <div class="container-fluid px-2 px-md-4">
-            <a class="navbar-brand m-0" href="/admin"><i class="bi bi-stars me-1"></i>Linda Mamá</a>
+            <a class="navbar-brand m-0" href="/admin"><i class="bi bi-stars me-2 text-info"></i>Linda Mamá Spa</a>
             
             <div class="d-none d-lg-flex gap-3 mx-auto">
                 <div class="mini-card">
@@ -185,8 +397,8 @@
             </div>
 
             <div class="d-flex align-items-center">
-                <button class="btn btn-sm ms-2 ms-md-3 fw-bold" style="background: var(--naranja-neon); color: black;" onclick="abrirLibroMovimientos()" data-bs-toggle="modal" data-bs-target="#modalCajaFuerte">
-                    <i class="bi bi-book-half"></i> LIBRO DE TURNO
+                <button class="btn btn-sm ms-2 ms-md-3 fw-bold rounded-pill px-3 py-2" style="background: linear-gradient(135deg, var(--naranja-neon), #ff6600); color: black;" onclick="abrirLibroMovimientos()" data-bs-toggle="modal" data-bs-target="#modalCajaFuerte">
+                    <i class="bi bi-book-half me-1"></i> LIBRO DE TURNO
                 </button>
             </div>
         </div>
@@ -195,20 +407,37 @@
     <div class="container-fluid pos-container">
         <div class="row">
             <div class="col-md-7 col-lg-8 px-2 px-md-4">
-                <div class="position-relative mb-4">
+                <!-- BUSCADOR DE SERVICIO O CLIENTA -->
+                <div class="position-relative mb-3">
                     <label class="form-label text-info small fw-bold">
-                        <i class="bi bi-search"></i> BUSCAR SERVICIO O CLIENTA
+                        <i class="bi bi-search me-1"></i> BUSCAR SERVICIO O CLIENTA
                         <i class="bi bi-volume-up-fill ms-2 cursor-pointer text-warning" style="cursor: pointer; font-size: 1.2rem;" onclick="reproducirVozInstruccion('Aquí puedes escribir el nombre de un tratamiento o masaje para filtrarlo rápidamente. Si tocas el servicio que aparece, se enviará directo al carrito a la derecha.')"></i>
                     </label>
                     <div class="input-group">
-                        <span class="input-group-text border-info text-info" style="background: var(--violeta-tarjeta);"><i class="bi bi-search"></i></span>
+                        <span class="input-group-text border-info text-info input-dark" style="background: rgba(20, 3, 32, 0.8);"><i class="bi bi-search"></i></span>
                         <input type="text" id="input-buscador" class="form-control input-dark border-info" placeholder="Escribe el nombre de la clienta o servicio..." onkeyup="buscarMixto()">
                     </div>
                     <div id="lista-busqueda"></div>
                 </div>
 
+                <!-- CATEGORY FILTER TABS -->
+                <div class="pos-category-tabs">
+                    <button type="button" class="btn-pos-tab active" onclick="filtrarPorCategoria('todos', this)">✨ Todos</button>
+                    <button type="button" class="btn-pos-tab" onclick="filtrarPorCategoria('reductivos', this)">🌸 Reductivos</button>
+                    <button type="button" class="btn-pos-tab" onclick="filtrarPorCategoria('pos-operatorios', this)">💎 Pos Operatorios</button>
+                    <button type="button" class="btn-pos-tab" onclick="filtrarPorCategoria('faciales', this)">💆‍♀️ Faciales</button>
+                    <button type="button" class="btn-pos-tab" onclick="filtrarPorCategoria('relajantes', this)">✨ Relajantes</button>
+                    <button type="button" class="btn-pos-tab" onclick="filtrarPorCategoria('ofertas', this)">🏷️ Ofertas</button>
+                </div>
+
+                <!-- GRID DE SERVICIOS -->
                 <div class="row contenedor-servicios pe-2 mx-0" id="grid-servicios">
-                    <div class="col-6 col-md-6 col-lg-4 mb-3 px-2 item-grid-servicio" th:each="s : ${servicios}" th:data-nombre-lower="${#strings.toLowerCase(s.nombre)}">
+                    <div class="col-6 col-md-6 col-lg-4 mb-3 px-2 item-grid-servicio" 
+                         th:each="s : ${servicios}" 
+                         th:data-nombre-lower="${#strings.toLowerCase(s.nombre)}"
+                         th:data-categoria="${s.categoria != null ? s.categoria : 'reductivos'}"
+                         th:data-promo="${s.enPromocion}">
+                        
                         <div class="card card-servicio" th:classappend="${s.enPromocion} ? 'border-warning' : ''"
                              th:data-id="${s.id}" th:data-nombre="${s.nombre}"
                              th:data-precio="${s.enPromocion and s.precioPromo != null ? s.precioPromo : s.precio}"
@@ -230,6 +459,7 @@
                 </div>
             </div>
 
+            <!-- BARRA LATERAL DEL CARRITO -->
             <div class="col-md-5 col-lg-4 mt-3 mt-md-0">
                 <div class="carrito">
                     <h5 class="mb-3 fw-bold" style="color: var(--fucsia-neon); border-bottom: 2px solid var(--fucsia-neon); padding-bottom: 10px;">
@@ -237,7 +467,8 @@
                         <i class="bi bi-volume-up-fill float-end cursor-pointer text-warning" style="cursor: pointer; font-size: 1.3rem;" onclick="reproducirVozInstruccion('Este es el carrito. Es obligatorio poner el nombre de la clienta. Revisa el total, selecciona el método de pago con el que la clienta te entrega el dinero, y oprime Cobrar Ahora para guardar la venta en tu caja.')"></i>
                     </h5>
                     
-                    <div class="p-3 mb-3 border border-secondary rounded" style="background: rgba(255,255,255,0.02);">
+                    <!-- DATOS DE LA CLIENTA -->
+                    <div class="p-3 mb-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
                         <input type="text" id="cliente-nombre" class="form-control form-control-sm input-dark mb-2" placeholder="Nombre Clienta">
                         <div class="row g-2">
                             <div class="col-6"><input type="text" id="cliente-telefono" class="form-control form-control-sm input-dark" placeholder="WhatsApp"></div>
@@ -246,6 +477,7 @@
                         <input type="hidden" id="cliente-id" value="">
                     </div>
 
+                    <!-- FECHA Y ESPECIALISTA -->
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <input type="datetime-local" id="fecha-servicio" class="form-control form-control-sm input-dark">
@@ -255,13 +487,16 @@
                         </div>
                     </div>
 
-                    <div id="items-pos" style="flex-grow: 1; overflow-y: auto;"></div>
+                    <!-- LISTA DE ITEMS CARRITO -->
+                    <div id="items-pos" style="flex-grow: 1; overflow-y: auto; max-height: 220px;"></div>
 
+                    <!-- TOTAL -->
                     <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary mb-3">
-                        <span class="fw-bold">TOTAL</span>
+                        <span class="fw-bold text-white-50">TOTAL FINAL</span>
                         <span id="total-final" class="h2 mb-0" style="color: var(--cyan-neon); font-weight: 900;">$0</span>
                     </div>
 
+                    <!-- MÉTODOS DE PAGO -->
                     <div class="pay-btn-group">
                         <label class="pay-btn pay-efectivo">
                             <input type="radio" name="metodoPago" value="EFECTIVO" checked>
@@ -269,7 +504,7 @@
                         </label>
                         <label class="pay-btn pay-tarjeta">
                             <input type="radio" name="metodoPago" value="TARJETA">
-                            <i class="bi bi-credit-card-2-front"></i> POS/Datafono
+                            <i class="bi bi-credit-card-2-front"></i> POS/Datáfono
                         </label>
                         <label class="pay-btn pay-transfer">
                             <input type="radio" name="metodoPago" value="TRANSFERENCIA">
@@ -281,19 +516,20 @@
                         </label>
                     </div>
 
-                    <button class="btn btn-fucsia w-100 py-3 fs-5" id="btn-procesar" onclick="confirmarVenta(event)">COBRAR AHORA</button>
+                    <button class="btn btn-fucsia w-100 py-3 fs-5" id="btn-procesar" onclick="confirmarVenta(event)">⚡ COBRAR AHORA</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- MODAL LIBRO DE TURNO -->
 <div class="modal fade" id="modalCajaFuerte" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content notebook-modal">
             <div class="modal-header border-0 pb-0">
                 <h3 class="notebook-title m-0">
-                    <i class="bi bi-book-half me-2"></i>Libro de Movimientos
+                    <i class="bi bi-book-half me-2"></i>Libro de Movimientos de Caja
                     <i class="bi bi-volume-up-fill ms-2 cursor-pointer text-warning fs-4" style="cursor: pointer;" onclick="reproducirVozInstruccion('Este es el libro de turno. Registra de forma automática todo lo que has cobrado en la sección Ingresos. Si ocupas dinero de la caja para gastos del local o compras rápidas, regístralo manualmente en Egresos a la derecha. Al final del día, esto te dirá cuánto debes entregar con el cierre Z.')"></i>
                 </h3>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -311,7 +547,7 @@
                             <h6 class="fw-bold text-danger mb-3"><i class="bi bi-arrow-down-left-circle me-1"></i>EGRESOS (GASTOS)</h6>
                             <div id="notebook-egresos" class="mb-4"></div>
                             
-                            <div class="p-3 rounded border border-secondary" style="background: rgba(255,255,255,0.03);">
+                            <div class="p-3 rounded-3 border border-secondary" style="background: rgba(255,255,255,0.03);">
                                 <h6 class="small fw-bold text-white-50 mb-2">Registrar Gasto Rápido:</h6>
                                 <input type="text" id="egreso-descripcion" class="form-control form-control-sm input-dark mb-2" placeholder="Motivo">
                                 <div class="input-group input-group-sm mb-2">
@@ -338,7 +574,7 @@
                     </div>
 
                     <div class="ms-0 ms-md-3 w-100" style="max-width: 200px;">
-                        <button class="btn btn-danger btn-lg w-100 fw-bold" onclick="ejecutarCorteZ()">
+                        <button class="btn btn-danger btn-lg w-100 fw-bold rounded-pill" onclick="ejecutarCorteZ()">
                             <i class="bi bi-lock-fill me-1"></i> CIERRE Z
                         </button>
                     </div>
@@ -348,6 +584,7 @@
     </div>
 </div>
 
+<!-- MODAL TICKET -->
 <div class="modal fade" id="modalTicket" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content text-dark">
@@ -367,6 +604,9 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
+    </div>
+</div>
+
 <!-- BOTÓN MÓVIL FLOTANTE DE CARRITO -->
 <button id="btn-mobile-cart" class="btn btn-fucsia w-100 position-fixed bottom-0 start-0 fw-bold d-none" style="z-index: 9999; border-radius: 0; padding: 15px; font-size: 1.2rem; box-shadow: 0 -5px 20px rgba(255,0,255,0.4);" onclick="setTimeout(()=>window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}), 100)">
     <i class="bi bi-cart3 me-2"></i> VER CARRITO <span class="ms-2 badge bg-dark text-cyan-neon" id="btn-cart-total">$0</span>
@@ -423,6 +663,25 @@
         }
     }
 
+    function filtrarPorCategoria(cat, btn) {
+        sfxClick.play().catch(()=>{});
+        document.querySelectorAll('.btn-pos-tab').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        document.querySelectorAll('.item-grid-servicio').forEach(el => {
+            const servicioCat = el.getAttribute('data-categoria');
+            const esPromo = el.getAttribute('data-promo') === 'true';
+
+            if (cat === 'todos') {
+                el.style.display = 'block';
+            } else if (cat === 'ofertas') {
+                el.style.display = esPromo ? 'block' : 'none';
+            } else {
+                el.style.display = (servicioCat === cat) ? 'block' : 'none';
+            }
+        });
+    }
+
     function buscarMixto() {
         const q = document.getElementById('input-buscador').value.toLowerCase();
         
@@ -462,18 +721,16 @@
         document.getElementById('cliente-correo').value = c.correo || '';
         document.getElementById('cliente-id').value = c.id || '';
         
-        // Limpiar el buscador
         document.getElementById('input-buscador').value = '';
         document.getElementById('lista-busqueda').innerHTML = '';
         
-        // Restaurar todos los servicios a la vista
         document.querySelectorAll('.item-grid-servicio').forEach(el => {
             el.style.display = 'block';
         });
     }
 
     function capturarServicio(e, el) {
-        sfxClick.play();
+        sfxClick.play().catch(()=>{});
         carrito.push({id: el.dataset.id, nombre: el.dataset.nombre, precio: parseInt(el.dataset.precio)});
         renderizarCarrito();
     }
@@ -546,7 +803,6 @@
                 window.location.href = data;
             } else {
                 sfxOk.play().catch(()=>{});
-                // Preparar e Imprimir Recibo POS
                 let itemsHTML = '';
                 carrito.forEach(it => {
                     itemsHTML += `<div class="row-ticket"><span>${it.nombre}</span><span>$${it.precio.toLocaleString('es-CL')}</span></div>`;
@@ -554,10 +810,9 @@
                 document.getElementById('t-items').innerHTML = itemsHTML;
                 document.getElementById('t-total').innerText = '$' + venta.totalPagado.toLocaleString('es-CL');
                 
-                // Mostrar Modal e interception events
                 const modalTkt = new bootstrap.Modal(document.getElementById('modalTicket'));
                 document.getElementById('modalTicket').addEventListener('hidden.bs.modal', function () {
-                    location.reload(); // Solo recarga cuando se sierra el ticket
+                    location.reload();
                 }, {once: true});
                 modalTkt.show();
             }
@@ -566,7 +821,7 @@
             console.error(err);
             alert("Error al procesar la venta.");
             btn.disabled = false;
-            btn.innerHTML = "COBRAR AHORA";
+            btn.innerHTML = "⚡ COBRAR AHORA";
         });
     }
 
@@ -579,12 +834,10 @@
         fetch('/api/pos/caja-fuerte')
         .then(res => res.json())
         .then(data => {
-            // Actualizar Mini-Indicadores Navbar
             if(document.getElementById('mini-efectivo')) document.getElementById('mini-efectivo').innerText = formatCLP(data.efectivoEnCajon);
             if(document.getElementById('mini-transf')) document.getElementById('mini-transf').innerText = formatCLP(data.totalTransferencia);
             if(document.getElementById('mini-tarj')) document.getElementById('mini-tarj').innerText = formatCLP(data.totalTarjeta);
 
-            // Actualizar Modal
             document.getElementById('notebook-total-efectivo').innerText = formatCLP(data.efectivoEnCajon);
             document.getElementById('notebook-resumen-texto').innerText = `Ventas del turno: ${data.numVentas || 0}`;
             
@@ -647,21 +900,16 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // Cargar socias
         fetch('/api/socias').then(r => r.json()).then(ss => {
             const sel = document.getElementById('socia-select');
             ss.forEach(s => sel.innerHTML += `<option value="${s.id}">${s.nombre}</option>`);
         });
 
-        // Cargar clientes
         fetch('/api/clientes').then(r => r.json()).then(cls => {
             listaClientes = cls;
         }).catch(err => console.error("Error cargando clientes:", err));
     });
 
-    // ==============================================
-    // MOTOR DE AUDIO MANUAL
-    // ==============================================
     let sintetizador = window.speechSynthesis;
     let actualUtterance = null;
 

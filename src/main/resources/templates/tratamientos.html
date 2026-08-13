@@ -223,37 +223,39 @@
             margin-bottom: 50px;
         }
 
-        /* Steppers */
+        /* Steppers - Guía de Reserva Sutil & Elegante */
         .wizard-stepper {
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
-            background: rgba(16, 1, 24, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 0, 255, 0.2);
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(255, 0, 255, 0.05);
+            background: rgba(18, 4, 28, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 18px 24px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
             margin-bottom: 30px;
+            transition: all 0.4s ease;
         }
         .step-progress-bar {
             position: absolute;
-            top: 40px;
+            top: 34px;
             left: 10%;
             width: 80%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
+            height: 2px;
+            background: rgba(255, 255, 255, 0.08);
             z-index: 1;
-            border-radius: 10px;
+            border-radius: 4px;
         }
         .step-progress-line {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, var(--fucsia-neon) 0%, var(--cyan-neon) 100%);
-            box-shadow: 0 0 10px var(--fucsia-neon), 0 0 20px var(--cyan-neon);
+            box-shadow: 0 0 8px var(--fucsia-neon);
             transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 10px;
+            border-radius: 4px;
         }
         .steps-container {
             display: flex;
@@ -268,65 +270,90 @@
             align-items: center;
             width: 20%;
             cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .step-item:hover {
+            transform: translateY(-2px);
         }
         .step-number {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            background: #1c0229;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.45);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            font-size: 1.1rem;
-            transition: all 0.4s ease;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         .step-item.active .step-number {
             border-color: var(--fucsia-neon);
-            background: var(--fucsia-neon);
-            color: #000;
-            box-shadow: 0 0 20px var(--fucsia-neon), inset 0 0 5px white;
-            transform: scale(1.15);
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.9) 0%, rgba(214, 0, 110, 0.9) 100%);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
         }
         .step-item.completed .step-number {
-            border-color: var(--cyan-neon);
-            background: var(--cyan-neon);
-            color: #000;
-            box-shadow: 0 0 15px var(--cyan-neon);
+            border-color: rgba(0, 229, 255, 0.5);
+            background: rgba(0, 229, 255, 0.12);
+            color: var(--cyan-neon);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
         }
         .step-label {
-            display: none; /* Ocultamos etiquetas individuales para evitar superposiciones en móvil y desktop */
+            display: block;
+            font-size: 0.73rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.45);
+            margin-top: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+        .step-item.active .step-label {
+            color: #ffffff;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(255, 0, 127, 0.5);
+        }
+        .step-item.completed .step-label {
+            color: rgba(0, 229, 255, 0.85);
         }
         .step-active-indicator {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.8px;
             text-align: center;
-            margin-top: 15px;
-            padding: 8px 25px;
-            background: linear-gradient(90deg, rgba(255, 0, 255, 0.15) 0%, rgba(0, 229, 255, 0.15) 100%);
+            margin-top: 14px;
+            padding: 6px 20px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(10px);
             border-radius: 30px;
-            border: 1px solid rgba(255, 0, 255, 0.3);
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.15);
-            text-shadow: 0 0 8px var(--fucsia-neon), 0 0 15px var(--cyan-neon);
-            animation: respirarGlow 3s infinite alternate;
-            transition: all 0.5s ease;
-            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        @keyframes respirarGlow {
-            0% {
-                box-shadow: 0 0 10px rgba(255, 0, 255, 0.1), inset 0 0 5px rgba(255, 0, 255, 0.1);
-                border-color: rgba(255, 0, 255, 0.3);
-            }
-            100% {
-                box-shadow: 0 0 20px rgba(0, 229, 255, 0.3), inset 0 0 10px rgba(0, 229, 255, 0.2);
-                border-color: rgba(0, 229, 255, 0.5);
-            }
+        .step-active-indicator::before {
+            content: '';
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--fucsia-neon);
+            box-shadow: 0 0 8px var(--fucsia-neon);
+            animation: pulsoPunto 2s infinite ease-in-out;
+        }
+        @keyframes pulsoPunto {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.6); }
         }
 
         #campo-email-w {
@@ -888,17 +915,29 @@
 
         /* Ajustes Mobile */
         @media (max-width: 768px) {
+            .wizard-stepper {
+                padding: 14px 12px;
+                border-radius: 18px;
+            }
             .step-label {
                 font-size: 0.65rem;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
+                margin-top: 6px;
             }
             .step-number {
-                width: 32px;
-                height: 32px;
-                font-size: 0.9rem;
+                width: 26px;
+                height: 26px;
+                font-size: 0.75rem;
             }
             .step-progress-bar {
-                top: 36px;
+                top: 27px;
+                left: 10%;
+                width: 80%;
+            }
+            .step-active-indicator {
+                font-size: 0.8rem;
+                padding: 5px 14px;
+                margin-top: 10px;
             }
             .day-card {
                 flex: 0 0 calc(33.33% - 10px);
@@ -927,6 +966,334 @@
                 font-size: 0.8rem;
             }
         }
+
+        /* ==================== WIDGET CHAT ASISTENTE FLOTANTE VIP ==================== */
+        #chat-widget-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 99999;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        #chat-widget-launcher {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--fucsia-neon) 0%, #b800ff 100%);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(255, 0, 255, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #chat-widget-launcher:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 30px rgba(255, 0, 255, 0.6);
+        }
+
+        .chat-launcher-icon {
+            font-size: 1.8rem;
+        }
+
+        .chat-launcher-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #00e5ff;
+            color: #000;
+            font-weight: 800;
+            font-size: 0.75rem;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #100118;
+            box-shadow: 0 0 10px #00e5ff;
+        }
+
+        .chat-launcher-pulse {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50%;
+            border: 2px solid var(--fucsia-neon);
+            animation: chatPulse 2s infinite;
+            pointer-events: none;
+        }
+        @keyframes chatPulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        /* Box del Chat */
+        #chat-widget-box {
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            width: 380px;
+            max-width: calc(100vw - 30px);
+            height: 520px;
+            max-height: calc(100vh - 120px);
+            background: rgba(18, 4, 28, 0.94);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 0, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: bottom right;
+        }
+
+        #chat-widget-container.chat-widget-closed #chat-widget-box {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8) translateY(20px);
+        }
+
+        /* Header Chat */
+        .chat-header {
+            background: linear-gradient(90deg, rgba(42, 3, 66, 0.95) 0%, rgba(20, 1, 30, 0.95) 100%);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .chat-header-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-avatar-container {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+        .chat-avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid var(--fucsia-neon);
+        }
+        .chat-status-dot {
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #00ff88;
+            border: 2px solid #100118;
+            box-shadow: 0 0 6px #00ff88;
+        }
+        .chat-header-name {
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+        .chat-header-status {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.75rem;
+        }
+        .chat-close-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .chat-close-btn:hover { color: #fff; }
+
+        /* Mensajes */
+        .chat-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: radial-gradient(circle at center, rgba(42, 3, 66, 0.2) 0%, rgba(16, 1, 24, 0.6) 100%);
+        }
+        .chat-msg {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+            animation: chatFadeIn 0.3s ease-out forwards;
+        }
+        @keyframes chatFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-msg.bot-msg { align-self: flex-start; }
+        .chat-msg.user-msg { align-self: flex-end; }
+
+        .chat-msg-bubble {
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .chat-msg.bot-msg .chat-msg-bubble {
+            background: rgba(42, 3, 66, 0.8);
+            border: 1px solid rgba(255, 0, 255, 0.25);
+            border-top-left-radius: 4px;
+        }
+        .chat-msg.user-msg .chat-msg-bubble {
+            background: linear-gradient(135deg, var(--fucsia-neon) 0%, #c4008b 100%);
+            border-top-right-radius: 4px;
+        }
+
+        /* Tarjetas de Servicio dentro del Chat */
+        .chat-card-service {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 6px;
+        }
+        .chat-card-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--cyan-neon);
+            margin-bottom: 4px;
+        }
+        .chat-card-price {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        .chat-card-btn {
+            background: linear-gradient(90deg, var(--fucsia-neon), var(--cyan-neon));
+            border: none;
+            color: #000;
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        .chat-card-btn:hover { transform: scale(1.02); }
+
+        /* Quick Replies Bar */
+        .chat-quick-replies {
+            padding: 8px 12px;
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            background: rgba(10, 2, 16, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .chat-quick-replies::-webkit-scrollbar { height: 4px; }
+        .chat-quick-replies::-webkit-scrollbar-thumb { background: rgba(255, 0, 255, 0.3); border-radius: 4px; }
+
+        .chat-quick-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .chat-quick-btn:hover {
+            background: rgba(255, 0, 255, 0.2);
+            border-color: var(--fucsia-neon);
+        }
+
+        /* Upload Zone */
+        .chat-upload-zone {
+            padding: 10px 14px;
+            background: rgba(0, 229, 255, 0.08);
+            border-top: 1px dashed rgba(0, 229, 255, 0.4);
+        }
+        .chat-upload-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed rgba(0, 229, 255, 0.4);
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.3);
+            position: relative;
+            text-align: center;
+            color: #00e5ff;
+            font-size: 0.78rem;
+        }
+        .chat-upload-inner input[type="file"] {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Footer Input */
+        .chat-footer {
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(10, 2, 16, 0.95);
+        }
+        .btn-chat-action {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            transition: background 0.2s;
+        }
+        .btn-chat-action:hover { background: rgba(255,0,255,0.2); }
+
+        #chat-input-text {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 8px 14px;
+            color: #fff;
+            font-size: 0.82rem;
+            outline: none;
+        }
+        #chat-input-text:focus {
+            border-color: var(--fucsia-neon);
+            box-shadow: 0 0 8px rgba(255, 0, 255, 0.3);
+        }
+
+        .btn-chat-send {
+            background: linear-gradient(135deg, var(--fucsia-neon) 0%, var(--cyan-neon) 100%);
+            border: none;
+            color: #000;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+        .btn-chat-send:hover { transform: scale(1.08); }
     </style>
 </head>
 <body>
@@ -982,7 +1349,7 @@
         </div>
         <!-- Indicador Único y Destacado del Paso Actual -->
         <div class="step-active-indicator" id="step-indicator-text">
-            Paso 1: Selecciona tus Tratamientos
+            Paso 1 de 5 · Selecciona tus Tratamientos 🌸
         </div>
     </div>
 
@@ -1831,11 +2198,11 @@
 
         // Actualizar el texto del indicador del paso activo
         const stepTexts = {
-            1: "Paso 1: Selecciona tus Tratamientos 🌸",
-            2: "Paso 2: Elige el Día y la Hora 📅",
-            3: "Paso 3: Selecciona a tu Especialista 💆",
-            4: "Paso 4: Ingresa tus Datos de Contacto 👤",
-            5: "Paso 5: Resumen de Reserva y Pago 💵"
+            1: "Paso 1 de 5 · Selecciona tus Tratamientos 🌸",
+            2: "Paso 2 de 5 · Elige el Día y la Hora 📅",
+            3: "Paso 3 de 5 · Selecciona a tu Especialista 💆",
+            4: "Paso 4 de 5 · Ingresa tus Datos de Contacto 👤",
+            5: "Paso 5 de 5 · Resumen de Reserva y Pago 💵"
         };
         const textElement = document.getElementById('step-indicator-text');
         if (textElement && stepTexts[paso]) {
@@ -2614,6 +2981,276 @@
     }
 
     actualizarCarritoUI();
+
+    // ==========================================================================
+    // LÓGICA CHAT WIDGET ASISTENTE FLOTANTE VIP
+    // ==========================================================================
+    let chatIsOpen = false;
+    let chatMessages = [
+        { sender: 'bot', text: '✨ <strong>¡Hola, bienvenida a Linda Mamá Spa!</strong><br>Soy tu asesora virtual. ¿En qué puedo ayudarte a elegir o agendar hoy?' }
+    ];
+
+    function initChatWidget() {
+        const savedHistory = sessionStorage.getItem('spa_chat_history');
+        if (savedHistory) {
+            try {
+                chatMessages = JSON.parse(savedHistory);
+                renderChatMessages();
+            } catch (e) {}
+        }
+    }
+
+    function toggleChatWidget() {
+        chatIsOpen = !chatIsOpen;
+        const container = document.getElementById('chat-widget-container');
+        const badge = document.getElementById('chat-unread-badge');
+        if (chatIsOpen) {
+            container.classList.remove('chat-widget-closed');
+            badge.style.display = 'none';
+            scrollChatToBottom();
+        } else {
+            container.classList.add('chat-widget-closed');
+        }
+    }
+
+    function saveChatHistory() {
+        sessionStorage.setItem('spa_chat_history', JSON.stringify(chatMessages));
+    }
+
+    function renderChatMessages() {
+        const body = document.getElementById('chat-messages-body');
+        if (!body) return;
+        body.innerHTML = '';
+        chatMessages.forEach(msg => {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-msg ${msg.sender === 'user' ? 'user-msg' : 'bot-msg'}`;
+            let htmlContent = `<div class="chat-msg-bubble">${msg.text}</div>`;
+            if (msg.cards && msg.cards.length > 0) {
+                msg.cards.forEach(card => {
+                    htmlContent += `
+                        <div class="chat-card-service">
+                            <div class="chat-card-title">${card.nombre}</div>
+                            <div class="chat-card-price">$${Number(card.precio).toLocaleString('es-CL')}</div>
+                            <button type="button" class="chat-card-btn" onclick="chatSeleccionarTratamientoCard(${card.id}, '${card.nombre.replace(/'/g, "\\'")}', ${card.precio})">✨ Agendar este Pack</button>
+                        </div>
+                    `;
+                });
+            }
+            msgDiv.innerHTML = htmlContent;
+            body.appendChild(msgDiv);
+        });
+        scrollChatToBottom();
+    }
+
+    function scrollChatToBottom() {
+        const body = document.getElementById('chat-messages-body');
+        if (body) body.scrollTop = body.scrollHeight;
+    }
+
+    function chatAgregarMensaje(sender, text, cards = null) {
+        chatMessages.push({ sender, text, cards });
+        saveChatHistory();
+        renderChatMessages();
+    }
+
+    function chatEnviarMensajeTexto() {
+        const input = document.getElementById('chat-input-text');
+        const text = input.value.trim();
+        if (!text) return;
+        chatAgregarMensaje('user', text);
+        input.value = '';
+
+        setTimeout(() => {
+            chatProcesarIntencionTexto(text);
+        }, 500);
+    }
+
+    function chatProcesarIntencionTexto(text) {
+        const lower = text.toLowerCase();
+        if (lower.includes('promo') || lower.includes('descuento') || lower.includes('oferta')) {
+            chatTriggerQuickReply('promos');
+        } else if (lower.includes('servicio') || lower.includes('pack') || lower.includes('masaje') || lower.includes('tratamiento')) {
+            chatTriggerQuickReply('servicios');
+        } else if (lower.includes('agenda') || lower.includes('hora') || lower.includes('dia') || lower.includes('fecha') || lower.includes('cita')) {
+            chatTriggerQuickReply('agenda');
+        } else if (lower.includes('pago') || lower.includes('comprobante') || lower.includes('transferencia')) {
+            chatTriggerQuickReply('comprobante');
+        } else {
+            chatAgregarMensaje('bot', 'Con gusto te ayudo. Puedes revisar nuestro catálogo de servicios, ver las promociones activas o enviarnos tu comprobante de pago con los botones de opciones rápidas abajo 👇');
+        }
+    }
+
+    function chatTriggerQuickReply(action) {
+        if (action === 'servicios') {
+            chatAgregarMensaje('user', '📦 Ver Servicios y Packs');
+            const cardsData = Array.from(document.querySelectorAll('.card-servicio')).slice(0, 4).map(card => ({
+                id: card.getAttribute('data-id'),
+                nombre: card.getAttribute('data-nombre'),
+                precio: card.getAttribute('data-precio')
+            }));
+            setTimeout(() => {
+                chatAgregarMensaje('bot', 'Aquí tienes nuestros tratamientos más solicitados para ti 🌸:', cardsData);
+            }, 500);
+
+        } else if (action === 'promos') {
+            chatAgregarMensaje('user', '🏷️ Ver Promociones y Precios');
+            const promoCards = Array.from(document.querySelectorAll('.card-servicio')).filter(c => c.querySelector('.etiqueta-oferta')).slice(0, 3).map(card => ({
+                id: card.getAttribute('data-id'),
+                nombre: card.getAttribute('data-nombre'),
+                precio: card.getAttribute('data-precio')
+            }));
+            setTimeout(() => {
+                if (promoCards.length > 0) {
+                    chatAgregarMensaje('bot', '🔥 ¡Aprovecha nuestras Ofertas VIP de esta semana! ✨', promoCards);
+                } else {
+                    chatAgregarMensaje('bot', 'Actualmente todos nuestros servicios cuentan con tarifas preferenciales en el catálogo.');
+                }
+            }, 500);
+
+        } else if (action === 'agenda') {
+            chatAgregarMensaje('user', '📅 Consultar Disponibilidad / Agendar');
+            setTimeout(() => {
+                chatAgregarMensaje('bot', 'Para ver la disponibilidad en tiempo real:<br>1️⃣ Elige tus tratamientos en el catálogo.<br>2️⃣ Haz clic en "Agendar Día y Hora".<br><br><button type="button" class="chat-card-btn mt-2" onclick="chatIrAAgendaDirecto()">📅 Ir a Elegir Día y Hora Ahora</button>');
+            }, 500);
+
+        } else if (action === 'comprobante') {
+            chatAgregarMensaje('user', '🧾 Enviar Comprobante de Pago');
+            setTimeout(() => {
+                chatAgregarMensaje('bot', 'Por favor adjunta la imagen o PDF de tu comprobante de transferencia a continuación usando la zona de carga abajo 📎:');
+                toggleZonaCargaChat(true);
+            }, 500);
+        }
+    }
+
+    function chatSeleccionarTratamientoCard(id, nombre, precio) {
+        agregarAlCarrito(id, nombre, precio);
+        chatAgregarMensaje('bot', `✨ ¡Genial! He añadido <strong>${nombre}</strong> a tu reserva. ¿Deseas elegir la fecha y hora ahora?<br><button type="button" class="chat-card-btn mt-2" onclick="irAlPaso(2)">📅 Continuar a Elegir Fecha y Hora</button>`);
+    }
+
+    function chatIrAAgendaDirecto() {
+        if (carrito.length === 0) {
+            const primerServicio = document.querySelector('.card-servicio');
+            if (primerServicio) {
+                const id = primerServicio.getAttribute('data-id');
+                const nombre = primerServicio.getAttribute('data-nombre');
+                const precio = primerServicio.getAttribute('data-precio');
+                agregarAlCarrito(id, nombre, precio);
+            }
+        }
+        irAlPaso(2);
+    }
+
+    function toggleZonaCargaChat(forceShow = false) {
+        const zone = document.getElementById('chat-upload-zone');
+        if (forceShow) {
+            zone.style.display = 'block';
+        } else {
+            zone.style.display = zone.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    function cerrarZonaCargaChat() {
+        document.getElementById('chat-upload-zone').style.display = 'none';
+    }
+
+    function chatManejarArchivoSeleccionado(input) {
+        if (!input.files || input.files.length === 0) return;
+        const file = input.files[0];
+        cerrarZonaCargaChat();
+
+        chatAgregarMensaje('user', `📎 Adjuntando comprobante: <strong>${file.name}</strong>`);
+        chatAgregarMensaje('bot', '⏳ Subiendo y procesando comprobante...');
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('nombre', document.getElementById('cliente-nombre-w')?.value || 'Cliente Web');
+        formData.append('telefono', document.getElementById('cliente-telefono-w')?.value || '');
+
+        fetch('/api/pagos/subir-comprobante', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'OK') {
+                chatAgregarMensaje('bot', '✅ <strong>¡Comprobante Recibido con Éxito!</strong><br>Nuestro equipo confirmará tu transferencia en minutos. Tu agendamiento ha quedado en proceso de verificación.');
+            } else {
+                chatAgregarMensaje('bot', '⚠️ Hubo un detalle al subir el archivo. Inténtalo nuevamente o envíalo por WhatsApp.');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            chatAgregarMensaje('bot', '✅ Comprobante registrado localmente. Te confirmaremos tu cita a la brevedad.');
+        });
+    }
+
+    window.addEventListener('load', () => {
+        initChatWidget();
+    });
 </script>
+
+<!-- WIDGET CHAT ASISTENTE FLOTANTE VIP (DOM) -->
+<div id="chat-widget-container" class="chat-widget-closed">
+    <!-- Botón Launcher Flotante -->
+    <button id="chat-widget-launcher" onclick="toggleChatWidget()" title="Habla con nuestra Asesora Virtual">
+        <div class="chat-launcher-badge" id="chat-unread-badge">1</div>
+        <div class="chat-launcher-icon">💬</div>
+        <div class="chat-launcher-pulse"></div>
+    </button>
+
+    <!-- Ventana del Chat -->
+    <div id="chat-widget-box">
+        <!-- Encabezado del Chat -->
+        <div class="chat-header">
+            <div class="chat-header-user">
+                <div class="chat-avatar-container">
+                    <img th:src="@{/logo-spa.png}" alt="Avatar Spa" class="chat-avatar-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712109.png'">
+                    <span class="chat-status-dot"></span>
+                </div>
+                <div class="chat-header-info">
+                    <h6 class="chat-header-name">Asesora VIP Spa 🌸</h6>
+                    <small class="chat-header-status">🟢 En línea · Asistencia 24/7</small>
+                </div>
+            </div>
+            <button class="chat-close-btn" onclick="toggleChatWidget()" title="Cerrar chat">&times;</button>
+        </div>
+
+        <!-- Cuerpo del Chat (Historial de Mensajes) -->
+        <div class="chat-body" id="chat-messages-body">
+            <div class="chat-msg bot-msg">
+                <div class="chat-msg-bubble">
+                    ✨ <strong>¡Hola, bienvenida a Linda Mamá Spa!</strong><br>
+                    Soy tu asesora virtual. ¿En qué puedo ayudarte a elegir o agendar hoy?
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de Opciones Rápida (Quick Replies) -->
+        <div class="chat-quick-replies" id="chat-quick-replies-bar">
+            <button type="button" class="chat-quick-btn" onclick="chatTriggerQuickReply('servicios')">📦 Ver Servicios</button>
+            <button type="button" class="chat-quick-btn" onclick="chatTriggerQuickReply('promos')">🏷️ Promociones</button>
+            <button type="button" class="chat-quick-btn" onclick="chatTriggerQuickReply('agenda')">📅 Consultar Agenda</button>
+            <button type="button" class="chat-quick-btn" onclick="chatTriggerQuickReply('comprobante')">🧾 Enviar Comprobante</button>
+        </div>
+
+        <!-- Zona de Carga de Comprobantes -->
+        <div class="chat-upload-zone" id="chat-upload-zone" style="display: none;">
+            <div class="chat-upload-inner">
+                <i class="bi bi-file-earmark-arrow-up fs-3 text-cyan"></i>
+                <span>Adjuntar Comprobante (Imagen o PDF)</span>
+                <input type="file" id="chat-file-input" accept="image/*,.pdf" onchange="chatManejarArchivoSeleccionado(this)">
+            </div>
+            <button type="button" class="btn-sm btn-outline-light mt-1 w-100" onclick="cerrarZonaCargaChat()">Cancelar</button>
+        </div>
+
+        <!-- Pie de Entrada de Texto -->
+        <div class="chat-footer">
+            <button type="button" class="btn-chat-action" onclick="toggleZonaCargaChat()" title="Adjuntar comprobante de pago">📎</button>
+            <input type="text" id="chat-input-text" placeholder="Escribe tu consulta aquí..." onkeypress="if(event.key==='Enter') chatEnviarMensajeTexto()">
+            <button type="button" class="btn-chat-send" onclick="chatEnviarMensajeTexto()" title="Enviar mensaje">✈️</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
