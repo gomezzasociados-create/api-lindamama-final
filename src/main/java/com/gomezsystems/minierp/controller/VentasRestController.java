@@ -238,22 +238,39 @@ public class VentasRestController {
         List<Egreso> egresos = egresoRepository.findByCierreAplicadoFalseOrderByFechaHoraDesc();
 
         Double tEfectivo = 0.0, tFiado = 0.0, tTarjeta = 0.0, tTransf = 0.0, tPropinas = 0.0, tEgresos = 0.0;
+        Double tReservado = 0.0, tPendiente = 0.0;
         Double tGananciaSpa = 0.0, tDeudaSocias = 0.0;
         
         Map<String, Double> deudaPorSocia = new java.util.HashMap<>();
+        int ventasPagadasCount = 0;
 
         for (Venta v : activas) {
-            if ("RESERVADO".equals(v.getEstado())) continue;
-
             Double pagado = v.getTotalPagado() != null ? v.getTotalPagado() : (v.getMontoTotal() != null ? v.getMontoTotal() : 0.0);
-            if (v.getPropina() != null) tPropinas += v.getPropina();
-
+            
+            String estado = v.getEstado() != null ? v.getEstado().toUpperCase() : "PAGADO";
             String tipo = v.getTipoPago() != null ? v.getTipoPago().toUpperCase() : "EFECTIVO";
 
-            if (tipo.contains("EFECTIVO") || tipo.contains("CONTADO")) tEfectivo += pagado;
-            else if (tipo.contains("FIADO")) tFiado += pagado;
-            else if (tipo.contains("TARJETA") || tipo.contains("MERCADOPAGO") || tipo.contains("MERCADO_PAGO")) tTarjeta += pagado;
-            else if (tipo.contains("TRANSFERENCIA")) tTransf += pagado;
+            if ("RESERVADO".equals(estado)) {
+                tReservado += pagado;
+                continue; // Las reservas en proceso no suman al dinero cobrado en caja hasta ser confirmadas
+            } else if ("PENDIENTE".equals(estado) || "VERIFICANDO_PAGO".equals(estado)) {
+                tPendiente += pagado;
+            }
+
+            ventasPagadasCount++;
+            if (v.getPropina() != null) tPropinas += v.getPropina();
+
+            if (tipo.contains("EFECTIVO") || tipo.contains("CONTADO")) {
+                tEfectivo += pagado;
+            } else if (tipo.contains("FIADO") || tipo.contains("CREDITO")) {
+                tFiado += pagado;
+            } else if (tipo.contains("TARJETA") || tipo.contains("MERCADOPAGO") || tipo.contains("MERCADO_PAGO") || tipo.contains("POS")) {
+                tTarjeta += pagado;
+            } else if (tipo.contains("TRANSFERENCIA") || tipo.contains("TRANSF") || tipo.contains("BANCO")) {
+                tTransf += pagado;
+            } else {
+                tEfectivo += pagado;
+            }
 
             // Comisiones
             tGananciaSpa += (v.getMontoSpa() != null ? v.getMontoSpa() : pagado);
@@ -281,11 +298,14 @@ public class VentasRestController {
         response.put("totalTransferencia", tTransf);
         response.put("totalPropinas", tPropinas);
         response.put("totalEgresos", tEgresos);
+        response.put("totalReservado", tReservado);
+        response.put("totalPendiente", tPendiente);
         response.put("efectivoEnCajon", Math.max(0, cajonFisico));
         response.put("gananciaSpa", tGananciaSpa);
         response.put("deudaSociasTotal", tDeudaSocias);
         response.put("deudaPorSocia", deudaPorSocia);
         response.put("numVentas", activas.size());
+        response.put("numVentasPagadas", ventasPagadasCount);
 
         return response;
     }

@@ -1349,36 +1349,97 @@
     <div class="modal fade" id="modalCliente" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold" style="color: var(--cyan-neon);" id="tituloModalCliente">Perfil Cliente Básico</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formCliente"><input type="hidden" id="clienteId"><div class="mb-3"><label class="form-label text-info fw-bold">Nombre Completo</label><input type="text" class="form-control" id="cliNombre" required></div><div class="row"><div class="col-6 mb-3"><label class="form-label text-info fw-bold">WhatsApp</label><input type="text" class="form-control" id="cliTelefono"></div><div class="col-6 mb-3"><label class="form-label text-info fw-bold">Cumpleaños</label><input type="date" class="form-control" id="cliCumple"></div></div><div class="mb-3"><label class="form-label text-info fw-bold">Email</label><input type="email" class="form-control" id="cliCorreo"></div><div class="mb-3"><label class="form-label text-info fw-bold">Notas de Recepción</label><textarea class="form-control" id="cliNotas" rows="2"></textarea></div></form></div><div class="modal-footer"><button type="button" class="btn btn-fucsia w-100" onclick="guardarCliente(event)">Guardar Básico</button></div></div></div></div>
 
     <div class="modal fade" id="modalCajaAdmin" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content text-center p-3">
-                <div class="modal-header border-0 pb-0 justify-content-center">
-                    <h5 class="fw-bold m-0" style="color: var(--cyan-neon);"><i class="bi bi-safe-fill"></i> Caja Fuerte Actual</h5>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content p-4" style="background-color: var(--violeta-profundo); border: 1.5px solid var(--cyan-neon); border-radius: 20px;">
+                <div class="modal-header border-bottom border-secondary pb-3">
+                    <h5 class="fw-bold m-0" style="color: var(--cyan-neon);"><i class="bi bi-safe-fill me-2"></i>Caja Fuerte & Auditoría del Turno Actual</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <p class="small text-muted mb-4">Turno en curso (Aún sin Corte Z)</p>
+                <div class="modal-body py-3">
+                    <!-- Banner explicativo -->
+                    <div class="alert alert-dark border-info text-info small mb-3 d-flex align-items-center" role="alert" style="background: rgba(0, 229, 255, 0.08);">
+                        <i class="bi bi-info-circle-fill fs-4 me-3 flex-shrink-0"></i>
+                        <div>
+                            <strong>Auditoría de Turno Abierto:</strong> Esta vista reúne los movimientos registrados durante el turno en curso (antes de ejecutar el Corte Z). Para consultar ventas históricas por rango de fechas, revisa la pestaña <strong>Análisis EBITDA</strong>.
+                        </div>
+                    </div>
 
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-white opacity-75 small">Entradas Efectivo:</span>
-                        <span id="admin-caja-efectivo" class="fw-bold text-success">$0</span>
+                    <!-- Cuadrante de KPI Totales -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded border border-secondary text-center" style="background: rgba(255,255,255,0.03);">
+                                <small class="text-white-50 d-block" style="font-size:0.7rem;">EFECTIVO FÍSICO</small>
+                                <span id="admin-caja-neto" class="fw-bold text-success fs-5">$0</span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded border border-secondary text-center" style="background: rgba(255,255,255,0.03);">
+                                <small class="text-white-50 d-block" style="font-size:0.7rem;">TRANSFERENCIAS</small>
+                                <span id="admin-caja-transf" class="fw-bold text-info fs-5">$0</span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded border border-secondary text-center" style="background: rgba(255,255,255,0.03);">
+                                <small class="text-white-50 d-block" style="font-size:0.7rem;">TARJETAS / MP</small>
+                                <span id="admin-caja-tarj" class="fw-bold text-warning fs-5">$0</span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded border border-secondary text-center" style="background: rgba(255,255,255,0.03);">
+                                <small class="text-white-50 d-block" style="font-size:0.7rem;">GASTOS (EGRESOS)</small>
+                                <span id="admin-caja-egresos" class="fw-bold text-danger fs-5">-$0</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between mb-3 pb-2 border-bottom border-secondary">
-                        <span class="text-white opacity-75 small">Gastos Caja Chica:</span>
-                        <span id="admin-caja-egresos" class="fw-bold text-danger">-$0</span>
+
+                    <!-- Resumen SPA y Socias -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <div class="p-3 rounded border border-secondary" style="background: rgba(0,0,0,0.3); height: 100%;">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-white-50 small">Total Entradas Efectivo:</span>
+                                    <span id="admin-caja-efectivo" class="fw-bold text-success">$0</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-white-50 small">Reservas Web / En Proceso:</span>
+                                    <span id="admin-caja-reservado" class="fw-bold text-warning">$0</span>
+                                </div>
+                                <div class="d-flex justify-content-between pt-2 border-top border-secondary">
+                                    <span class="fw-bold text-info small">NETO GANANCIA SPA:</span>
+                                    <span id="admin-caja-spa" class="fw-bold text-white fs-6">$0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 rounded border border-secondary" style="background: rgba(0,0,0,0.3); height: 100%;">
+                                <h6 class="fw-bold text-warning mb-2 small"><i class="bi bi-person-lines-fill me-1"></i> Comisiones Socias del Turno:</h6>
+                                <div id="admin-caja-socias" class="small text-warning" style="max-height: 80px; overflow-y: auto;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between mb-3 pb-2 border-bottom border-secondary">
-                        <span class="fw-bold text-info">EFECTIVO FÍSICO:</span>
-                        <span id="admin-caja-neto" class="fw-bold fs-5" style="color: var(--cyan-neon); text-shadow: 0 0 10px rgba(0,229,255,0.5);">$0</span>
-                    </div>
-                    <h6 class="text-start fw-bold mt-2 text-warning mb-2">Desglose de Comisiones a Pagar:</h6>
-                    <div id="admin-caja-socias" class="text-start small text-warning mb-2">
-                    </div>
-                    <div class="d-flex justify-content-between pt-2 border-top border-warning">
-                        <span class="fw-bold text-white small">NETO PARA EL SPA:</span>
-                        <span id="admin-caja-spa" class="fw-bold fs-6 text-white">$0</span>
+
+                    <!-- Listado de Transacciones del Turno -->
+                    <h6 class="fw-bold text-white mb-2 small"><i class="bi bi-receipt me-1 text-cyan-neon"></i> Transacciones Registradas en este Turno:</h6>
+                    <div class="table-responsive" style="max-height: 180px; overflow-y: auto;">
+                        <table class="table table-dark table-hover align-middle table-sm" style="font-size: 0.78rem;">
+                            <thead>
+                                <tr>
+                                    <th>Hora</th>
+                                    <th>Cliente</th>
+                                    <th>Servicio / Detalle</th>
+                                    <th>Monto</th>
+                                    <th>Método</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-caja-tbl-ventas">
+                                <tr><td colspan="6" class="text-center text-muted">Cargando...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-outline-light w-100" data-bs-dismiss="modal">Cerrar</button>
+                <div class="modal-footer border-top border-secondary pt-2">
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -2818,8 +2879,11 @@
             .then(res => res.json())
             .then(data => {
                 document.getElementById('admin-caja-efectivo').innerText = '$' + (data.totalEfectivo || 0).toLocaleString('es-CL');
+                document.getElementById('admin-caja-transf').innerText = '$' + (data.totalTransferencia || 0).toLocaleString('es-CL');
+                document.getElementById('admin-caja-tarj').innerText = '$' + (data.totalTarjeta || 0).toLocaleString('es-CL');
                 document.getElementById('admin-caja-egresos').innerText = '-$' + (data.totalEgresos || 0).toLocaleString('es-CL');
                 document.getElementById('admin-caja-neto').innerText = '$' + (data.efectivoEnCajon || 0).toLocaleString('es-CL');
+                document.getElementById('admin-caja-reservado').innerText = '$' + (data.totalReservado || 0).toLocaleString('es-CL');
                 
                 document.getElementById('admin-caja-spa').innerText = '$' + (data.gananciaSpa || 0).toLocaleString('es-CL');
                 
@@ -2832,6 +2896,31 @@
                     htmlSocias = '<i>No hay comisiones pendientes</i>';
                 }
                 document.getElementById('admin-caja-socias').innerHTML = htmlSocias;
+
+                // Tabla de ventas del turno
+                const tbl = document.getElementById('admin-caja-tbl-ventas');
+                tbl.innerHTML = '';
+                if (data.ventas && data.ventas.length > 0) {
+                    data.ventas.forEach(v => {
+                        const hora = v.fechaHora ? new Date(v.fechaHora).toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'}) : '--:--';
+                        const cli = v.cliente ? v.cliente.nombre : 'Cliente General';
+                        let badge = '<span class="badge bg-success">PAGADO</span>';
+                        if (v.estado === 'RESERVADO') badge = '<span class="badge bg-info text-dark">RESERVADO</span>';
+                        else if (v.estado === 'PENDIENTE') badge = '<span class="badge bg-warning text-dark">PENDIENTE</span>';
+                        else if (v.estado === 'VERIFICANDO_PAGO') badge = '<span class="badge bg-primary">VERIFICANDO</span>';
+
+                        tbl.innerHTML += `<tr>
+                            <td>${hora}</td>
+                            <td class="fw-bold">${cli}</td>
+                            <td class="small text-white-50">${v.detalle || 'Venta'}</td>
+                            <td class="fw-bold text-success">$${Math.round(v.montoTotal || 0).toLocaleString('es-CL')}</td>
+                            <td><span class="badge bg-secondary" style="font-size:0.65rem;">${v.tipoPago || 'EFECTIVO'}</span></td>
+                            <td>${badge}</td>
+                        </tr>`;
+                    });
+                } else {
+                    tbl.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-2">Sin transacciones en este turno</td></tr>';
+                }
 
                 new bootstrap.Modal(document.getElementById('modalCajaAdmin')).show();
             })
