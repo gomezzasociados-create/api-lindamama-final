@@ -39,6 +39,7 @@ public class AdminViewController {
         try { model.addAttribute("clientes", clienteRepository.findAll()); } catch (Exception e) { model.addAttribute("clientes", new ArrayList<>()); }
         
         // TESORERÍA (Se agregan los faltantes)
+        try { model.addAttribute("ventasTurno", ventaRepository.findByCierreAplicadoFalseOrderByFechaHoraDesc()); } catch (Exception e) { model.addAttribute("ventasTurno", new ArrayList<>()); }
         try { model.addAttribute("egresos", egresoRepository.findAllByOrderByFechaHoraDesc()); } catch (Exception e) { model.addAttribute("egresos", new ArrayList<>()); }
         try { model.addAttribute("cortes", corteZRepository.findAllByOrderByFechaGeneracionDesc()); } catch (Exception e) { model.addAttribute("cortes", new ArrayList<>()); }
         
