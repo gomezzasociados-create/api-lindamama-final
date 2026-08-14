@@ -844,10 +844,11 @@
                                             <th>Comisión</th>
                                             <th>Pago</th>
                                             <th>Socia</th>
+                                            <th class="text-center">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ebitda-tbl-ventas">
-                                        <tr><td colspan="9" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
+                                        <tr><td colspan="10" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -865,10 +866,11 @@
                                             <th>Monto</th>
                                             <th>Tipo</th>
                                             <th>Método Salida</th>
+                                            <th class="text-center">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ebitda-tbl-egresos">
-                                        <tr><td colspan="6" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
+                                        <tr><td colspan="7" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -885,10 +887,11 @@
                                             <th>Monto Pagado</th>
                                             <th>Medio de Pago</th>
                                             <th>Comentarios</th>
+                                            <th class="text-center">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ebitda-tbl-pagos">
-                                        <tr><td colspan="5" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
+                                        <tr><td colspan="6" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1503,8 +1506,167 @@
         </div>
     </div>
 
+    <!-- MODAL EDITAR VENTA (EBITDA / CAJA) -->
+    <div class="modal fade" id="modalEditarVentaEbitda" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--violeta-profundo); border: 1.5px solid var(--fucsia-neon); border-radius: 18px;">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title fw-bold text-white"><i class="bi bi-pencil-square text-warning me-2"></i>Editar Registro de Venta</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editVentaId">
+                    <div class="mb-3">
+                        <label class="form-label text-info fw-bold small">Detalle / Servicio</label>
+                        <input type="text" id="editVentaDetalle" class="form-control input-dark">
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Total Cobrado ($)</label>
+                            <input type="number" id="editVentaMontoTotal" class="form-control input-dark">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Propina ($)</label>
+                            <input type="number" id="editVentaPropina" class="form-control input-dark">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Método de Pago</label>
+                            <select id="editVentaTipoPago" class="form-select input-dark">
+                                <option value="EFECTIVO">EFECTIVO</option>
+                                <option value="TRANSFERENCIA">TRANSFERENCIA</option>
+                                <option value="TARJETA">TARJETA</option>
+                                <option value="MERCADOPAGO">MERCADO PAGO</option>
+                                <option value="FIADO">FIADO</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Estado</label>
+                            <select id="editVentaEstado" class="form-select input-dark">
+                                <option value="PAGADO">PAGADO</option>
+                                <option value="PENDIENTE">PENDIENTE</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-info fw-bold small">Socia / Profesional Asignada</label>
+                        <select id="editVentaSociaId" class="form-select input-dark">
+                            <option value="">Sin Profesional Asignada</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-fucsia fw-bold px-4" onclick="guardarEdicionVentaEbitda()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- ENTORNO DE IMPRESIÓN (OCULTO EN PANTALLA) -->
+    <!-- MODAL EDITAR EGRESO (EBITDA / CAJA) -->
+    <div class="modal fade" id="modalEditarEgresoEbitda" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--violeta-profundo); border: 1.5px solid var(--cyan-neon); border-radius: 18px;">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title fw-bold text-white"><i class="bi bi-pencil-square text-cyan-neon me-2"></i>Editar Gasto / Inversión</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editEgresoId">
+                    <div class="mb-3">
+                        <label class="form-label text-info fw-bold small">Descripción del Gasto</label>
+                        <input type="text" id="editEgresoDescripcion" class="form-control input-dark">
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Monto ($)</label>
+                            <input type="number" id="editEgresoMonto" class="form-control input-dark">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Método de Salida</label>
+                            <select id="editEgresoMetodoSalida" class="form-select input-dark">
+                                <option value="EFECTIVO">EFECTIVO</option>
+                                <option value="TRANSFERENCIA">TRANSFERENCIA</option>
+                                <option value="TARJETA">TARJETA</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Tipo Contable</label>
+                            <select id="editEgresoEsInversion" class="form-select input-dark">
+                                <option value="false">OPEX (Gasto Operativo)</option>
+                                <option value="true">CAPEX (Inversión / Activo)</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Categoría</label>
+                            <select id="editEgresoCategoria" class="form-select input-dark">
+                                <option value="SUMINISTROS">Suministros / Insumos</option>
+                                <option value="ARRIENDO">Arriendo Local</option>
+                                <option value="SERVICIOS_BASICOS">Servicios Básicos (Luz/Agua)</option>
+                                <option value="EQUIPOS">Maquinaria / Equipos</option>
+                                <option value="PUBLICIDAD">Publicidad & Marketing</option>
+                                <option value="OTROS">Otros Gastos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Vida Útil (Meses)</label>
+                            <input type="number" id="editEgresoVidaUtil" class="form-control input-dark" value="0">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Valor Residual ($)</label>
+                            <input type="number" id="editEgresoValorResidual" class="form-control input-dark" value="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-cyan fw-bold px-4" onclick="guardarEdicionEgresoEbitda()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR PAGO DE COMISIÓN (EBITDA / CAJA) -->
+    <div class="modal fade" id="modalEditarPagoComisionEbitda" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--violeta-profundo); border: 1.5px solid var(--naranja-neon); border-radius: 18px;">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title fw-bold text-white"><i class="bi bi-pencil-square text-warning me-2"></i>Editar Pago de Comisión</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editPagoId">
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Monto Pagado ($)</label>
+                            <input type="number" id="editPagoMonto" class="form-control input-dark">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-info fw-bold small">Medio de Pago</label>
+                            <select id="editPagoMedio" class="form-select input-dark">
+                                <option value="EFECTIVO">EFECTIVO</option>
+                                <option value="TRANSFERENCIA">TRANSFERENCIA</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-info fw-bold small">Comentarios</label>
+                        <input type="text" id="editPagoComentarios" class="form-control input-dark">
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning fw-bold text-dark px-4" onclick="guardarEdicionPagoComisionEbitda()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="print-area">
         <div style="text-align: center; margin-bottom: 15px;">
             <h3 style="margin: 0;">LINDA MAMÁ SPA</h3>
@@ -3420,7 +3582,7 @@
                 const tblVentas = document.getElementById('ebitda-tbl-ventas');
                 tblVentas.innerHTML = '';
                 if (!data.ventas || data.ventas.length === 0) {
-                    tblVentas.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-3">No hay ventas registradas en este periodo</td></tr>';
+                    tblVentas.innerHTML = '<tr><td colspan="10" class="text-center text-muted py-3">No hay ventas registradas en este periodo</td></tr>';
                 } else {
                     data.ventas.forEach(v => {
                         const fec = new Date(v.fecha).toLocaleString('es-CL', {dateStyle:'short', timeStyle:'short'});
@@ -3435,6 +3597,10 @@
                             <td class="text-warning">$${Math.round(v.montoSocia || 0).toLocaleString('es-CL')}</td>
                             <td class="small">${v.tipoPago}</td>
                             <td>${estBadge} ${v.sociaNombre}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-warning p-1 py-0 me-1" onclick="abrirModalEditarVenta(${v.id})" title="Editar"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-danger p-1 py-0" onclick="eliminarVentaEbitda(${v.id})" title="Eliminar"><i class="bi bi-trash"></i></button>
+                            </td>
                         </tr>`;
                     });
                 }
@@ -3443,7 +3609,7 @@
                 const tblEgresos = document.getElementById('ebitda-tbl-egresos');
                 tblEgresos.innerHTML = '';
                 if (!data.egresos || data.egresos.length === 0) {
-                    tblEgresos.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">No hay egresos registrados en este periodo</td></tr>';
+                    tblEgresos.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">No hay egresos registrados en este periodo</td></tr>';
                 } else {
                     data.egresos.forEach(e => {
                         const fec = new Date(e.fecha).toLocaleString('es-CL', {dateStyle:'short', timeStyle:'short'});
@@ -3456,6 +3622,10 @@
                             <td class="fw-bold text-danger">-$${Math.round(e.monto || 0).toLocaleString('es-CL')}</td>
                             <td>${tipoBadge}</td>
                             <td class="small">${e.metodoSalida}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-warning p-1 py-0 me-1" onclick="abrirModalEditarEgreso(${e.id})" title="Editar"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-danger p-1 py-0" onclick="eliminarEgresoEbitda(${e.id})" title="Eliminar"><i class="bi bi-trash"></i></button>
+                            </td>
                         </tr>`;
                     });
                 }
@@ -3464,7 +3634,7 @@
                 const tblPagos = document.getElementById('ebitda-tbl-pagos');
                 tblPagos.innerHTML = '';
                 if (!data.pagosComisiones || data.pagosComisiones.length === 0) {
-                    tblPagos.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No hay pagos de comisión registrados en este periodo</td></tr>';
+                    tblPagos.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">No hay pagos de comisión registrados en este periodo</td></tr>';
                 } else {
                     data.pagosComisiones.forEach(p => {
                         const fec = new Date(p.fecha).toLocaleString('es-CL', {dateStyle:'short', timeStyle:'short'});
@@ -3474,6 +3644,10 @@
                             <td class="fw-bold text-danger">-$${Math.round(p.monto || 0).toLocaleString('es-CL')}</td>
                             <td class="small">${p.medioPago}</td>
                             <td class="small text-white-50">${p.comentarios || '--'}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-warning p-1 py-0 me-1" onclick="abrirModalEditarPagoComision(${p.id})" title="Editar"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-danger p-1 py-0" onclick="eliminarPagoComisionEbitda(${p.id})" title="Eliminar"><i class="bi bi-trash"></i></button>
+                            </td>
                         </tr>`;
                     });
                 }
@@ -3524,6 +3698,195 @@
                 console.error(err);
                 alert("⚠️ Error al obtener reporte financiero.");
             });
+    };
+
+    // ========================================================
+    // FUNCIONES JS PARA EDICIÓN Y BORRADO DE EBITDA Y CAJA
+    // ========================================================
+
+    // 1. VENTAS
+    window.abrirModalEditarVenta = function(id) {
+        if (!window.ultimoReporteEbitda || !window.ultimoReporteEbitda.ventas) return;
+        const v = window.ultimoReporteEbitda.ventas.find(item => item.id == id);
+        if (!v) return;
+
+        reproducirClick();
+        document.getElementById('editVentaId').value = v.id;
+        document.getElementById('editVentaDetalle').value = v.detalle || '';
+        document.getElementById('editVentaMontoTotal').value = v.montoTotal || 0;
+        document.getElementById('editVentaPropina').value = v.propina || 0;
+        document.getElementById('editVentaTipoPago').value = v.tipoPago || 'EFECTIVO';
+        document.getElementById('editVentaEstado').value = v.estado || 'PAGADO';
+
+        // Llenar select de socias
+        const selSocia = document.getElementById('editVentaSociaId');
+        selSocia.innerHTML = '<option value="">Sin Profesional Asignada</option>';
+        
+        fetch('/api/socias')
+            .then(res => res.json())
+            .then(socias => {
+                socias.forEach(s => {
+                    const selected = (v.sociaNombre && v.sociaNombre === s.nombre) ? 'selected' : '';
+                    selSocia.innerHTML += `<option value="${s.id}" ${selected}>${s.nombre}</option>`;
+                });
+                const modal = new bootstrap.Modal(document.getElementById('modalEditarVentaEbitda'));
+                modal.show();
+            })
+            .catch(() => {
+                const modal = new bootstrap.Modal(document.getElementById('modalEditarVentaEbitda'));
+                modal.show();
+            });
+    };
+
+    window.guardarEdicionVentaEbitda = function() {
+        const id = document.getElementById('editVentaId').value;
+        const payload = {
+            detalle: document.getElementById('editVentaDetalle').value,
+            montoTotal: parseFloat(document.getElementById('editVentaMontoTotal').value || 0),
+            propina: parseFloat(document.getElementById('editVentaPropina').value || 0),
+            tipoPago: document.getElementById('editVentaTipoPago').value,
+            estado: document.getElementById('editVentaEstado').value,
+            sociaId: document.getElementById('editVentaSociaId').value
+        };
+
+        fetch('/api/finanzas/ventas/' + id, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Error al actualizar la venta.");
+            return res.json();
+        })
+        .then(() => {
+            sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
+            bootstrap.Modal.getInstance(document.getElementById('modalEditarVentaEbitda')).hide();
+            consultarEbitda();
+        })
+        .catch(err => alert(err.message));
+    };
+
+    window.eliminarVentaEbitda = function(id) {
+        if (!confirm("⚠️ ¿Estás segura de eliminar este registro de Venta? Se recalcularán inmediatamente los informes de EBITDA y Tesorería.")) return;
+        fetch('/api/finanzas/ventas/' + id, { method: 'DELETE' })
+        .then(res => {
+            if (!res.ok) throw new Error("Error al eliminar la venta.");
+            sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
+            consultarEbitda();
+        })
+        .catch(err => alert(err.message));
+    };
+
+    // 2. EGRESOS
+    window.abrirModalEditarEgreso = function(id) {
+        if (!window.ultimoReporteEbitda || !window.ultimoReporteEbitda.egresos) return;
+        const e = window.ultimoReporteEbitda.egresos.find(item => item.id == id);
+        if (!e) return;
+
+        reproducirClick();
+        document.getElementById('editEgresoId').value = e.id;
+        document.getElementById('editEgresoDescripcion').value = e.descripcion || '';
+        document.getElementById('editEgresoMonto').value = e.monto || 0;
+        document.getElementById('editEgresoMetodoSalida').value = e.metodoSalida || 'EFECTIVO';
+        document.getElementById('editEgresoEsInversion').value = e.esInversion ? 'true' : 'false';
+        document.getElementById('editEgresoCategoria').value = e.categoria || 'OTROS';
+        document.getElementById('editEgresoVidaUtil').value = e.vidaUtilMeses || 0;
+        document.getElementById('editEgresoValorResidual').value = e.valorResidual || 0;
+
+        const modal = new bootstrap.Modal(document.getElementById('modalEditarEgresoEbitda'));
+        modal.show();
+    };
+
+    window.guardarEdicionEgresoEbitda = function() {
+        const id = document.getElementById('editEgresoId').value;
+        const payload = {
+            descripcion: document.getElementById('editEgresoDescripcion').value,
+            monto: parseFloat(document.getElementById('editEgresoMonto').value || 0),
+            metodoSalida: document.getElementById('editEgresoMetodoSalida').value,
+            esInversion: document.getElementById('editEgresoEsInversion').value === 'true',
+            categoria: document.getElementById('editEgresoCategoria').value,
+            vidaUtilMeses: parseInt(document.getElementById('editEgresoVidaUtil').value || 0),
+            valorResidual: parseFloat(document.getElementById('editEgresoValorResidual').value || 0)
+        };
+
+        fetch('/api/finanzas/egresos/' + id, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Error al actualizar el egreso.");
+            return res.json();
+        })
+        .then(() => {
+            sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
+            bootstrap.Modal.getInstance(document.getElementById('modalEditarEgresoEbitda')).hide();
+            consultarEbitda();
+        })
+        .catch(err => alert(err.message));
+    };
+
+    window.eliminarEgresoEbitda = function(id) {
+        if (!confirm("⚠️ ¿Estás segura de eliminar este egreso / gasto? Se ajustarán los cálculos de EBITDA y Caja.")) return;
+        fetch('/api/finanzas/egresos/' + id, { method: 'DELETE' })
+        .then(res => {
+            if (!res.ok) throw new Error("Error al eliminar el egreso.");
+            sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
+            consultarEbitda();
+        })
+        .catch(err => alert(err.message));
+    };
+
+    // 3. PAGOS DE COMISIÓN
+    window.abrirModalEditarPagoComision = function(id) {
+        if (!window.ultimoReporteEbitda || !window.ultimoReporteEbitda.pagosComisiones) return;
+        const p = window.ultimoReporteEbitda.pagosComisiones.find(item => item.id == id);
+        if (!p) return;
+
+        reproducirClick();
+        document.getElementById('editPagoId').value = p.id;
+        document.getElementById('editPagoMonto').value = p.monto || 0;
+        document.getElementById('editPagoMedio').value = p.medioPago || 'EFECTIVO';
+        document.getElementById('editPagoComentarios').value = p.comentarios || '';
+
+        const modal = new bootstrap.Modal(document.getElementById('modalEditarPagoComisionEbitda'));
+        modal.show();
+    };
+
+    window.guardarEdicionPagoComisionEbitda = function() {
+        const id = document.getElementById('editPagoId').value;
+        const payload = {
+            monto: parseFloat(document.getElementById('editPagoMonto').value || 0),
+            medioPago: document.getElementById('editPagoMedio').value,
+            comentarios: document.getElementById('editPagoComentarios').value
+        };
+
+        fetch('/api/finanzas/pagos-comisiones/' + id, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Error al actualizar el pago de comisión.");
+            return res.json();
+        })
+        .then(() => {
+            sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
+            bootstrap.Modal.getInstance(document.getElementById('modalEditarPagoComisionEbitda')).hide();
+            consultarEbitda();
+        })
+        .catch(err => alert(err.message));
+    };
+
+    window.eliminarPagoComisionEbitda = function(id) {
+        if (!confirm("⚠️ ¿Estás segura de eliminar este pago de comisión? El monto regresará al saldo pendiente de la socia.")) return;
+        fetch('/api/finanzas/pagos-comisiones/' + id, { method: 'DELETE' })
+        .then(res => {
+            if (!res.ok) throw new Error("Error al eliminar el pago de comisión.");
+            sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
+            consultarEbitda();
+        })
+        .catch(err => alert(err.message));
     };
 
     window.imprimirPdfIndicador = function(tipo) {

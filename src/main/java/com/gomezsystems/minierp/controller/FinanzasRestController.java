@@ -19,6 +19,7 @@ public class FinanzasRestController {
     @Autowired private VentaRepository ventaRepository;
     @Autowired private EgresoRepository egresoRepository;
     @Autowired private PagoComisionRepository pagoComisionRepository;
+    @Autowired private SociaRepository sociaRepository;
 
     @GetMapping("/ebitda")
     public ResponseEntity<Map<String, Object>> getEbitdaReport(
@@ -226,4 +227,161 @@ public class FinanzasRestController {
             return ResponseEntity.internalServerError().body(err);
         }
     }
+
+    // ========================================================
+    // EDICIÓN Y ELIMINACIÓN DE REGISTROS DE EBITDA Y CAJA
+    // ========================================================
+
+    // 1. VENTA: EDITAR
+    @PutMapping("/ventas/{id}")
+    public ResponseEntity<?> editarVenta(@PathVariable Long id, @RequestBody Map<String, Object> datos) {
+        Optional<Venta> vOpt = ventaRepository.findById(id);
+        if (vOpt.isEmpty()) return ResponseEntity.notFound().build();
+
+        Venta v = vOpt.get();
+
+        if (datos.containsKey("detalle") && datos.get("detalle") != null) {
+            v.setDetalle((String) datos.get("detalle"));
+        }
+        if (datos.containsKey("montoTotal") && datos.get("montoTotal") != null) {
+            Double mTotal = Double.parseDouble(datos.get("montoTotal").toString());
+            v.setMontoTotal(mTotal);
+        }
+        if (datos.containsKey("propina") && datos.get("propina") != null) {
+            Double prop = Double.parseDouble(datos.get("propina").toString());
+            v.setPropina(prop);
+        }
+        if (datos.containsKey("tipoPago") && datos.get("tipoPago") != null) {
+            v.setTipoPago((String) datos.get("tipoPago"));
+        }
+        if (datos.containsKey("estado") && datos.get("estado") != null) {
+            v.setEstado((String) datos.get("estado"));
+        }
+
+        if (datos.containsKey("sociaId")) {
+            Object sIdObj = datos.get("sociaId");
+            if (sIdObj != null && !sIdObj.toString().isEmpty() && !"null".equals(sIdObj.toString())) {
+                Long sociaId = Long.parseLong(sIdObj.toString());
+                Socia socia = sociaRepository.findById(sociaId).orElse(null);
+                v.setSocia(socia);
+            } else {
+                v.setSocia(null);
+            }
+        }
+
+        // Recalcular montos Spa / Socia
+        Double total = v.getMontoTotal() != null ? v.getMontoTotal() : 0.0;
+        Double propina = v.getPropina() != null ? v.getPropina() : 0.0;
+        Socia socia = v.getSocia();
+        if (socia != null) {
+            Double pctSocia = socia.getPorcentajeSocia() != null ? socia.getPorcentajeSocia() : 0.0;
+            Double montoSocia = (double) Math.round(total * (pctSocia / 100.0)) + propina;
+            v.setMontoSocia(montoSocia);
+            v.setMontoSpa((double) Math.round(total - (total * (pctSocia / 100.0))));
+        } else {
+            v.setMontoSpa(total);
+            v.setMontoSocia(propina);
+        }
+
+        Venta guardada = ventaRepository.save(v);
+        return ResponseEntity.ok(guardada);
+    }
+
+    // 1. VENTA: ELIMINAR
+    @DeleteMapping("/ventas/{id}")
+    public ResponseEntity<?> borrarVenta(@PathVariable Long id) {
+        Optional<Venta> vOpt = ventaRepository.findById(id);
+        if (vOpt.isPresent()) {
+            ventaRepository.delete(vOpt.get());
+            return ResponseEntity.ok().body(Map.of("mensaje", "Venta eliminada correctamente"));
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // 2. EGRESO: EDITAR
+    @PutMapping("/egresos/{id}")
+    public ResponseEntity<?> editarEgreso(@PathVariable Long id, @RequestBody Map<String, Object> datos) {
+        Optional<Egreso> eOpt = egresoRepository.findById(id);
+        if (eOpt.isEmpty()) return ResponseEntity.notFound().build();
+
+        Egreso e = eOpt.get();
+
+        if (datos.containsKey("descripcion") && datos.get("descripcion") != null) {
+            e.setDescripcion((String) datos.get("descripcion"));
+        }
+        if (datos.containsKey("monto") && datos.get("monto") != null) {
+            e.setMonto(Double.parseDouble(datos.get("monto").toString()));
+        }
+        if (datos.containsKey("metodoSalida") && datos.get("metodoSalida") != null) {
+            e.setMetodoSalida((String) datos.get("metodoSalida"));
+        }
+        if (datos.containsKey("esInversion") && datos.get("esInversion") != null) {
+            e.setEsInversion(Boolean.parseBoolean(datos.get("esInversion").toString()));
+        }
+        if (datos.containsKey("vidaUtilMeses") && datos.get("vidaUtilMeses") != null) {
+            e.setVidaUtilMeses(Integer.parseInt(datos.get("vidaUtilMeses").toString()));
+        }
+        if (datos.containsKey("categoria") && datos.get("categoria") != null) {
+            e.setCategoria((String) datos.get("categoria"));
+        }
+        if (datos.containsKey("valorResidual") && datos.get("valorResidual") != null) {
+            e.setValorResidual(Double.parseDouble(datos.get("valorResidual").toString()));
+        }
+
+        Egreso guardado = egresoRepository.save(e);
+        return ResponseEntity.ok(guardado);
+    }
+
+    // 2. EGRESO: ELIMINAR
+    @DeleteMapping("/egresos/{id}")
+    public ResponseEntity<?> borrarEgreso(@PathVariable Long id) {
+        Optional<Egreso> eOpt = egresoRepository.findById(id);
+        if (eOpt.isPresent()) {
+            egresoRepository.delete(eOpt.get());
+            return ResponseEntity.ok().body(Map.of("mensaje", "Egreso eliminado correctamente"));
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // 3. PAGO COMISION: EDITAR
+    @PutMapping("/pagos-comisiones/{id}")
+    public ResponseEntity<?> editarPagoComision(@PathVariable Long id, @RequestBody Map<String, Object> datos) {
+        Optional<PagoComision> pOpt = pagoComisionRepository.findById(id);
+        if (pOpt.isEmpty()) return ResponseEntity.notFound().build();
+
+        PagoComision p = pOpt.get();
+
+        if (datos.containsKey("monto") && datos.get("monto") != null) {
+            p.setMonto(Double.parseDouble(datos.get("monto").toString()));
+        }
+        if (datos.containsKey("medioPago") && datos.get("medioPago") != null) {
+            p.setMedioPago((String) datos.get("medioPago"));
+        }
+        if (datos.containsKey("comentarios") && datos.get("comentarios") != null) {
+            p.setComentarios((String) datos.get("comentarios"));
+        }
+        if (datos.containsKey("sociaId")) {
+            Object sIdObj = datos.get("sociaId");
+            if (sIdObj != null && !sIdObj.toString().isEmpty() && !"null".equals(sIdObj.toString())) {
+                Long sociaId = Long.parseLong(sIdObj.toString());
+                Socia socia = sociaRepository.findById(sociaId).orElse(null);
+                p.setSocia(socia);
+            }
+        }
+
+        PagoComision guardado = pagoComisionRepository.save(p);
+        return ResponseEntity.ok(guardado);
+    }
+
+    // 3. PAGO COMISION: ELIMINAR
+    @DeleteMapping("/pagos-comisiones/{id}")
+    public ResponseEntity<?> borrarPagoComision(@PathVariable Long id) {
+        Optional<PagoComision> pOpt = pagoComisionRepository.findById(id);
+        if (pOpt.isPresent()) {
+            pagoComisionRepository.delete(pOpt.get());
+            return ResponseEntity.ok().body(Map.of("mensaje", "Pago de comisión eliminado correctamente"));
+        }
+        return ResponseEntity.notFound().build();
+    }
 }
+
