@@ -389,6 +389,36 @@ public class VentasRestController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    // ========================================================
+    // 6.5. EDITAR VENTA / ABONO (Kardex o POS)
+    // ========================================================
+    @PutMapping("/ventas/{id}")
+    @Transactional
+    public ResponseEntity<?> editarVenta(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+        Optional<Venta> vOpt = ventaRepository.findById(id);
+        if (!vOpt.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        Venta v = vOpt.get();
+        if (v.isCierreAplicado()) {
+            return ResponseEntity.status(403).body("Este ticket ya pertenece a un Corte Z cerrado y no se puede modificar.");
+        }
+
+        if (payload.containsKey("totalPagado")) {
+            Double nuevoTotal = Double.valueOf(payload.get("totalPagado").toString());
+            v.setTotalPagado(nuevoTotal);
+            v.setMontoTotal(nuevoTotal);
+        }
+        if (payload.containsKey("detalle")) {
+            v.setDetalle((String) payload.get("detalle"));
+        }
+        if (payload.containsKey("tipoPago")) {
+            v.setTipoPago((String) payload.get("tipoPago"));
+        }
+        ventaRepository.save(v);
+        return ResponseEntity.ok(v);
+    }
     // ========================================================
     // 7. HISTORIAL POR CLIENTE (KARDEX)
     // ========================================================

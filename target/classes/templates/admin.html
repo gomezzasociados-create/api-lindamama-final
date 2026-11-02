@@ -553,15 +553,45 @@
                 </div>
                 <div class="row g-3" style="max-height: 70vh; overflow-y: auto; overflow-x: hidden;">
                     <div class="col-12 col-md-6 col-lg-4" th:each="cli : ${clientes}">
-                        <div class="grid-card">
-                            <i class="bi bi-person-bounding-box position-absolute opacity-25" style="font-size: 4rem; right: 20px; top: 10px; color: var(--cyan-neon); z-index: 0;"></i>
-                            <div class="position-relative z-1 mb-3">
-                                <h6 class="card-title-cp" style="font-size: 1.2rem;" th:text="${cli.nombre}">Nombre</h6>
-                                <p class="mb-1 text-white-50"><i class="bi bi-whatsapp text-success me-1"></i> <span th:text="${cli.telefono}">Tel</span></p>
+                        <div class="grid-card position-relative" style="border: 1px solid rgba(0, 229, 255, 0.3); transition: all 0.2s ease;">
+                            <i class="bi bi-person-bounding-box position-absolute opacity-25" style="font-size: 3.8rem; right: 15px; top: 12px; color: var(--cyan-neon); z-index: 0;"></i>
+                            
+                            <!-- Encabezado con Nombre, Teléfono y Etiqueta Medidora -->
+                            <div class="position-relative z-1 mb-2">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div style="max-width: 65%;">
+                                        <h6 class="card-title-cp mb-0 text-white fw-bold text-truncate" style="font-size: 1.15rem;" th:text="${cli.nombre}">Nombre</h6>
+                                        <p class="mb-0 text-white-50 small"><i class="bi bi-whatsapp text-success me-1"></i> <span th:text="${cli.telefono}">Tel</span></p>
+                                    </div>
+                                    <!-- ETIQUETA MEDIDORA SEGÚN CONTROL DE SESIONES DEL KARDEX -->
+                                    <div class="text-end" th:id="'kmedidor-box-' + ${cli.id}">
+                                        <span class="badge bg-secondary" th:id="'kmedidor-badge-' + ${cli.id}">Pendiente</span>
+                                        <small class="text-white-50 d-block mt-1" th:id="'kmedidor-subtext-' + ${cli.id}" style="font-size:0.65rem;">Calculando...</small>
+                                    </div>
+                                </div>
                             </div>
                             
+                            <!-- CONTADOR DE TRATAMIENTOS / SESIONES E HISTORIAL -->
+                            <div class="position-relative z-1 mb-3 p-2 rounded" style="background: rgba(0, 229, 255, 0.04); border: 1px dashed rgba(0, 229, 255, 0.25);">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small text-white-50"><i class="bi bi-heart-pulse-fill text-info me-1"></i> Sesiones Restantes:</span>
+                                    <strong class="fs-6" th:id="'kcontador-restantes-' + ${cli.id}" style="color: var(--cyan-neon);">0</strong>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small text-white-50"><i class="bi bi-clock-history text-warning me-1"></i> Historial de Visitas:</span>
+                                    <span class="badge bg-dark border border-secondary text-white" th:id="'khistorial-visitas-' + ${cli.id}">0 visitas</span>
+                                </div>
+                                <!-- Barra Medidora de Progreso -->
+                                <div class="d-flex align-items-center gap-2 mt-2">
+                                    <div class="progress flex-grow-1" style="height: 6px; background: rgba(255,255,255,0.1);">
+                                        <div class="progress-bar bg-info" role="progressbar" th:id="'kbarra-avance-' + ${cli.id}" style="width: 0%"></div>
+                                    </div>
+                                    <small class="text-white-50 fw-bold" th:id="'kporcentaje-avance-' + ${cli.id}" style="font-size: 0.68rem;">0%</small>
+                                </div>
+                            </div>
+
                             <div class="position-relative z-1 mb-3">
-                                <input type="hidden" th:id="'kjson-' + ${cli.id}" th:value="${cli.kardexJson}">
+                                <input type="hidden" th:id="'kjson-' + ${cli.id}" th:value="${cli.kardexJson}" class="input-kardex-data">
                                 <button class="btn btn-sm btn-info w-100 fw-bold mb-2 text-dark" style="letter-spacing: 1px" title="Agendar Nueva Cita" th:data-id="${cli.id}" th:data-nombre="${cli.nombre}" onclick="abrirModalAgendarNuevo(this)">
                                     <i class="bi bi-calendar-plus fs-6 align-middle me-2"></i> AGENDAR CITA
                                 </button>
@@ -1194,6 +1224,27 @@
                         </div>
 
                         <div class="tab-pane fade" id="k-tratamiento">
+                            <!-- RESUMEN CONTADOR DE TRATAMIENTOS Y ESTADO DEL PLAN -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-4">
+                                    <div class="p-2 rounded border border-info text-center" style="background: rgba(0,229,255,0.08);">
+                                        <small class="text-info fw-bold d-block text-uppercase" style="font-size:0.7rem;">Sesiones Disponibles</small>
+                                        <span id="kmodal-contador-restantes" class="fw-bold fs-5 text-cyan-neon">0</span>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 rounded border border-warning text-center" style="background: rgba(255,193,7,0.08);">
+                                        <small class="text-warning fw-bold d-block text-uppercase" style="font-size:0.7rem;">Sesiones Realizadas</small>
+                                        <span id="kmodal-contador-visitas" class="fw-bold fs-5 text-warning">0</span>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 rounded border border-secondary text-center" style="background: rgba(255,255,255,0.05);" id="kmodal-estado-box">
+                                        <small class="text-white-50 fw-bold d-block text-uppercase" style="font-size:0.7rem;">Estado del Plan</small>
+                                        <span id="kmodal-estado-badge" class="badge bg-secondary">Pendiente</span>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row g-3">
                                 <div class="col-md-7">
                                     <div class="p-3 border border-secondary rounded h-100" style="background: rgba(28, 2, 41, 0.5);">
@@ -2181,20 +2232,38 @@
     }
     }
 
-    function dibujarTablaVisitas() {
-    const tbody = document.getElementById('tabla-visitas');
-    tbody.innerHTML = '';
-    if(visitasKardexTemporal.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="3" class="text-muted small">No hay visitas registradas</td></tr>';
-    return;
+    function editarRegistroVisita(idVisita) {
+        const v = (visitasKardexTemporal || []).find(item => item.id == idVisita);
+        if (!v) return;
+        const nuevoProc = prompt("Editar detalle o servicio realizado:", v.proc);
+        if (nuevoProc === null) return;
+        const nuevaFecha = prompt("Editar fecha (DD/MM/AAAA):", v.fecha);
+        if (nuevaFecha === null) return;
+        v.proc = nuevoProc.trim();
+        v.fecha = nuevaFecha.trim();
+        dibujarTablaVisitas();
+        if (typeof actualizarContadoresKardexModal === 'function') actualizarContadoresKardexModal();
     }
-    visitasKardexTemporal.forEach(v => {
-    tbody.innerHTML += `<tr>
-    <td class="small text-info">${v.fecha}</td>
-    <td class="fw-bold small">${v.proc}</td>
-    <td><button class="btn btn-sm text-danger py-0 px-1" onclick="borrarRegistroVisita(${v.id})"><i class="bi bi-trash"></i></button></td>
-    </tr>`;
-    });
+
+    function dibujarTablaVisitas() {
+        const tbody = document.getElementById('tabla-visitas');
+        tbody.innerHTML = '';
+        if(visitasKardexTemporal.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-muted small">No hay visitas registradas</td></tr>';
+            if (typeof actualizarContadoresKardexModal === 'function') actualizarContadoresKardexModal();
+            return;
+        }
+        visitasKardexTemporal.forEach(v => {
+            tbody.innerHTML += `<tr>
+            <td class="small text-info">${v.fecha}</td>
+            <td class="fw-bold small">${v.proc}</td>
+            <td>
+                <button class="btn btn-sm text-info py-0 px-1 me-1" title="Editar Visita" onclick="editarRegistroVisita(${v.id})"><i class="bi bi-pencil-square"></i></button>
+                <button class="btn btn-sm text-danger py-0 px-1" title="Eliminar Visita" onclick="borrarRegistroVisita(${v.id})"><i class="bi bi-trash"></i></button>
+            </td>
+            </tr>`;
+        });
+        if (typeof actualizarContadoresKardexModal === 'function') actualizarContadoresKardexModal();
     }
 
     // --- LÓGICA: FINANZAS Y ABONOS ---
@@ -2253,6 +2322,110 @@
     }
     }
 
+    let modalEditarPagoKardexInst = null;
+
+    function abrirModalEditarPagoKardex(id, esReal) {
+        if (typeof reproducirClick === 'function') reproducirClick();
+        document.getElementById('edit-pago-id').value = id;
+        document.getElementById('edit-pago-es-real').value = esReal ? 'true' : 'false';
+
+        let monto = 0;
+        let fecha = '';
+        let nota = '';
+
+        if (esReal) {
+            const v = (ventasRealesKardex || []).find(item => item.id == id);
+            if (v) {
+                monto = v.totalPagado || v.montoTotal || 0;
+                fecha = v.fechaHora ? v.fechaHora.split('T')[0] : '';
+                nota = v.detalle || '';
+            }
+        } else {
+            const p = (pagosKardexTemporal || []).find(item => item.id == id);
+            if (p) {
+                monto = p.monto || 0;
+                fecha = p.fecha || '';
+                nota = p.nota || '';
+            }
+        }
+
+        document.getElementById('edit-pago-monto').value = monto;
+        document.getElementById('edit-pago-fecha').value = fecha;
+        document.getElementById('edit-pago-nota').value = nota;
+
+        if (!modalEditarPagoKardexInst) {
+            modalEditarPagoKardexInst = new bootstrap.Modal(document.getElementById('modalEditarPagoKardex'));
+        }
+        modalEditarPagoKardexInst.show();
+    }
+
+    function guardarEdicionPagoKardex() {
+        const id = document.getElementById('edit-pago-id').value;
+        const esReal = document.getElementById('edit-pago-es-real').value === 'true';
+        const monto = parseFloat(document.getElementById('edit-pago-monto').value);
+        const fecha = document.getElementById('edit-pago-fecha').value;
+        const nota = document.getElementById('edit-pago-nota').value;
+
+        if (isNaN(monto) || monto <= 0) {
+            if (typeof reproducirError === 'function') reproducirError();
+            return alert("Por favor ingresa un monto válido mayor a 0.");
+        }
+
+        if (esReal) {
+            fetch('/api/pos/ventas/' + id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ totalPagado: monto, detalle: nota })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(t => { throw new Error(t || "Error actualizando cobro"); });
+                }
+                return res.json();
+            })
+            .then(ventaActualizada => {
+                const v = (ventasRealesKardex || []).find(item => item.id == id);
+                if (v) {
+                    v.totalPagado = monto;
+                    v.montoTotal = monto;
+                    v.detalle = nota;
+                }
+                if (modalEditarPagoKardexInst) modalEditarPagoKardexInst.hide();
+                dibujarTablaPagos();
+                if (typeof reproducirClick === 'function') reproducirClick();
+            })
+            .catch(err => {
+                if (typeof reproducirError === 'function') reproducirError();
+                alert("Error al actualizar cobro en caja: " + err.message);
+            });
+        } else {
+            const p = (pagosKardexTemporal || []).find(item => item.id == id);
+            if (p) {
+                p.monto = monto;
+                if (fecha) p.fecha = fecha;
+                p.nota = nota;
+            }
+            if (modalEditarPagoKardexInst) modalEditarPagoKardexInst.hide();
+            dibujarTablaPagos();
+            if (typeof reproducirClick === 'function') reproducirClick();
+        }
+    }
+
+    function borrarVentaRealKardex(id) {
+        if (typeof reproducirError === 'function') reproducirError();
+        if (!confirm("¿Eliminar este cobro de caja y tesorería? Esta acción es definitiva.")) return;
+        fetch('/api/pos/' + id, { method: 'DELETE' })
+            .then(res => {
+                if (res.ok) {
+                    ventasRealesKardex = (ventasRealesKardex || []).filter(v => v.id != id);
+                    dibujarTablaPagos();
+                } else {
+                    res.text().then(msg => alert("No se pudo eliminar: " + msg));
+                }
+            })
+            .catch(err => alert("Error al eliminar venta: " + err.message));
+    }
+
     function dibujarTablaPagos() {
         const tbody = document.getElementById('tabla-pagos');
         tbody.innerHTML = '';
@@ -2297,15 +2470,17 @@
                     totalAbonado += (p.monto || 0);
                 }
                 
-                const btnAccion = p.esReal 
-                    ? `<button class="btn btn-sm text-secondary py-0 px-1" onclick="alert('Este pago está registrado en el historial de caja. Para anularlo, debe eliminarse de tesorería.')"><i class="bi bi-lock"></i></button>`
-                    : `<button class="btn btn-sm text-danger py-0 px-1" onclick="borrarPago(${p.id})"><i class="bi bi-trash"></i></button>`;
+                const btnEditar = `<button class="btn btn-sm text-info py-0 px-1 me-1" title="Editar Pago / Abono" onclick="abrirModalEditarPagoKardex(${p.id}, ${p.esReal ? 'true' : 'false'})"><i class="bi bi-pencil-square"></i></button>`;
+
+                const btnBorrar = p.esReal 
+                    ? `<button class="btn btn-sm text-danger py-0 px-1" title="Eliminar Cobro de Caja" onclick="borrarVentaRealKardex(${p.id})"><i class="bi bi-trash"></i></button>`
+                    : `<button class="btn btn-sm text-danger py-0 px-1" title="Eliminar Registro Manual" onclick="borrarPago(${p.id})"><i class="bi bi-trash"></i></button>`;
 
                 tbody.innerHTML += `<tr>
                     <td class="small">${p.fecha}</td>
                     <td class="fw-bold ${txClass}">${icono}$${(p.monto || 0).toLocaleString('es-CL')}</td>
                     <td class="small">${p.nota}</td>
-                    <td>${btnAccion}</td>
+                    <td>${btnEditar}${btnBorrar}</td>
                 </tr>`;
             });
         }
@@ -2471,7 +2646,10 @@
     }
     }
 
-    function limpiarFormKardex() {
+        if (typeof actualizarContadoresKardexModal === "function") actualizarContadoresKardexModal();
+}
+
+function limpiarFormKardex() {
     visitasKardexTemporal = [];
     pagosKardexTemporal = [];
 
@@ -3039,7 +3217,10 @@
         };
     }
 
-    function imprimirKardexRecibo() {
+        if (typeof actualizarContadoresKardexModal === "function") actualizarContadoresKardexModal();
+}
+
+function imprimirKardexRecibo() {
         reproducirClick();
         const d = obtenerDatosKardex();
         const fecha = new Date().toLocaleDateString('es-CL');
@@ -3239,7 +3420,42 @@
                         }, 500);
                     }
                 <\/script>
-            </body>
+            
+    <!-- MODAL EDITAR PAGO O ABONO DEL KARDEX -->
+    <div class="modal fade" id="modalEditarPagoKardex" tabindex="-1" aria-hidden="true" style="z-index: 1070;">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content" style="background: #19052a; border: 1px solid var(--cyan-neon); box-shadow: 0 0 20px rgba(0,229,255,0.3);">
+                <div class="modal-header border-bottom border-secondary py-2">
+                    <h6 class="modal-title fw-bold text-info m-0"><i class="bi bi-pencil-square me-1"></i> Editar Pago / Abono</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <input type="hidden" id="edit-pago-id">
+                    <input type="hidden" id="edit-pago-es-real">
+                    
+                    <div class="mb-2">
+                        <label class="small text-white-50 fw-bold">Monto ($):</label>
+                        <input type="number" id="edit-pago-monto" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="0">
+                    </div>
+                    <div class="mb-2">
+                        <label class="small text-white-50 fw-bold">Fecha:</label>
+                        <input type="date" id="edit-pago-fecha" class="form-control form-control-sm bg-dark text-white border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-white-50 fw-bold">Detalle / Concepto:</label>
+                        <input type="text" id="edit-pago-nota" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Detalle del pago...">
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2 pt-2 border-top border-secondary">
+                        <button type="button" class="btn btn-sm btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-sm btn-success fw-bold" onclick="guardarEdicionPagoKardex()"><i class="bi bi-check-lg me-1"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
             </html>
         `);
         win.document.close();
@@ -5286,6 +5502,144 @@
         actualUtterance.pitch = 1.1;
         sintetizador.speak(actualUtterance);
     }
+
+    // ==========================================
+    // CONTADORES Y ETIQUETAS MEDIDORAS DE KARDEX
+    // ==========================================
+    function actualizarContadoresKardexModal() {
+        let sesionesRestantes = 0;
+        const inputs = document.querySelectorAll('#k-tratamiento .contador-pack');
+        inputs.forEach(inp => {
+            let val = parseInt(inp.value);
+            if (!isNaN(val) && val > 0) sesionesRestantes += val;
+        });
+
+        const sesionesRealizadas = (visitasKardexTemporal || []).length;
+        const totalAsignadas = sesionesRestantes + sesionesRealizadas;
+
+        const elRest = document.getElementById('kmodal-contador-restantes');
+        const elVis = document.getElementById('kmodal-contador-visitas');
+        const elBadge = document.getElementById('kmodal-estado-badge');
+
+        if (elRest) elRest.innerText = sesionesRestantes;
+        if (elVis) elVis.innerText = sesionesRealizadas;
+
+        if (elBadge) {
+            if (totalAsignadas === 0) {
+                elBadge.className = 'badge bg-warning text-dark fw-bold';
+                elBadge.innerText = 'Pendiente (Sin sesiones)';
+            } else if (sesionesRestantes > 0) {
+                elBadge.className = 'badge bg-success fw-bold text-white';
+                elBadge.innerText = `Activo (Faltan ${sesionesRestantes})`;
+            } else {
+                elBadge.className = 'badge bg-info fw-bold text-dark';
+                elBadge.innerText = 'Finalizado (Completó sesiones)';
+            }
+        }
+    }
+
+    function actualizarMedidoresClientes() {
+        const inputs = document.querySelectorAll('.input-kardex-data');
+        inputs.forEach(inp => {
+            const id = inp.id.replace('kjson-', '');
+            const jsonStr = inp.value;
+            let data = null;
+            if (jsonStr && jsonStr.trim() !== '') {
+                try { data = JSON.parse(jsonStr); } catch(e) {}
+            }
+
+            let sesionesRestantes = 0;
+            if (data && data.tratamiento) {
+                for (let k in data.tratamiento) {
+                    let v = parseInt(data.tratamiento[k]);
+                    if (!isNaN(v) && v > 0) sesionesRestantes += v;
+                }
+            }
+
+            let sesionesRealizadas = 0;
+            if (data && Array.isArray(data.visitas)) {
+                sesionesRealizadas = data.visitas.length;
+            }
+
+            const totalAsignadas = sesionesRestantes + sesionesRealizadas;
+
+            const badgeEl = document.getElementById('kmedidor-badge-' + id);
+            const subtextEl = document.getElementById('kmedidor-subtext-' + id);
+            const restantesEl = document.getElementById('kcontador-restantes-' + id);
+            const visitasEl = document.getElementById('khistorial-visitas-' + id);
+            const barraEl = document.getElementById('kbarra-avance-' + id);
+            const porcEl = document.getElementById('kporcentaje-avance-' + id);
+
+            if (!badgeEl) return;
+
+            if (totalAsignadas === 0) {
+                // PENDIENTE
+                badgeEl.className = 'badge bg-warning text-dark fw-bold';
+                badgeEl.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> PENDIENTE';
+                if (subtextEl) {
+                    subtextEl.className = 'text-warning d-block mt-1';
+                    subtextEl.innerText = 'Sin sesiones asignadas';
+                }
+                if (restantesEl) restantesEl.innerText = '0 asignadas';
+                if (visitasEl) visitasEl.innerText = '0 visitas';
+                if (barraEl) {
+                    barraEl.style.width = '0%';
+                    barraEl.className = 'progress-bar bg-secondary';
+                }
+                if (porcEl) porcEl.innerText = '0%';
+            } else if (sesionesRestantes > 0) {
+                // ACTIVO (le faltan sesiones)
+                badgeEl.className = 'badge bg-success fw-bold text-white';
+                badgeEl.innerHTML = '<i class="bi bi-activity me-1"></i> ACTIVO';
+                if (subtextEl) {
+                    subtextEl.className = 'text-success d-block fw-bold mt-1';
+                    subtextEl.innerText = `Le faltan ${sesionesRestantes} ses.`;
+                }
+                if (restantesEl) restantesEl.innerText = `${sesionesRestantes} disponibles`;
+                if (visitasEl) visitasEl.innerText = `${sesionesRealizadas} realizadas`;
+                const porc = Math.min(100, Math.round((sesionesRealizadas / totalAsignadas) * 100));
+                if (barraEl) {
+                    barraEl.style.width = porc + '%';
+                    barraEl.className = 'progress-bar bg-success';
+                }
+                if (porcEl) porcEl.innerText = porc + '%';
+            } else {
+                // FINALIZADO
+                badgeEl.className = 'badge bg-info fw-bold text-dark';
+                badgeEl.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> FINALIZADO';
+                if (subtextEl) {
+                    subtextEl.className = 'text-info d-block fw-bold mt-1';
+                    subtextEl.innerText = `Completó ${sesionesRealizadas} ses.`;
+                }
+                if (restantesEl) restantesEl.innerText = '0 (Plan completado)';
+                if (visitasEl) visitasEl.innerText = `${sesionesRealizadas} visitas`;
+                if (barraEl) {
+                    barraEl.style.width = '100%';
+                    barraEl.className = 'progress-bar bg-info';
+                }
+                if (porcEl) porcEl.innerText = '100%';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        actualizarMedidoresClientes();
+
+        const crmTab = document.getElementById('crm-tab');
+        if (crmTab) {
+            crmTab.addEventListener('shown.bs.tab', function() {
+                actualizarMedidoresClientes();
+            });
+        }
+
+        // Listener en inputs de sesiones para actualizar contadores en vivo
+        document.querySelectorAll('#k-tratamiento .contador-pack').forEach(inp => {
+            inp.addEventListener('input', function() {
+                actualizarContadoresKardexModal();
+            });
+        });
+    });
+
 </script>
 
 </body>
