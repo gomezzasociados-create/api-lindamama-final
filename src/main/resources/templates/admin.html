@@ -403,9 +403,19 @@
                     <i class="bi bi-hourglass-split me-2"></i>Citas Pendientes
                     <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('En esta sección verás únicamente las citas pendientes de confirmación o cobro.')"></i>
                 </h4>
-                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                    <small class="text-white-50"><i class="bi bi-funnel-fill text-info me-1"></i>Listado exclusivo de citas pendientes de confirmación o cobro</small>
-                    <div class="btn-group btn-group-sm mt-2 mt-md-0 shadow-sm" role="group">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 p-2 rounded" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="form-check m-0 d-flex align-items-center gap-2 pe-3 border-end border-secondary">
+                            <input class="form-check-input mt-0" type="checkbox" id="selectAllCitas" onchange="toggleSelectAllCitas(this)" style="cursor: pointer; width: 1.25rem; height: 1.25rem; accent-color: var(--fucsia-neon);">
+                            <label class="form-check-label text-white small fw-bold" for="selectAllCitas" style="cursor: pointer;">
+                                Seleccionar todas (<span id="countSelectedCitas">0</span>)
+                            </label>
+                        </div>
+                        <button id="btnEliminarMasivo" class="btn btn-sm btn-danger shadow-sm d-none" onclick="eliminarCitasSeleccionadas()" style="animation: latido 1.8s infinite;">
+                            <i class="bi bi-trash3-fill me-1"></i>Eliminar seleccionadas (<span id="badgeCountEliminar">0</span>)
+                        </button>
+                    </div>
+                    <div class="btn-group btn-group-sm shadow-sm" role="group">
                         <button type="button" class="btn btn-outline-info active" onclick="filtrarCitasVista('todos', this)"><i class="bi bi-grid-fill me-1"></i>Todas</button>
                         <button type="button" class="btn btn-outline-warning" onclick="filtrarCitasVista('con-pago', this)"><i class="bi bi-cash-coin me-1"></i>Con Abono</button>
                         <button type="button" class="btn btn-outline-danger" onclick="filtrarCitasVista('sin-pago', this)"><i class="bi bi-exclamation-triangle me-1"></i>Sin Pago</button>
@@ -423,11 +433,19 @@
 
                     <div class="col-12 col-md-6 col-lg-4 item-cita-card" th:each="c : ${citas}"
                          th:attr="data-tiene-pago=${(c.totalPagado != null and c.totalPagado > 0) or (c.montoPagado != null and c.montoPagado > 0) ? 'si' : 'no'}, data-es-hoy=${c.fechaHora != null and #temporals.format(c.fechaHora, 'yyyy-MM-dd') == fechaHoy ? 'true' : 'false'}">
-                        <div class="grid-card" style="border-color: #ff9800 !important;">
+                        <div class="grid-card position-relative" th:id="'card-cita-' + ${c.id}" style="border-color: #ff9800 !important; transition: all 0.2s ease;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <h6 class="card-title-cp" th:text="${c.cliente != null ? c.cliente.nombre : 'Cliente Web'}">Nombre</h6>
-                                    <small class="text-white-50"><i class="bi bi-telephone text-success"></i> <span th:text="${c.cliente != null ? c.cliente.telefono : '---'}">Tel</span></small>
+                                <div class="d-flex align-items-start gap-2">
+                                    <input type="checkbox" class="form-check-input check-cita-item mt-1" 
+                                           th:value="${c.id}" 
+                                           th:id="'check-cita-' + ${c.id}"
+                                           onchange="actualizarSeleccionCitas()"
+                                           style="cursor: pointer; width: 1.25rem; height: 1.25rem; accent-color: var(--fucsia-neon);"
+                                           title="Seleccionar para eliminar">
+                                    <div>
+                                        <h6 class="card-title-cp mb-0" th:text="${c.cliente != null ? c.cliente.nombre : 'Cliente Web'}">Nombre</h6>
+                                        <small class="text-white-50"><i class="bi bi-telephone text-success"></i> <span th:text="${c.cliente != null ? c.cliente.telefono : '---'}">Tel</span></small>
+                                    </div>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge badge-reservado" th:text="${c.estado ?: 'PENDIENTE'}">PENDIENTE</span>
@@ -2378,6 +2396,106 @@
                 card.style.display = !tienePago ? 'block' : 'none';
             }
         });
+        actualizarSeleccionCitas();
+    };
+
+    window.actualizarSeleccionCitas = function() {
+        const checkboxes = document.querySelectorAll('.check-cita-item');
+        const checked = document.querySelectorAll('.check-cita-item:checked');
+        const count = checked.length;
+        
+        const countSpan = document.getElementById('countSelectedCitas');
+        const badgeSpan = document.getElementById('badgeCountEliminar');
+        const btnEliminar = document.getElementById('btnEliminarMasivo');
+        const selectAll = document.getElementById('selectAllCitas');
+        
+        if (countSpan) countSpan.textContent = count;
+        if (badgeSpan) badgeSpan.textContent = count;
+        
+        if (btnEliminar) {
+            if (count > 0) {
+                btnEliminar.classList.remove('d-none');
+            } else {
+                btnEliminar.classList.add('d-none');
+            }
+        }
+        
+        if (selectAll && checkboxes.length > 0) {
+            selectAll.checked = (count === checkboxes.length);
+            selectAll.indeterminate = (count > 0 && count < checkboxes.length);
+        }
+
+        checkboxes.forEach(cb => {
+            const card = document.getElementById('card-cita-' + cb.value);
+            if (card) {
+                if (cb.checked) {
+                    card.style.borderColor = 'var(--fucsia-neon)';
+                    card.style.background = 'rgba(255, 0, 127, 0.08)';
+                    card.style.boxShadow = '0 0 15px rgba(255, 0, 127, 0.3)';
+                } else {
+                    card.style.borderColor = '#ff9800';
+                    card.style.background = '';
+                    card.style.boxShadow = '';
+                }
+            }
+        });
+    };
+
+    window.toggleSelectAllCitas = function(masterCb) {
+        if (typeof reproducirClick === 'function') reproducirClick();
+        const visibleCheckboxes = Array.from(document.querySelectorAll('.item-cita-card'))
+            .filter(card => card.style.display !== 'none')
+            .map(card => card.querySelector('.check-cita-item'))
+            .filter(cb => cb !== null);
+
+        visibleCheckboxes.forEach(cb => {
+            cb.checked = masterCb.checked;
+        });
+        actualizarSeleccionCitas();
+    };
+
+    window.eliminarCitasSeleccionadas = function() {
+        const checked = Array.from(document.querySelectorAll('.check-cita-item:checked'));
+        const ids = checked.map(cb => Number(cb.value));
+
+        if (ids.length === 0) {
+            alert("Selecciona al menos una cita para eliminar.");
+            return;
+        }
+
+        if (typeof reproducirError === 'function') reproducirError();
+        
+        if (confirm(`¿Estás segura de eliminar permanentemente las ${ids.length} citas seleccionadas?\n\nEsta acción no se puede deshacer.`)) {
+            const btn = document.getElementById('btnEliminarMasivo');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Eliminando...';
+            }
+
+            fetch('/api/admin/citas/eliminar-masivo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ids)
+            })
+            .then(res => {
+                if (res.ok) {
+                    if (typeof sfxWaooo !== 'undefined') {
+                        sfxWaooo.currentTime = 0;
+                        sfxWaooo.play().catch(()=>{});
+                    }
+                    window.location.reload();
+                } else {
+                    return res.text().then(msg => { throw new Error(msg); });
+                }
+            })
+            .catch(err => {
+                alert("⚠️ Error al eliminar citas: " + (err.message || err));
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="bi bi-trash3-fill me-1"></i>Eliminar seleccionadas (${ids.length})`;
+                }
+            });
+        }
     };
 
     let modalAgendarNuevoCRM;

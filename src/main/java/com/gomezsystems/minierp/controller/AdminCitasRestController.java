@@ -151,6 +151,27 @@ public class AdminCitasRestController {
         return ResponseEntity.badRequest().body("Cita no encontrada");
     }
 
+    // 🔥 2.1. ELIMINACIÓN MASIVA DE CITAS PENDIENTES
+    @PostMapping("/eliminar-masivo")
+    @Transactional
+    public ResponseEntity<String> eliminarCitasMasivo(@RequestBody List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return ResponseEntity.badRequest().body("No se proporcionaron citas para eliminar");
+        }
+        try {
+            int eliminadas = 0;
+            for (Long id : ids) {
+                if (id != null && citaRepository.existsById(id)) {
+                    citaRepository.deleteById(id);
+                    eliminadas++;
+                }
+            }
+            return ResponseEntity.ok("Se eliminaron " + eliminadas + " citas seleccionadas exitosamente");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error al eliminar citas: " + e.getMessage());
+        }
+    }
+
     // 🔥 3. REAGENDAR (El botón azul de reloj) - CORREGIDO Y BLINDADO
     @PostMapping("/reagendar/{id}")
     @Transactional
