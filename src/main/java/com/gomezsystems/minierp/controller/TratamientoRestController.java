@@ -95,4 +95,38 @@ public class TratamientoRestController {
             return ResponseEntity.internalServerError().body("Error al procesar el archivo CSV: " + e.getMessage());
         }
     }
+
+    // 4. RUTA PARA SUBIDA DE IMÁGENES DESDE COMPUTADORA O MÓVIL
+    @PostMapping("/upload-imagen")
+    public ResponseEntity<?> subirImagenTratamiento(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("El archivo está vacío");
+        }
+        try {
+            java.io.File uploadDir = new java.io.File("uploads");
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            String extension = "";
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            if (extension.isEmpty()) {
+                extension = ".jpg";
+            }
+            String nuevoNombre = "servicio_" + System.currentTimeMillis() + extension;
+
+            java.nio.file.Path rutaDestino = java.nio.file.Paths.get("uploads", nuevoNombre);
+            java.nio.file.Files.copy(file.getInputStream(), rutaDestino, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+            java.util.Map<String, String> response = new java.util.HashMap<>();
+            response.put("imagenUrl", "/uploads/" + nuevoNombre);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error al guardar la imagen: " + e.getMessage());
+        }
+    }
 }

@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#d63384">
     <link rel="manifest" href="/manifest.json">
     <script src="/pwa-init.js"></script>
+    <script src="/instant-loader.js"></script>
     <!-- Meta Pixel Code -->
     <script>
     !function(f,b,e,v,n,t,s)
@@ -39,7 +40,7 @@
 
         body {
             background-color: var(--violeta-profundo);
-            background-image: url('/spa-fondo.png');
+            background-image: url('/spa-fondo.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -1379,7 +1380,7 @@
                         <div class="etiqueta-oferta">OFERTA</div>
                     </th:block>
 
-                    <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Pack VIP">
+                    <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Pack VIP" loading="lazy" decoding="async">
                 </div>
                 <div class="card-body">
                     <h4 class="card-title Poppins" th:text="${pack.nombre}">Nombre</h4>
@@ -1419,7 +1420,7 @@
                         <div class="etiqueta-oferta">OFERTA</div>
                     </th:block>
 
-                    <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Sesión">
+                    <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Sesión" loading="lazy" decoding="async">
                 </div>
                 <div class="card-body">
                     <h4 class="card-title Poppins" th:text="${pack.nombre}">Nombre</h4>
@@ -1458,7 +1459,7 @@
                         <th:block th:if="${pack.enPromocion == true}">
                             <div class="etiqueta-oferta">OFERTA</div>
                         </th:block>
-                        <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Facial">
+                        <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Facial" loading="lazy" decoding="async">
                     </div>
                     <div class="card-body">
                         <h4 class="card-title Poppins" th:text="${pack.nombre}">Nombre</h4>
@@ -1495,7 +1496,7 @@
                         <th:block th:if="${pack.enPromocion == true}">
                             <div class="etiqueta-oferta">OFERTA</div>
                         </th:block>
-                        <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Relajante">
+                        <img th:src="${pack.imagen}" class="img-servicio" alt="Imagen Relajante" loading="lazy" decoding="async">
                     </div>
                     <div class="card-body">
                         <h4 class="card-title Poppins" th:text="${pack.nombre}">Nombre</h4>
