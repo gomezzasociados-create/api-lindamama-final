@@ -37,6 +37,6 @@ public class SpaController {
     // 📅 LA PUERTA DE LA AGENDA REAL DEL ADMINISTRADOR
     @GetMapping("/agenda")
     public String abrirAgendaReal() {
-        return "admin_agenda";
+        return "redirect:/admin#agenda";
     }
 }
