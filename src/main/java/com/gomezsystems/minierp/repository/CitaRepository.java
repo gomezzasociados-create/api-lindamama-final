@@ -21,12 +21,12 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
 
     List<Cita> findBySociaIdAndFechaHoraAfterOrderByFechaHoraAsc(Long sociaId, LocalDateTime inicio);
 
-    // 🔥 FILTRO MAESTRO: Citas pendientes de cobro O agendadas para el día de hoy
-    @Query("SELECT c FROM Cita c WHERE (c.estado IS NULL OR UPPER(c.estado) != 'CANCELADO') " +
-           "AND (UPPER(c.estado) NOT IN ('CONFIRMADO', 'PAGADO') OR (c.fechaHora >= :inicioDia AND c.fechaHora <= :finDia)) " +
-           "ORDER BY CASE WHEN (c.estado IS NULL OR UPPER(c.estado) NOT IN ('CONFIRMADO', 'PAGADO')) THEN 0 ELSE 1 END, " +
+    // 🔥 FILTRO MAESTRO: Citas pendientes de cobro y aprobación
+    // Desaparecen automáticamente de la vista de Citas y Pagos al ser confirmadas / aprobadas
+    @Query("SELECT c FROM Cita c WHERE (c.estado IS NULL OR UPPER(c.estado) NOT IN ('CONFIRMADO', 'PAGADO', 'CANCELADO')) " +
+           "ORDER BY CASE WHEN (c.fechaHora >= :inicioDia AND c.fechaHora <= :finDia) THEN 0 ELSE 1 END, " +
            "CASE WHEN c.fechaHora IS NULL THEN 0 ELSE 1 END, c.fechaHora ASC, c.id DESC")
-    List<Cita> findCitasPendientesOAgendadasHoy(@Param("inicioDia") LocalDateTime inicioDia, @Param("finDia") LocalDateTime finDia);
+    List<Cita> findCitasPendientes(@Param("inicioDia") LocalDateTime inicioDia, @Param("finDia") LocalDateTime finDia);
 
     @Modifying
     @Query("UPDATE Cita c SET c.cliente = null WHERE c.cliente.id = :clienteId")
