@@ -180,7 +180,7 @@
         <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
             <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" onclick="reproducirClick()"><i class="bi bi-speedometer2 me-2"></i>Dashboard</button></li>
             <li class="nav-item"><button class="nav-link" id="catalogo-tab" data-bs-toggle="tab" data-bs-target="#catalogo" type="button" onclick="reproducirClick()"><i class="bi bi-box-seam me-2"></i>Catálogo</button></li>
-            <li class="nav-item"><button class="nav-link" id="citas-tab" data-bs-toggle="tab" data-bs-target="#citas" type="button" onclick="reproducirClick()"><i class="bi bi-journal-check me-2"></i>Citas y Pagos</button></li>
+            <li class="nav-item"><button class="nav-link" id="citas-tab" data-bs-toggle="tab" data-bs-target="#citas" type="button" onclick="reproducirClick()"><i class="bi bi-hourglass-split me-2"></i>Citas Pendientes</button></li>
             <li class="nav-item"><button class="nav-link" id="crm-tab" data-bs-toggle="tab" data-bs-target="#crm" type="button" onclick="reproducirClick()"><i class="bi bi-people-fill me-2"></i>CRM Clientes</button></li>
             <li class="nav-item"><button class="nav-link" id="tesoreria-tab" data-bs-toggle="tab" data-bs-target="#tesoreria" type="button" onclick="reproducirClick()"><i class="bi bi-safe-fill me-2"></i>Tesorería y Caja</button></li>
             <li class="nav-item"><button class="nav-link" id="socias-tab" data-bs-toggle="tab" data-bs-target="#socias" type="button" onclick="reproducirClick()"><i class="bi bi-person-badge me-2"></i>Gestión de Socias</button></li>
@@ -400,15 +400,15 @@
 
             <div class="tab-pane fade" id="citas" role="tabpanel">
                 <h4 class="fw-bold mb-3 text-center text-md-start" style="color: var(--cyan-neon);">
-                    <i class="bi bi-journal-check me-2"></i>Citas y Pagos
-                    <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('En esta sección verás únicamente las citas pendientes de cobro y las personas agendadas para atender el día de hoy.')"></i>
+                    <i class="bi bi-hourglass-split me-2"></i>Citas Pendientes
+                    <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('En esta sección verás únicamente las citas pendientes de confirmación o cobro.')"></i>
                 </h4>
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                    <small class="text-white-50"><i class="bi bi-funnel-fill text-info me-1"></i>Mostrando citas pendientes de cobro y aprobación</small>
+                    <small class="text-white-50"><i class="bi bi-funnel-fill text-info me-1"></i>Listado exclusivo de citas pendientes de confirmación o cobro</small>
                     <div class="btn-group btn-group-sm mt-2 mt-md-0 shadow-sm" role="group">
                         <button type="button" class="btn btn-outline-info active" onclick="filtrarCitasVista('todos', this)"><i class="bi bi-grid-fill me-1"></i>Todas</button>
-                        <button type="button" class="btn btn-outline-warning" onclick="filtrarCitasVista('pendientes', this)"><i class="bi bi-hourglass-split me-1"></i>Pendientes</button>
-                        <button type="button" class="btn btn-outline-success" onclick="filtrarCitasVista('hoy', this)"><i class="bi bi-calendar-event me-1"></i>Agendadas Hoy</button>
+                        <button type="button" class="btn btn-outline-warning" onclick="filtrarCitasVista('con-pago', this)"><i class="bi bi-cash-coin me-1"></i>Con Abono</button>
+                        <button type="button" class="btn btn-outline-danger" onclick="filtrarCitasVista('sin-pago', this)"><i class="bi bi-exclamation-triangle me-1"></i>Sin Pago</button>
                     </div>
                 </div>
                 <div class="row g-3" style="max-height: 70vh; overflow-y: auto; overflow-x: hidden;">
@@ -417,20 +417,20 @@
                         <div class="p-4 rounded border border-secondary" style="background: rgba(0,0,0,0.3); max-width: 500px; margin: 0 auto;">
                             <i class="bi bi-calendar-check text-info" style="font-size: 3.5rem;"></i>
                             <h5 class="text-white mt-3 fw-bold">Sin citas pendientes por aprobar</h5>
-                            <p class="text-white-50 small mb-0">¡Todas las citas y pagos han sido confirmados e ingresados a Tesorería, Caja y EBITDA!</p>
+                            <p class="text-white-50 small mb-0">No hay citas pendientes por gestionar en este momento.</p>
                         </div>
                     </div>
 
                     <div class="col-12 col-md-6 col-lg-4 item-cita-card" th:each="c : ${citas}"
-                         th:attr="data-estado=${c.estado == 'RESERVADO' ? 'pendiente' : 'pagado'}, data-es-hoy=${c.fechaHora != null and #temporals.format(c.fechaHora, 'yyyy-MM-dd') == fechaHoy ? 'true' : 'false'}">
-                        <div class="grid-card" th:style="${c.estado == 'RESERVADO'} ? 'border-color: #ff9800 !important;' : ''">
+                         th:attr="data-tiene-pago=${(c.totalPagado != null and c.totalPagado > 0) or (c.montoPagado != null and c.montoPagado > 0) ? 'si' : 'no'}, data-es-hoy=${c.fechaHora != null and #temporals.format(c.fechaHora, 'yyyy-MM-dd') == fechaHoy ? 'true' : 'false'}">
+                        <div class="grid-card" style="border-color: #ff9800 !important;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
                                     <h6 class="card-title-cp" th:text="${c.cliente != null ? c.cliente.nombre : 'Cliente Web'}">Nombre</h6>
                                     <small class="text-white-50"><i class="bi bi-telephone text-success"></i> <span th:text="${c.cliente != null ? c.cliente.telefono : '---'}">Tel</span></small>
                                 </div>
                                 <div class="text-end">
-                                    <span class="badge" th:classappend="${c.estado == 'RESERVADO'} ? 'badge-reservado' : 'badge-confirmado'" th:text="${c.estado == 'RESERVADO'} ? 'PENDIENTE' : 'PAGADO'">Estado</span>
+                                    <span class="badge badge-reservado" th:text="${c.estado ?: 'PENDIENTE'}">PENDIENTE</span>
                                     <span th:if="${c.fechaHora != null and #temporals.format(c.fechaHora, 'yyyy-MM-dd') == fechaHoy}" class="badge bg-info text-dark d-block mt-1" style="font-size: 0.65rem; box-shadow: 0 0 8px rgba(0,229,255,0.4);"><i class="bi bi-clock-fill me-1"></i>HOY</span>
                                 </div>
                             </div>
@@ -442,8 +442,9 @@
                             </div>
                             
                             <div class="d-flex justify-content-between align-items-center mb-3 p-2 rounded" style="background: rgba(255,0,255,0.05); border: 1px dashed var(--fucsia-neon);">
-                                <small class="text-white-50">Total Pagado:</small>
-                                <strong class="fs-5" style="color: var(--fucsia-neon);" th:text="'$' + ${#numbers.formatInteger(c.totalPagado, 0, 'POINT')}">$0</strong>
+                                <small class="text-white-50">Abono / Pago recibido:</small>
+                                <strong class="fs-5" th:if="${(c.totalPagado != null and c.totalPagado > 0) or (c.montoPagado != null and c.montoPagado > 0)}" style="color: var(--fucsia-neon);" th:text="'$' + ${#numbers.formatInteger((c.totalPagado != null and c.totalPagado > 0 ? c.totalPagado : c.montoPagado), 0, 'POINT')}">$0</strong>
+                                <span class="badge bg-secondary" th:if="${(c.totalPagado == null or c.totalPagado <= 0) and (c.montoPagado == null or c.montoPagado <= 0)}">Sin pago registrado ($0)</span>
                             </div>
 
                             <div class="card-actions justify-content-center">
@@ -2345,7 +2346,7 @@
     function confirmarCita(id) { 
         sfxWaooo.currentTime = 0; 
         sfxWaooo.play().catch(()=>{}); 
-        if(confirm("¿Confirmar pago y aprobar cita?\n\nAl aprobarla, se sumará a los ingresos de Tesorería, Caja y EBITDA, y desaparecerá de Citas y Pagos.")) { 
+        if(confirm("¿Aprobar y confirmar cita?\n\n• Si registra un pago previo (abono o total), se sumará a los ingresos de Tesorería, Caja y EBITDA.\n• Si no registra pago ($0 o pendiente), no se sumará a Tesorería.\n• La cita desaparecerá de Citas Pendientes.")) { 
             fetch('/api/admin/citas/confirmar/'+id, {method:'POST'})
                 .then(res => {
                     if(res.ok) {
@@ -2367,14 +2368,14 @@
         }
         const cards = document.querySelectorAll('.item-cita-card');
         cards.forEach(card => {
-            const est = card.getAttribute('data-estado');
+            const tienePago = card.getAttribute('data-tiene-pago') === 'si';
             const esHoy = card.getAttribute('data-es-hoy') === 'true';
             if (tipo === 'todos') {
                 card.style.display = 'block';
-            } else if (tipo === 'pendientes') {
-                card.style.display = (est === 'pendiente') ? 'block' : 'none';
-            } else if (tipo === 'hoy') {
-                card.style.display = esHoy ? 'block' : 'none';
+            } else if (tipo === 'con-pago') {
+                card.style.display = tienePago ? 'block' : 'none';
+            } else if (tipo === 'sin-pago') {
+                card.style.display = !tienePago ? 'block' : 'none';
             }
         });
     };

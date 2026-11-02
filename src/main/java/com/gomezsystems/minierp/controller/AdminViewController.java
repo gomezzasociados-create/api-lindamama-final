@@ -40,7 +40,7 @@ public class AdminViewController {
         model.addAttribute("fechaHoy", hoy.toString());
 
         try { 
-            model.addAttribute("citas", citaRepository.findCitasPendientes(inicioHoy, finHoy)); 
+            model.addAttribute("citas", citaRepository.findCitasPendientes()); 
         } catch (Exception e) { 
             model.addAttribute("citas", new ArrayList<>()); 
         }

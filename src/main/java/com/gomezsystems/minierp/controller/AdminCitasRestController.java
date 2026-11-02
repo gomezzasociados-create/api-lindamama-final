@@ -30,7 +30,8 @@ public class AdminCitasRestController {
 
     // 🔥 1. CONFIRMAR / APROBAR (El chulito verde)
     // Al confirmar, la cita pasa a CONFIRMADO (desapareciendo de la lista de pendientes)
-    // y su monto se ingresa a Tesorería, Caja Fuerte y EBITDA.
+    // Solo si registró un pago real (abono o total), se ingresa a Tesorería, Caja Fuerte y EBITDA.
+    // Si no registra pago ($0 o null), no genera ingresos ficticios.
     @PostMapping("/confirmar/{id}")
     @Transactional
     public ResponseEntity<String> confirmarCita(@PathVariable Long id) {
@@ -39,35 +40,34 @@ public class AdminCitasRestController {
             Cita cita = citaOpt.get();
             cita.setEstado("CONFIRMADO");
 
-            // 1. Determinar el monto real del cobro
-            Double monto = 0.0;
+            // 1. Determinar si existe un monto de pago real recibido (abono o pago total)
+            Double pagoReal = 0.0;
             if (cita.getTotalPagado() != null && cita.getTotalPagado() > 0) {
-                monto = cita.getTotalPagado().doubleValue();
+                pagoReal = cita.getTotalPagado().doubleValue();
             } else if (cita.getMontoPagado() != null && cita.getMontoPagado() > 0) {
-                monto = cita.getMontoPagado();
-            } else if (cita.getMontoTotal() != null && cita.getMontoTotal() > 0) {
-                monto = cita.getMontoTotal();
-            } else if (cita.getNombreTratamiento() != null && !cita.getNombreTratamiento().isEmpty()) {
-                try {
-                    List<Tratamiento> tratamientos = tratamientoRepository.findAll();
-                    for (Tratamiento t : tratamientos) {
-                        if (t.getNombre() != null && t.getNombre().equalsIgnoreCase(cita.getNombreTratamiento())) {
-                            monto = (t.getPrecio() != null) ? t.getPrecio().doubleValue() : 0.0;
-                            break;
-                        }
-                    }
-                } catch (Exception ignored) {}
+                pagoReal = cita.getMontoPagado();
             }
 
-            // Asegurar que la cita conserve el valor numérico
-            if ((cita.getTotalPagado() == null || cita.getTotalPagado() == 0) && monto > 0) {
-                cita.setTotalPagado(monto.intValue());
-                cita.setMontoTotal(monto);
-                cita.setMontoPagado(monto);
-            }
+            // Guardar el estado confirmado de la cita
             citaRepository.save(cita);
 
-            // 2. Vincular o crear la Venta para que ingrese a Tesorería, Caja y EBITDA
+            // 2. Si NO hubo pago registrado (pagoReal <= 0 o null):
+            // No ingresa a Tesorería, Caja ni EBITDA para evitar ingresos fantasmas.
+            if (pagoReal <= 0) {
+                return ResponseEntity.ok("Cita confirmada con éxito. No se registró ingreso en Tesorería por no presentar pago previo.");
+            }
+
+            // 3. Si SÍ hubo pago real registrado:
+            // Asegurar montos consistentes en la cita
+            cita.setTotalPagado(pagoReal.intValue());
+            cita.setMontoPagado(pagoReal);
+            citaRepository.save(cita);
+
+            Double montoTotalServicio = (cita.getMontoTotal() != null && cita.getMontoTotal() > 0) 
+                ? cita.getMontoTotal() 
+                : pagoReal;
+
+            // Vincular o crear la Venta para que ingrese a Tesorería, Caja y EBITDA
             boolean ventaActualizada = false;
             if (cita.getCliente() != null) {
                 List<Venta> posiblesVentas = ventaRepository.findByClienteIdOrderByFechaHoraDesc(cita.getCliente().getId());
@@ -76,24 +76,24 @@ public class AdminCitasRestController {
                         v.setEstado("PAGADO");
                         v.setCierreAplicado(false); // Entra a la caja activa del turno actual
                         v.setFechaHora(LocalDateTime.now()); // Fecha de confirmación para Tesorería y EBITDA
-                        
-                        if (monto > 0 && (v.getTotalPagado() == null || v.getTotalPagado() <= 0)) {
-                            v.setMontoTotal(monto);
-                            v.setTotalPagado(monto);
-                        }
-                        if (cita.getSocia() != null && v.getSocia() == null) {
+                        v.setMontoTotal(montoTotalServicio);
+                        v.setTotalPagado(pagoReal);
+
+                        if (cita.getSocia() != null) {
                             v.setSocia(cita.getSocia());
                         }
-                        
-                        // Cálculo de comisiones
-                        if (v.getSocia() != null && (v.getMontoSocia() == null || v.getMontoSocia() == 0.0)) {
+
+                        // Cálculo de comisiones sobre el dinero real recibido
+                        if (v.getSocia() != null) {
                             Double pct = (v.getSocia().getPorcentajeSocia() != null) ? v.getSocia().getPorcentajeSocia() : 0.0;
-                            Double valBase = (v.getTotalPagado() != null) ? v.getTotalPagado() : monto;
-                            Double mSocia = valBase * (pct / 100.0);
+                            Double mSocia = pagoReal * (pct / 100.0);
                             v.setMontoSocia(mSocia);
-                            v.setMontoSpa(valBase - mSocia);
+                            v.setMontoSpa(pagoReal - mSocia);
+                        } else {
+                            v.setMontoSpa(pagoReal);
+                            v.setMontoSocia(0.0);
                         }
-                        
+
                         ventaRepository.save(v);
                         ventaActualizada = true;
                         break; 
@@ -101,7 +101,7 @@ public class AdminCitasRestController {
                 }
             }
 
-            // Si no existía una venta pendiente previa, crearla inmediatamente
+            // Si no existía una venta previa, crearla con el pago real recibido
             if (!ventaActualizada) {
                 Venta nuevaVenta = new Venta();
                 nuevaVenta.setCliente(cita.getCliente());
@@ -109,10 +109,10 @@ public class AdminCitasRestController {
                 nuevaVenta.setDetalle((cita.getNombreTratamiento() != null && !cita.getNombreTratamiento().isEmpty()) 
                     ? cita.getNombreTratamiento() 
                     : "Servicio Spa");
-                nuevaVenta.setMontoTotal(monto);
-                nuevaVenta.setTotalPagado(monto);
+                nuevaVenta.setMontoTotal(montoTotalServicio);
+                nuevaVenta.setTotalPagado(pagoReal);
                 nuevaVenta.setPropina(0.0);
-                
+
                 String tipo = (cita.getMetodoPago() != null && !cita.getMetodoPago().isEmpty()) 
                     ? cita.getMetodoPago().toUpperCase() 
                     : "TRANSFERENCIA";
@@ -124,18 +124,18 @@ public class AdminCitasRestController {
 
                 if (cita.getSocia() != null) {
                     Double pct = (cita.getSocia().getPorcentajeSocia() != null) ? cita.getSocia().getPorcentajeSocia() : 0.0;
-                    Double mSocia = monto * (pct / 100.0);
+                    Double mSocia = pagoReal * (pct / 100.0);
                     nuevaVenta.setMontoSocia(mSocia);
-                    nuevaVenta.setMontoSpa(monto - mSocia);
+                    nuevaVenta.setMontoSpa(pagoReal - mSocia);
                 } else {
-                    nuevaVenta.setMontoSpa(monto);
+                    nuevaVenta.setMontoSpa(pagoReal);
                     nuevaVenta.setMontoSocia(0.0);
                 }
 
                 ventaRepository.save(nuevaVenta);
             }
 
-            return ResponseEntity.ok("Cita confirmada e ingresada exitosamente a Tesorería, Caja y EBITDA");
+            return ResponseEntity.ok("Cita confirmada e ingreso de $" + Math.round(pagoReal) + " registrado en Tesorería, Caja y EBITDA");
         }
         return ResponseEntity.badRequest().body("Cita no encontrada");
     }
