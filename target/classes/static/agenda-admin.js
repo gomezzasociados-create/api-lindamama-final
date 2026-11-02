@@ -1,6 +1,6 @@
 /**
  * Linda Mamá Spa - Módulo de Agenda General Integrada en Centro de Mando
- * FullCalendar v6 + Fichas Interactivas Cyber Neon Theme
+ * FullCalendar v6 + Ficha / Tarjeta de Cliente Agendado Cyber Neon
  */
 
 let adminFullCalendar = null;
@@ -102,115 +102,47 @@ window.initAgendaCalendar = function() {
                 },
                 eventClick: function(info) {
                     if (typeof reproducirClick === 'function') reproducirClick();
-                    abrirModalDetalleCitaAgenda(info.event.extendedProps.cita);
+                    const cita = info.event.extendedProps.cita;
+                    abrirModalDetalleCitaAgenda(cita);
                 }
             });
 
             adminFullCalendar.render();
-            window.fullCalendarAgenda = adminFullCalendar;
         } else {
-            adminFullCalendar.updateSize();
             adminFullCalendar.refetchEvents();
+            adminFullCalendar.updateSize();
         }
     }, 150);
 };
 
-// Cambio de vista en Agenda: Fichas vs Calendario
-window.cambiarVistaAgenda = function(tipo, btn) {
+window.filtrarCalendarioAgenda = function() {
     if (typeof reproducirClick === 'function') reproducirClick();
-    const btnTarjetas = document.getElementById('btnVistaTarjetasAgenda');
-    const btnCal = document.getElementById('btnVistaCalendarioAgenda');
-    const contTarjetas = document.getElementById('vistaTarjetasAgendaContainer');
-    const contCal = document.getElementById('vistaCalendarioAgendaContainer');
-    
-    if (btnTarjetas) btnTarjetas.classList.remove('active');
-    if (btnCal) btnCal.classList.remove('active');
-    
-    if (tipo === 'tarjetas') {
-        if (btnTarjetas) btnTarjetas.classList.add('active');
-        if (contTarjetas) contTarjetas.classList.remove('d-none');
-        if (contCal) contCal.classList.add('d-none');
-    } else {
-        if (btnCal) btnCal.classList.add('active');
-        if (contTarjetas) contTarjetas.classList.add('d-none');
-        if (contCal) contCal.classList.remove('d-none');
-        initAgendaCalendar();
-    }
-};
-
-// Filtro de fichas agendadas por tiempo (Todas, Hoy, Próximas)
-window.filtrarCitasAgendadasPorTiempo = function(filtro, btn) {
-    if (typeof reproducirClick === 'function') reproducirClick();
-    if (btn) {
-        btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    }
-    const fechaHoyStr = document.querySelector('[data-fecha-hoy]') ? document.querySelector('[data-fecha-hoy]').getAttribute('data-fecha-hoy') : new Date().toISOString().split('T')[0];
-    const cards = document.querySelectorAll('.item-cita-agendada-card');
-    cards.forEach(card => {
-        const esHoy = card.getAttribute('data-es-hoy') === 'true';
-        const fecha = card.getAttribute('data-fecha');
-        if (filtro === 'todas') {
-            card.style.display = 'block';
-        } else if (filtro === 'hoy') {
-            card.style.display = esHoy ? 'block' : 'none';
-        } else if (filtro === 'proximas') {
-            card.style.display = (fecha && fecha >= fechaHoyStr) ? 'block' : 'none';
-        }
-    });
-};
-
-// Filtro general por socia para fichas y calendario
-window.filtrarCitasAgendadasVista = function() {
-    if (typeof reproducirClick === 'function') reproducirClick();
-    const sociaId = document.getElementById('filtro-socia-agenda').value;
-    selectedAgendaSociaId = sociaId;
-    
-    const cards = document.querySelectorAll('.item-cita-agendada-card');
-    cards.forEach(card => {
-        const cardSociaId = card.getAttribute('data-socia-id');
-        if (!sociaId || cardSociaId === sociaId) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-    
-    if (adminFullCalendar) {
-        adminFullCalendar.refetchEvents();
-    }
-};
-
-window.filtrarCalendarioAgenda = window.filtrarCitasAgendadasVista;
-
-// Envío de recordatorio personalizado por WhatsApp
-window.enviarWhatsAppRecordatorio = function(btn) {
-    if (typeof reproducirClick === 'function') reproducirClick();
-    const telefono = btn.getAttribute('data-telefono');
-    const nombre = btn.getAttribute('data-nombre');
-    const fecha = btn.getAttribute('data-fecha');
-    const servicio = btn.getAttribute('data-servicio');
-
-    if (!telefono || telefono === '---' || telefono.trim() === '') {
-        alert("⚠️ Este cliente no tiene un número de teléfono registrado.");
-        return;
-    }
-
-    let numeroLimpio = telefono.replace(/\D/g, '');
-    if (numeroLimpio.length === 9) { numeroLimpio = '56' + numeroLimpio; }
-
-    const mensaje = `🌸 *RECORDATORIO DE CITA - LINDA MAMÁ SPA* 🌸\n\nHola *${nombre}* ✨, te saludamos con mucho cariño de *Linda Mamá Spa*.\n\nQueremos recordarte tu cita agendada:\n💆‍♀️ *Servicio:* ${servicio}\n📅 *Fecha y Hora:* ${fecha}\n\nPor favor, confírmanos tu asistencia respondiendo a este mensaje con un *"Confirmo"*. ¡Te esperamos para consentirte! 💕`;
-    const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, '_blank');
+    selectedAgendaSociaId = document.getElementById('filtro-socia-agenda').value;
+    if (adminFullCalendar) adminFullCalendar.refetchEvents();
 };
 
 window.abrirModalDetalleCitaAgenda = function(cita) {
+    if (!cita) return;
     currentAgendaCita = cita;
-    document.getElementById('agendaDetalleCitaId').value = cita.id;
-    document.getElementById('agendaDetalleServicio').innerText = cita.nombreTratamiento || 'Servicio';
-    document.getElementById('agendaDetalleCliente').innerText = cita.cliente ? cita.cliente.nombre : 'Cliente General';
-    document.getElementById('agendaDetalleSocia').innerText = cita.socia ? cita.socia.nombre : 'Sin profesional asignada';
 
+    const idInput = document.getElementById('agendaDetalleCitaId');
+    if (idInput) idInput.value = cita.id;
+
+    // Nombre y teléfono
+    const elNombre = document.getElementById('agendaCardClienteNombre');
+    if (elNombre) elNombre.innerText = cita.cliente ? cita.cliente.nombre : 'Cliente Web';
+
+    const elTel = document.getElementById('agendaCardClienteTelefono');
+    if (elTel) elTel.innerText = (cita.cliente && cita.cliente.telefono) ? cita.cliente.telefono : '---';
+
+    // Servicio y Profesional
+    const elServicio = document.getElementById('agendaCardServicio');
+    if (elServicio) elServicio.innerText = cita.nombreTratamiento || 'Servicio General';
+
+    const elSocia = document.getElementById('agendaCardSocia');
+    if (elSocia) elSocia.innerText = cita.socia ? cita.socia.nombre : 'Sin profesional asignada';
+
+    // Fecha formateada
     const fechaObj = new Date(cita.fechaHora);
     const fechaFormateada = isNaN(fechaObj.getTime()) ? 'Por definir' : fechaObj.toLocaleString('es-CL', {
         weekday: 'short',
@@ -220,38 +152,63 @@ window.abrirModalDetalleCitaAgenda = function(cita) {
         hour: '2-digit',
         minute: '2-digit'
     });
-    document.getElementById('agendaDetalleFecha').innerText = fechaFormateada;
+    const elFecha = document.getElementById('agendaCardFecha');
+    if (elFecha) elFecha.innerText = fechaFormateada;
 
-    const badge = document.getElementById('agendaDetalleEstadoBadge');
+    // Badge HOY
+    const badgeHoy = document.getElementById('agendaCardBadgeHoy');
+    if (badgeHoy) {
+        let esHoy = false;
+        if (!isNaN(fechaObj.getTime())) {
+            const hoy = new Date();
+            esHoy = (fechaObj.getFullYear() === hoy.getFullYear() &&
+                     fechaObj.getMonth() === hoy.getMonth() &&
+                     fechaObj.getDate() === hoy.getDate());
+        }
+        badgeHoy.classList.toggle('d-none', !esHoy);
+    }
+
+    // Badge Estado y botón Aprobar
+    const badge = document.getElementById('agendaCardEstadoBadge');
     const state = (cita.estado || 'PENDIENTE').toUpperCase();
-    badge.innerText = state;
-    const btnAprobar = document.getElementById('btnConfirmarPagoAgendaCal');
+    if (badge) badge.innerText = state;
+
+    const btnAprobar = document.getElementById('agendaCardBtnAprobar');
 
     if (state === 'CONFIRMADA' || state === 'CONFIRMADO' || state === 'PAGADO') {
-        badge.className = 'badge bg-success text-dark fw-bold px-3 py-1';
+        if (badge) badge.className = 'badge badge-confirmado';
         if (btnAprobar) btnAprobar.style.display = 'none';
     } else if (state === 'PENDIENTE' || state === 'RESERVADO' || state === 'RESERVADA') {
-        badge.className = 'badge bg-warning text-dark fw-bold px-3 py-1';
+        if (badge) badge.className = 'badge badge-reservado';
         if (btnAprobar) btnAprobar.style.display = 'inline-block';
     } else {
-        badge.className = 'badge bg-info text-dark fw-bold px-3 py-1';
+        if (badge) badge.className = 'badge bg-info text-dark fw-bold';
         if (btnAprobar) btnAprobar.style.display = 'inline-block';
     }
 
-    const mTotal = cita.montoTotal || (cita.totalPagado || 0);
+    // Total / Abono
     const mPagado = (cita.totalPagado != null && cita.totalPagado > 0) ? cita.totalPagado : (cita.montoPagado || 0);
-    document.getElementById('agendaDetalleMontoTotal').innerText = '$' + Number(mTotal).toLocaleString('es-CL');
-    document.getElementById('agendaDetalleMontoPagado').innerText = '$' + Number(mPagado).toLocaleString('es-CL');
-    document.getElementById('agendaDetalleTelefono').innerText = (cita.cliente && cita.cliente.telefono) ? cita.cliente.telefono : '---';
+    const montoEl = document.getElementById('agendaCardMonto');
+    if (montoEl) {
+        if (mPagado > 0) {
+            montoEl.innerText = '$' + Number(mPagado).toLocaleString('es-CL');
+            montoEl.className = 'fs-5 text-cyan-neon fw-bold';
+        } else {
+            montoEl.innerText = 'Sin pago ($0)';
+            montoEl.className = 'badge bg-secondary';
+        }
+    }
 
     if (!modalDetalleAgendaInstance) {
-        modalDetalleAgendaInstance = new bootstrap.Modal(document.getElementById('modalDetalleCitaAgenda'));
+        const modalEl = document.getElementById('modalDetalleCitaAgenda');
+        if (modalEl) modalDetalleAgendaInstance = new bootstrap.Modal(modalEl);
     }
-    modalDetalleAgendaInstance.show();
+    if (modalDetalleAgendaInstance) modalDetalleAgendaInstance.show();
 };
 
 window.confirmarCitaDesdeCalendarAgenda = function() {
     const id = document.getElementById('agendaDetalleCitaId').value;
+    if (modalDetalleAgendaInstance) modalDetalleAgendaInstance.hide();
     if (typeof confirmarCita === 'function') {
         confirmarCita(id);
     } else {
@@ -265,6 +222,7 @@ window.confirmarCitaDesdeCalendarAgenda = function() {
 
 window.cancelarCitaDesdeCalendarAgenda = function() {
     const id = document.getElementById('agendaDetalleCitaId').value;
+    if (modalDetalleAgendaInstance) modalDetalleAgendaInstance.hide();
     if (typeof cancelarCita === 'function') {
         cancelarCita(id);
     } else {
@@ -284,29 +242,78 @@ window.abrirReagendarDesdeCalendarAgenda = function() {
     }
 };
 
-window.enviarWhatsAppDesdeCalendarAgenda = function() {
+window.enviarWhatsAppCitaDesdeModalAgenda = function() {
     if (typeof reproducirClick === 'function') reproducirClick();
     const cita = currentAgendaCita;
-    if (!cita || !cita.cliente || !cita.cliente.telefono || cita.cliente.telefono === '---' || cita.cliente.telefono.trim() === '') {
-        return alert("⚠️ Este cliente no tiene número de teléfono registrado.");
-    }
-    
-    // Usar la función centralizada de recordatorio
+    if (!cita) return;
     const fakeBtn = {
         getAttribute: function(attr) {
-            if (attr === 'data-telefono') return cita.cliente.telefono;
-            if (attr === 'data-nombre') return cita.cliente.nombre;
-            if (attr === 'data-servicio') return cita.nombreTratamiento || 'Spa';
+            if (attr === 'data-telefono') return (cita.cliente && cita.cliente.telefono) ? cita.cliente.telefono : '';
+            if (attr === 'data-nombre') return (cita.cliente && cita.cliente.nombre) ? cita.cliente.nombre : '';
+            if (attr === 'data-servicio') return cita.nombreTratamiento || 'Servicio';
+            if (attr === 'data-fecha') return cita.fechaHora || '';
+            return '';
+        }
+    };
+    if (typeof enviarWhatsAppCita === 'function') {
+        enviarWhatsAppCita(fakeBtn);
+    }
+};
+
+window.enviarWhatsAppRecordatorioModalAgenda = function() {
+    if (typeof reproducirClick === 'function') reproducirClick();
+    const cita = currentAgendaCita;
+    if (!cita) return;
+    const fakeBtn = {
+        getAttribute: function(attr) {
+            if (attr === 'data-telefono') return (cita.cliente && cita.cliente.telefono) ? cita.cliente.telefono : '';
+            if (attr === 'data-nombre') return (cita.cliente && cita.cliente.nombre) ? cita.cliente.nombre : '';
+            if (attr === 'data-servicio') return cita.nombreTratamiento || 'Servicio';
             if (attr === 'data-fecha') {
                 try {
                     let d = new Date(cita.fechaHora);
                     return d.toLocaleDateString('es-CL') + " a las " + d.toLocaleTimeString('es-CL').substring(0,5);
                 } catch(e) { return 'Por definir'; }
             }
+            if (attr === 'data-monto') return (cita.totalPagado != null && cita.totalPagado > 0) ? cita.totalPagado : (cita.montoPagado || 0);
             return '';
         }
     };
-    enviarWhatsAppRecordatorio(fakeBtn);
+    if (typeof enviarWhatsAppConfirmacion === 'function') {
+        enviarWhatsAppConfirmacion(fakeBtn);
+    } else {
+        const telefono = fakeBtn.getAttribute('data-telefono');
+        const nombre = fakeBtn.getAttribute('data-nombre');
+        const fecha = fakeBtn.getAttribute('data-fecha');
+        const servicio = fakeBtn.getAttribute('data-servicio');
+        if (!telefono || telefono === '---' || telefono.trim() === '') {
+            return alert("⚠️ Este cliente no tiene número de teléfono registrado.");
+        }
+        let numeroLimpio = telefono.replace(/\D/g, '');
+        if (numeroLimpio.length === 9) { numeroLimpio = '56' + numeroLimpio; }
+        const mensaje = `🌸 ¡Hola ${nombre}! Te escribimos con mucho cariño de *Linda Mamá Spa* ✨.\n\nQueremos recordarte tu cita para tu sesión de *${servicio}* agendada para el *${fecha}*.\n\n¡Te esperamos para consentirte! Por favor confírmanos tu asistencia con un "Sí". 💕`;
+        window.open(`https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`, '_blank');
+    }
+};
+
+window.imprimirTicketDesdeModalAgenda = function() {
+    if (typeof reproducirClick === 'function') reproducirClick();
+    const cita = currentAgendaCita;
+    if (!cita) return;
+    const cliente = cita.cliente ? cita.cliente.nombre : 'Cliente';
+    const servicio = cita.nombreTratamiento || 'Servicio';
+    const total = (cita.totalPagado != null && cita.totalPagado > 0) ? cita.totalPagado : (cita.montoPagado || 0);
+    let fecha = '---';
+    if (cita.fechaHora) {
+        try {
+            let d = new Date(cita.fechaHora);
+            fecha = d.toLocaleDateString('es-CL') + " " + d.toLocaleTimeString('es-CL').substring(0,5);
+        } catch(e) {}
+    }
+    const folio = cita.id;
+    if (typeof imprimirTicketCliente === 'function') {
+        imprimirTicketCliente(cliente, servicio, total, fecha, folio);
+    }
 };
 
 // Autoactivar tab si viene con #agenda en la URL
