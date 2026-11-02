@@ -1,6 +1,6 @@
 /**
  * Linda Mamá Spa - Módulo de Agenda General Integrada en Centro de Mando
- * FullCalendar v6 Cyber Neon Theme
+ * FullCalendar v6 + Fichas Interactivas Cyber Neon Theme
  */
 
 let adminFullCalendar = null;
@@ -15,7 +15,7 @@ window.initAgendaCalendar = function() {
             if (modalEl) modalDetalleAgendaInstance = new bootstrap.Modal(modalEl);
         }
 
-        // Cargar profesionales en el filtro desplegable
+        // Cargar profesionales en el filtro desplegable si no estaban cargadas
         const filtroSocia = document.getElementById('filtro-socia-agenda');
         if (filtroSocia && filtroSocia.options.length <= 1) {
             fetch('/api/socias')
@@ -115,10 +115,93 @@ window.initAgendaCalendar = function() {
     }, 150);
 };
 
-window.filtrarCalendarioAgenda = function() {
+// Cambio de vista en Agenda: Fichas vs Calendario
+window.cambiarVistaAgenda = function(tipo, btn) {
     if (typeof reproducirClick === 'function') reproducirClick();
-    selectedAgendaSociaId = document.getElementById('filtro-socia-agenda').value;
-    if (adminFullCalendar) adminFullCalendar.refetchEvents();
+    const btnTarjetas = document.getElementById('btnVistaTarjetasAgenda');
+    const btnCal = document.getElementById('btnVistaCalendarioAgenda');
+    const contTarjetas = document.getElementById('vistaTarjetasAgendaContainer');
+    const contCal = document.getElementById('vistaCalendarioAgendaContainer');
+    
+    if (btnTarjetas) btnTarjetas.classList.remove('active');
+    if (btnCal) btnCal.classList.remove('active');
+    
+    if (tipo === 'tarjetas') {
+        if (btnTarjetas) btnTarjetas.classList.add('active');
+        if (contTarjetas) contTarjetas.classList.remove('d-none');
+        if (contCal) contCal.classList.add('d-none');
+    } else {
+        if (btnCal) btnCal.classList.add('active');
+        if (contTarjetas) contTarjetas.classList.add('d-none');
+        if (contCal) contCal.classList.remove('d-none');
+        initAgendaCalendar();
+    }
+};
+
+// Filtro de fichas agendadas por tiempo (Todas, Hoy, Próximas)
+window.filtrarCitasAgendadasPorTiempo = function(filtro, btn) {
+    if (typeof reproducirClick === 'function') reproducirClick();
+    if (btn) {
+        btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    const fechaHoyStr = document.querySelector('[data-fecha-hoy]') ? document.querySelector('[data-fecha-hoy]').getAttribute('data-fecha-hoy') : new Date().toISOString().split('T')[0];
+    const cards = document.querySelectorAll('.item-cita-agendada-card');
+    cards.forEach(card => {
+        const esHoy = card.getAttribute('data-es-hoy') === 'true';
+        const fecha = card.getAttribute('data-fecha');
+        if (filtro === 'todas') {
+            card.style.display = 'block';
+        } else if (filtro === 'hoy') {
+            card.style.display = esHoy ? 'block' : 'none';
+        } else if (filtro === 'proximas') {
+            card.style.display = (fecha && fecha >= fechaHoyStr) ? 'block' : 'none';
+        }
+    });
+};
+
+// Filtro general por socia para fichas y calendario
+window.filtrarCitasAgendadasVista = function() {
+    if (typeof reproducirClick === 'function') reproducirClick();
+    const sociaId = document.getElementById('filtro-socia-agenda').value;
+    selectedAgendaSociaId = sociaId;
+    
+    const cards = document.querySelectorAll('.item-cita-agendada-card');
+    cards.forEach(card => {
+        const cardSociaId = card.getAttribute('data-socia-id');
+        if (!sociaId || cardSociaId === sociaId) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    if (adminFullCalendar) {
+        adminFullCalendar.refetchEvents();
+    }
+};
+
+window.filtrarCalendarioAgenda = window.filtrarCitasAgendadasVista;
+
+// Envío de recordatorio personalizado por WhatsApp
+window.enviarWhatsAppRecordatorio = function(btn) {
+    if (typeof reproducirClick === 'function') reproducirClick();
+    const telefono = btn.getAttribute('data-telefono');
+    const nombre = btn.getAttribute('data-nombre');
+    const fecha = btn.getAttribute('data-fecha');
+    const servicio = btn.getAttribute('data-servicio');
+
+    if (!telefono || telefono === '---' || telefono.trim() === '') {
+        alert("⚠️ Este cliente no tiene un número de teléfono registrado.");
+        return;
+    }
+
+    let numeroLimpio = telefono.replace(/\D/g, '');
+    if (numeroLimpio.length === 9) { numeroLimpio = '56' + numeroLimpio; }
+
+    const mensaje = `🌸 *RECORDATORIO DE CITA - LINDA MAMÁ SPA* 🌸\n\nHola *${nombre}* ✨, te saludamos con mucho cariño de *Linda Mamá Spa*.\n\nQueremos recordarte tu cita agendada:\n💆‍♀️ *Servicio:* ${servicio}\n📅 *Fecha y Hora:* ${fecha}\n\nPor favor, confírmanos tu asistencia respondiendo a este mensaje con un *"Confirmo"*. ¡Te esperamos para consentirte! 💕`;
+    const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
 };
 
 window.abrirModalDetalleCitaAgenda = function(cita) {
@@ -129,7 +212,7 @@ window.abrirModalDetalleCitaAgenda = function(cita) {
     document.getElementById('agendaDetalleSocia').innerText = cita.socia ? cita.socia.nombre : 'Sin profesional asignada';
 
     const fechaObj = new Date(cita.fechaHora);
-    document.getElementById('agendaDetalleFecha').innerText = isNaN(fechaObj.getTime()) ? 'Por definir' : fechaObj.toLocaleString('es-CL', {
+    const fechaFormateada = isNaN(fechaObj.getTime()) ? 'Por definir' : fechaObj.toLocaleString('es-CL', {
         weekday: 'short',
         year: 'numeric',
         month: 'short',
@@ -137,6 +220,7 @@ window.abrirModalDetalleCitaAgenda = function(cita) {
         hour: '2-digit',
         minute: '2-digit'
     });
+    document.getElementById('agendaDetalleFecha').innerText = fechaFormateada;
 
     const badge = document.getElementById('agendaDetalleEstadoBadge');
     const state = (cita.estado || 'PENDIENTE').toUpperCase();
@@ -168,32 +252,26 @@ window.abrirModalDetalleCitaAgenda = function(cita) {
 
 window.confirmarCitaDesdeCalendarAgenda = function() {
     const id = document.getElementById('agendaDetalleCitaId').value;
-    if (confirm("¿Aprobar y confirmar cita?\n\n• Si registra abono o pago, ingresará a Tesorería, Caja y EBITDA.\n• Si no registra pago ($0), quedará confirmada sin ingresos ficticios.")) {
+    if (typeof confirmarCita === 'function') {
+        confirmarCita(id);
+    } else {
         fetch('/api/admin/citas/confirmar/' + id, {method: 'POST'})
             .then(res => {
-                if (res.ok) {
-                    if (modalDetalleAgendaInstance) modalDetalleAgendaInstance.hide();
-                    if (adminFullCalendar) adminFullCalendar.refetchEvents();
-                    window.location.reload();
-                } else {
-                    alert("Error confirmando la cita");
-                }
+                if (res.ok) window.location.reload();
+                else alert("Error al confirmar cita");
             });
     }
 };
 
 window.cancelarCitaDesdeCalendarAgenda = function() {
     const id = document.getElementById('agendaDetalleCitaId').value;
-    if (confirm("¿Eliminar cita definitivamente de la agenda?")) {
+    if (typeof cancelarCita === 'function') {
+        cancelarCita(id);
+    } else {
         fetch('/api/admin/citas/cancelar/' + id, {method: 'POST'})
             .then(res => {
-                if (res.ok) {
-                    if (modalDetalleAgendaInstance) modalDetalleAgendaInstance.hide();
-                    if (adminFullCalendar) adminFullCalendar.refetchEvents();
-                    window.location.reload();
-                } else {
-                    alert("Error eliminando la cita");
-                }
+                if (res.ok) window.location.reload();
+                else alert("Error al cancelar cita");
             });
     }
 };
@@ -212,20 +290,23 @@ window.enviarWhatsAppDesdeCalendarAgenda = function() {
     if (!cita || !cita.cliente || !cita.cliente.telefono || cita.cliente.telefono === '---' || cita.cliente.telefono.trim() === '') {
         return alert("⚠️ Este cliente no tiene número de teléfono registrado.");
     }
-    let numeroLimpio = cita.cliente.telefono.replace(/\D/g, '');
-    if (numeroLimpio.length === 9) { numeroLimpio = '56' + numeroLimpio; }
-
-    let fechaLimpia = "Por definir";
-    if (cita.fechaHora) {
-        try {
-            let d = new Date(cita.fechaHora);
-            fechaLimpia = d.toLocaleDateString('es-CL') + " a las " + d.toLocaleTimeString('es-CL').substring(0,5);
-        } catch(e) {}
-    }
-
-    const mensaje = `🌸 *LINDA MAMÁ SPA* 🌸\n\nHola *${cita.cliente.nombre}* ✨,\nNos comunicamos para confirmar tu cita agendada para el servicio de *${cita.nombreTratamiento || 'Spa'}*.\n\n📅 *Fecha y Hora:* ${fechaLimpia}\n\nPor favor, respóndenos con un *"Confirmo"* para asegurar tu cupo en la agenda.\n¡Te esperamos! 💆‍♀️`;
-    const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, '_blank');
+    
+    // Usar la función centralizada de recordatorio
+    const fakeBtn = {
+        getAttribute: function(attr) {
+            if (attr === 'data-telefono') return cita.cliente.telefono;
+            if (attr === 'data-nombre') return cita.cliente.nombre;
+            if (attr === 'data-servicio') return cita.nombreTratamiento || 'Spa';
+            if (attr === 'data-fecha') {
+                try {
+                    let d = new Date(cita.fechaHora);
+                    return d.toLocaleDateString('es-CL') + " a las " + d.toLocaleTimeString('es-CL').substring(0,5);
+                } catch(e) { return 'Por definir'; }
+            }
+            return '';
+        }
+    };
+    enviarWhatsAppRecordatorio(fakeBtn);
 };
 
 // Autoactivar tab si viene con #agenda en la URL

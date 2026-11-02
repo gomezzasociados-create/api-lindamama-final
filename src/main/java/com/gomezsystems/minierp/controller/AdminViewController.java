@@ -6,6 +6,7 @@ import com.gomezsystems.minierp.repository.TratamientoRepository;
 import com.gomezsystems.minierp.repository.EgresoRepository;
 import com.gomezsystems.minierp.repository.CorteZRepository;
 import com.gomezsystems.minierp.repository.VentaRepository;
+import com.gomezsystems.minierp.repository.SociaRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,7 @@ public class AdminViewController {
     @Autowired private EgresoRepository egresoRepository;
     @Autowired private CorteZRepository corteZRepository;
     @Autowired private VentaRepository ventaRepository;
+    @Autowired private SociaRepository sociaRepository;
 
     // LA PUERTA PRINCIPAL DEL CENTRO DE MANDO
     @GetMapping("/admin")
@@ -43,6 +45,16 @@ public class AdminViewController {
             model.addAttribute("citas", citaRepository.findCitasPendientes()); 
         } catch (Exception e) { 
             model.addAttribute("citas", new ArrayList<>()); 
+        }
+        try { 
+            model.addAttribute("citasAgendadas", citaRepository.findCitasAgendadas()); 
+        } catch (Exception e) { 
+            model.addAttribute("citasAgendadas", new ArrayList<>()); 
+        }
+        try { 
+            model.addAttribute("socias", sociaRepository.findAll()); 
+        } catch (Exception e) { 
+            model.addAttribute("socias", new ArrayList<>()); 
         }
         try { model.addAttribute("tratamientos", tratamientoRepository.findAll()); } catch (Exception e) { model.addAttribute("tratamientos", new ArrayList<>()); }
         try { model.addAttribute("clientes", clienteRepository.findAll()); } catch (Exception e) { model.addAttribute("clientes", new ArrayList<>()); }

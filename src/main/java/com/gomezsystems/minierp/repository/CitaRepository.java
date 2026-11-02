@@ -28,6 +28,11 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
            "ORDER BY CASE WHEN c.fechaHora IS NULL THEN 1 ELSE 0 END, c.fechaHora ASC, c.id DESC")
     List<Cita> findCitasPendientes();
 
+    // 🔥 CITAS AGENDADAS: Todas las citas activas con fecha/hora asignada para la sección Agenda
+    @Query("SELECT c FROM Cita c WHERE c.fechaHora IS NOT NULL AND (c.estado IS NULL OR UPPER(c.estado) NOT IN ('CANCELADO', 'CANCELADA')) " +
+           "ORDER BY c.fechaHora ASC, c.id DESC")
+    List<Cita> findCitasAgendadas();
+
     @Modifying
     @Query("UPDATE Cita c SET c.cliente = null WHERE c.cliente.id = :clienteId")
     void desasociarCliente(@Param("clienteId") Long clienteId);

@@ -508,37 +508,107 @@
 
             <!-- SECCIÓN AGENDA DEL SPA -->
             <div class="tab-pane fade" id="agenda" role="tabpanel">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                     <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">
                         <i class="bi bi-calendar3 me-2"></i>Agenda del Spa
-                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Bienvenida a la Agenda General. Aquí puedes ver y gestionar el calendario completo de citas de todas las profesionales.')"></i>
+                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Bienvenida a la Agenda. Aquí tienes las fichas completas de todos los clientes agendados con opciones para recordatorios por WhatsApp y reagendamiento.')"></i>
                     </h4>
-                    <button class="btn btn-sm btn-outline-info" onclick="if(window.fullCalendarAgenda) window.fullCalendarAgenda.refetchEvents();">
-                        <i class="bi bi-arrow-clockwise me-1"></i>Actualizar Calendario
-                    </button>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <!-- VISTA SWITCHER: FICHAS VS CALENDARIO -->
+                        <div class="btn-group btn-group-sm shadow-sm" role="group">
+                            <button type="button" class="btn btn-outline-info active" id="btnVistaTarjetasAgenda" onclick="cambiarVistaAgenda('tarjetas', this)"><i class="bi bi-grid-fill me-1"></i>Fichas de Citas</button>
+                            <button type="button" class="btn btn-outline-info" id="btnVistaCalendarioAgenda" onclick="cambiarVistaAgenda('calendario', this)"><i class="bi bi-calendar-week me-1"></i>Calendario</button>
+                        </div>
+                        <button class="btn btn-sm btn-outline-light" onclick="window.location.reload();" title="Recargar"><i class="bi bi-arrow-clockwise"></i></button>
+                    </div>
                 </div>
 
-                <!-- Filtros y Leyenda -->
-                <div class="grid-card p-3 mb-4" style="border: 1px solid rgba(0, 229, 255, 0.25);">
-                    <div class="row align-items-center g-3">
-                        <div class="col-12 col-md-6 d-flex align-items-center gap-2">
-                            <i class="bi bi-funnel-fill text-info fs-5"></i>
-                            <label class="form-label text-info fw-bold m-0 small text-uppercase">Filtrar por Profesional:</label>
-                            <select id="filtro-socia-agenda" class="form-select bg-dark text-white border-secondary w-auto" onchange="filtrarCalendarioAgenda()">
-                                <option value="">Todas las profesionales</option>
-                            </select>
+                <!-- FILTROS DE LA AGENDA (PROFESIONAL, HOY, PRÓXIMAS, TODAS) -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 p-2 rounded" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-funnel-fill text-info fs-5"></i>
+                        <label class="form-label text-info fw-bold m-0 small text-uppercase">Filtrar por Profesional:</label>
+                        <select id="filtro-socia-agenda" class="form-select form-select-sm bg-dark text-white border-secondary w-auto" onchange="filtrarCitasAgendadasVista()">
+                            <option value="">Todas las profesionales</option>
+                            <option th:each="s : ${socias}" th:if="${s.activa}" th:value="${s.id}" th:text="${s.nombre}">Socia</option>
+                        </select>
+                    </div>
+                    <div class="btn-group btn-group-sm shadow-sm" role="group">
+                        <button type="button" class="btn btn-outline-info active" onclick="filtrarCitasAgendadasPorTiempo('todas', this)"><i class="bi bi-grid-fill me-1"></i>Todas</button>
+                        <button type="button" class="btn btn-outline-success" onclick="filtrarCitasAgendadasPorTiempo('hoy', this)"><i class="bi bi-calendar-event me-1"></i>Agendadas Hoy</button>
+                        <button type="button" class="btn btn-outline-warning" onclick="filtrarCitasAgendadasPorTiempo('proximas', this)"><i class="bi bi-clock-history me-1"></i>Próximas</button>
+                    </div>
+                </div>
+
+                <!-- VISTA 1: FICHAS / TARJETAS DE CLIENTES AGENDADOS (MISMA ESTRUCTURA Y BOTONES QUE CITAS PENDIENTES) -->
+                <div id="vistaTarjetasAgendaContainer">
+                    <div class="row g-3" style="max-height: 70vh; overflow-y: auto; overflow-x: hidden;">
+                        <!-- AVISO CUANDO NO HAY CITAS AGENDADAS -->
+                        <div class="col-12 text-center py-5" th:if="${citasAgendadas == null or #lists.isEmpty(citasAgendadas)}">
+                            <div class="p-4 rounded border border-secondary" style="background: rgba(0,0,0,0.3); max-width: 500px; margin: 0 auto;">
+                                <i class="bi bi-calendar-x text-info" style="font-size: 3.5rem;"></i>
+                                <h5 class="text-white mt-3 fw-bold">Sin citas agendadas</h5>
+                                <p class="text-white-50 small mb-0">No hay citas agendadas registradas en el sistema en este momento.</p>
+                            </div>
                         </div>
-                        <div class="col-12 col-md-6 text-md-end">
-                            <span class="badge bg-info text-dark px-3 py-2 fw-bold me-1">🔵 Confirmada / Pagada</span>
-                            <span class="badge bg-warning text-dark px-3 py-2 fw-bold me-1">🟡 Pendiente / Abono</span>
-                            <span class="badge px-3 py-2 fw-bold text-white" style="background: #af00ff;">🟣 Agendada</span>
+
+                        <!-- TARJETA INDIVIDUAL DE CITA AGENDADA -->
+                        <div class="col-12 col-md-6 col-lg-4 item-cita-agendada-card" th:each="c : ${citasAgendadas}"
+                             th:attr="data-socia-id=${c.socia != null ? c.socia.id : ''}, data-es-hoy=${c.fechaHora != null and #temporals.format(c.fechaHora, 'yyyy-MM-dd') == fechaHoy ? 'true' : 'false'}, data-fecha=${c.fechaHora != null ? #temporals.format(c.fechaHora, 'yyyy-MM-dd') : ''}">
+                            <div class="grid-card position-relative" style="border-color: #00e5ff !important; transition: all 0.2s ease;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="card-title-cp mb-0 text-white fw-bold" th:text="${c.cliente != null ? c.cliente.nombre : 'Cliente Web'}">Nombre</h6>
+                                        <small class="text-white-50"><i class="bi bi-telephone text-success"></i> <span th:text="${c.cliente != null ? c.cliente.telefono : '---'}">Tel</span></small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge" th:classappend="${c.estado == 'CONFIRMADO' or c.estado == 'CONFIRMADA' or c.estado == 'PAGADO'} ? 'badge-confirmado' : 'badge-reservado'" th:text="${c.estado ?: 'AGENDADA'}">Estado</span>
+                                        <span th:if="${c.fechaHora != null and #temporals.format(c.fechaHora, 'yyyy-MM-dd') == fechaHoy}" class="badge bg-info text-dark d-block mt-1" style="font-size: 0.65rem; box-shadow: 0 0 8px rgba(0,229,255,0.4);"><i class="bi bi-clock-fill me-1"></i>HOY</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="info-pill mb-1 w-100"><i class="bi bi-box-seam text-info"></i> <span th:text="${c.nombreTratamiento}" class="text-truncate">Servicio</span></div>
+                                    <div class="info-pill mb-1 w-100" th:if="${c.socia != null}"><i class="bi bi-person-hearts" style="color:var(--fucsia-neon);"></i> <span th:text="${c.socia.nombre}" class="text-truncate">Profesional</span></div>
+                                    <div class="info-pill w-100"><i class="bi bi-calendar-check text-info"></i> <span th:text="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'dd/MM/yy HH:mm') : 'Por definir'}">Fecha</span></div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3 p-2 rounded" style="background: rgba(0, 229, 255, 0.05); border: 1px dashed var(--cyan-neon);">
+                                    <small class="text-white-50">Total / Abono registrado:</small>
+                                    <strong class="fs-5" th:if="${(c.totalPagado != null and c.totalPagado > 0) or (c.montoPagado != null and c.montoPagado > 0)}" style="color: var(--cyan-neon);" th:text="'$' + ${#numbers.formatInteger((c.totalPagado != null and c.totalPagado > 0 ? c.totalPagado : c.montoPagado), 0, 'POINT')}">$0</strong>
+                                    <span class="badge bg-secondary" th:if="${(c.totalPagado == null or c.totalPagado <= 0) and (c.montoPagado == null or c.montoPagado <= 0)}">Sin pago registrado ($0)</span>
+                                </div>
+
+                                <div class="card-actions justify-content-center">
+                                    <button class="btn btn-sm btn-success flex-grow-1" title="Aprobar / Confirmar Pago" th:if="${c.estado != 'CONFIRMADO' and c.estado != 'CONFIRMADA' and c.estado != 'PAGADO'}" th:onclick="'confirmarCita(' + ${c.id} + ')'"><i class="bi bi-check-lg"></i></button>
+                                    <button class="btn btn-sm btn-primary flex-grow-1" title="Reagendar Cita" th:onclick="'abrirModalReagendar(' + ${c.id} + ')'"><i class="bi bi-clock-history"></i></button>
+                                    <button class="btn btn-sm btn-info flex-grow-1 text-dark fw-bold" title="Confirmación / Recordatorio WhatsApp" th:data-nombre="${c.cliente != null ? c.cliente.nombre : ''}" th:data-telefono="${c.cliente != null ? c.cliente.telefono : ''}" th:data-fecha="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'yyyy-MM-dd HH:mm') : ''}" th:data-servicio="${c.nombreTratamiento}" onclick="enviarWhatsAppCita(this)"><i class="bi bi-whatsapp"></i></button>
+                                    <button class="btn btn-sm btn-danger flex-grow-1" title="Cancelar / Eliminar" th:onclick="'cancelarCita(' + ${c.id} + ')'"><i class="bi bi-x-lg"></i></button>
+                                </div>
+                                <div class="card-actions mt-2 pt-2 justify-content-center border-top-0">
+                                    <button th:if="${c.cliente != null}" class="btn btn-sm text-dark fw-bold w-100 mb-1" style="background-color: #25D366; border-color: #25D366; box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);" title="Enviar Recordatorio por WhatsApp" th:data-telefono="${c.cliente.telefono}" th:data-nombre="${c.cliente.nombre}" th:data-fecha="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'dd/MM HH:mm') : 'Por definir'}" th:data-servicio="${c.nombreTratamiento}" onclick="enviarWhatsAppRecordatorio(this)">
+                                        <i class="bi bi-whatsapp me-1"></i> Enviar Recordatorio Wap
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info w-100" 
+                                            th:data-cliente="${c.cliente != null ? c.cliente.nombre : 'Cliente'}"
+                                            th:data-servicio="${c.nombreTratamiento}"
+                                            th:data-total="${c.totalPagado}"
+                                            th:data-fecha="${c.fechaHora != null ? #temporals.format(c.fechaHora, 'dd/MM/yyyy HH:mm') : '---'}"
+                                            th:data-id="${c.id}"
+                                            onclick="imprimirTicketCliente(this.getAttribute('data-cliente'), this.getAttribute('data-servicio'), this.getAttribute('data-total'), this.getAttribute('data-fecha'), this.getAttribute('data-id'))">
+                                        <i class="bi bi-printer me-1"></i> Imprimir Comprobante
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Marco del Calendario -->
-                <div class="grid-card p-3 p-md-4" style="background: rgba(16, 1, 24, 0.7); border: 1px solid rgba(255, 0, 255, 0.25);">
-                    <div id="calendar-agenda"></div>
+                <!-- VISTA 2: MARCO DEL CALENDARIO FULLCALENDAR (ACTIVABLE CON BOTÓN) -->
+                <div id="vistaCalendarioAgendaContainer" class="d-none">
+                    <div class="grid-card p-3 p-md-4" style="background: rgba(16, 1, 24, 0.7); border: 1px solid rgba(255, 0, 255, 0.25);">
+                        <div id="calendar-agenda"></div>
+                    </div>
                 </div>
             </div>
 
