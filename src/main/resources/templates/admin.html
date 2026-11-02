@@ -2078,7 +2078,9 @@
     let rolActual = "";
 
     function validarAcceso(event) {
-        const pin = document.getElementById('input-pin').value.trim();
+        const pinInput = document.getElementById('input-pin');
+        if (!pinInput) return;
+        const pin = pinInput.value.trim();
 
         if (pin === '7777') {
             usuarioActual = "Crisley Paredes";
@@ -2088,47 +2090,68 @@
             rolActual = "ADMINISTRADORA";
         } else {
             // Error visual y sonoro
-            reproducirError();
+            if (typeof reproducirError === 'function') reproducirError();
             const loginBox = document.getElementById('login-box');
-            loginBox.classList.add('shake-error');
-            setTimeout(() => loginBox.classList.remove('shake-error'), 400);
+            if (loginBox) {
+                loginBox.classList.add('shake-error');
+                setTimeout(() => loginBox.classList.remove('shake-error'), 400);
+            }
             return;
         }
 
         // Éxito en el login
-        sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
-        localStorage.setItem('spa_usuario', usuarioActual);
-        localStorage.setItem('spa_rol', rolActual);
+        try {
+            if (sfxOk) { sfxOk.currentTime = 0; sfxOk.play().catch(()=>{}); }
+        } catch(e) {}
 
-        // Pantalla de Bienvenida Waooo
-        document.getElementById('login-screen').style.display = 'none';
+        try {
+            localStorage.setItem('spa_usuario', usuarioActual);
+            localStorage.setItem('spa_rol', rolActual);
+        } catch(e) {}
+
+        // Pantalla de Bienvenida
+        const loginScr = document.getElementById('login-screen');
+        if (loginScr) loginScr.style.display = 'none';
+
         const welcomeScreen = document.getElementById('welcome-screen');
-        welcomeScreen.style.display = 'flex';
+        if (welcomeScreen) welcomeScreen.style.display = 'flex';
 
         const primerNombre = usuarioActual.split(' ')[0];
-        document.getElementById('welcome-message').innerText = "¡Bienvenida " + primerNombre + "!";
+        const welcomeMsg = document.getElementById('welcome-message');
+        if (welcomeMsg) welcomeMsg.innerText = "¡Bienvenida " + primerNombre + "!";
 
-        // SALUDO DE VOZ (SÍNTESIS DE VOZ NATIVA)
-        if ('speechSynthesis' in window) {
-            const mensajeVoz = new SpeechSynthesisUtterance("Bienvenida " + primerNombre + ". Iniciando panel de administración.");
-            mensajeVoz.lang = 'es-ES'; // Idioma español
-            window.speechSynthesis.speak(mensajeVoz);
-        }
+        // SALUDO DE VOZ
+        try {
+            if ('speechSynthesis' in window) {
+                const mensajeVoz = new SpeechSynthesisUtterance("Bienvenida " + primerNombre + ". Iniciando panel de administración.");
+                mensajeVoz.lang = 'es-ES';
+                window.speechSynthesis.speak(mensajeVoz);
+            }
+        } catch(e) {}
 
-        // Transición automática al panel en 2.5 segundos
+        // Transición automática al panel
         setTimeout(() => {
-            sfxWaooo.currentTime = 0; sfxWaooo.play().catch(()=>{}); // Suena mágico al entrar
-            welcomeScreen.style.display = 'none';
-            document.getElementById('app-dashboard').style.display = 'block';
-            document.getElementById('etiqueta-usuario').innerHTML = `<i class="bi bi-person-circle"></i> ${usuarioActual}`;
+            try {
+                if (sfxWaooo) { sfxWaooo.currentTime = 0; sfxWaooo.play().catch(()=>{}); }
+            } catch(e) {}
+            if (welcomeScreen) welcomeScreen.style.display = 'none';
+            const appDash = document.getElementById('app-dashboard');
+            if (appDash) appDash.style.display = 'block';
+            const labelUsr = document.getElementById('etiqueta-usuario');
+            if (labelUsr) labelUsr.innerHTML = `<i class="bi bi-person-circle"></i> ${usuarioActual}`;
 
             if (rolActual === "ADMINISTRADORA") {
                 let ingresosEl = document.getElementById('monto-ingresos');
-                ingresosEl.innerText = "$****";
-                ingresosEl.classList.remove('text-cyan-neon');
-                ingresosEl.style.color = "#888";
+                if (ingresosEl) {
+                    ingresosEl.innerText = "$****";
+                    ingresosEl.classList.remove('text-cyan-neon');
+                    ingresosEl.style.color = "#888";
+                }
             }
-        }, 2500);
+            if (typeof actualizarMedidoresClientes === 'function') {
+                actualizarMedidoresClientes();
+            }
+        }, 1200);
     }
 
     window.cerrarSesionAdmin = function() {
@@ -2644,9 +2667,7 @@
     document.getElementById('f-total-pack').value = data.finanzas.totalPack || '';
     if(data.finanzas.pagos) pagosKardexTemporal = data.finanzas.pagos;
     }
-    }
-
-        if (typeof actualizarContadoresKardexModal === "function") actualizarContadoresKardexModal();
+    if (typeof actualizarContadoresKardexModal === "function") actualizarContadoresKardexModal();
 }
 
 function limpiarFormKardex() {
@@ -3216,9 +3237,6 @@ function limpiarFormKardex() {
             deuda: document.getElementById('f-lbl-deuda') ? document.getElementById('f-lbl-deuda').innerText : '$0'
         };
     }
-
-        if (typeof actualizarContadoresKardexModal === "function") actualizarContadoresKardexModal();
-}
 
 function imprimirKardexRecibo() {
         reproducirClick();
