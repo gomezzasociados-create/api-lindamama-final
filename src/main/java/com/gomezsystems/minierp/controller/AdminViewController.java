@@ -34,7 +34,16 @@ public class AdminViewController {
 
 
 
-        try { model.addAttribute("citas", citaRepository.findAll()); } catch (Exception e) { model.addAttribute("citas", new ArrayList<>()); }
+        java.time.LocalDate hoy = java.time.LocalDate.now();
+        java.time.LocalDateTime inicioHoy = hoy.atStartOfDay();
+        java.time.LocalDateTime finHoy = hoy.atTime(23, 59, 59);
+        model.addAttribute("fechaHoy", hoy.toString());
+
+        try { 
+            model.addAttribute("citas", citaRepository.findCitasPendientesOAgendadasHoy(inicioHoy, finHoy)); 
+        } catch (Exception e) { 
+            model.addAttribute("citas", new ArrayList<>()); 
+        }
         try { model.addAttribute("tratamientos", tratamientoRepository.findAll()); } catch (Exception e) { model.addAttribute("tratamientos", new ArrayList<>()); }
         try { model.addAttribute("clientes", clienteRepository.findAll()); } catch (Exception e) { model.addAttribute("clientes", new ArrayList<>()); }
         

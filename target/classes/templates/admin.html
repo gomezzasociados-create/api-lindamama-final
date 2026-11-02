@@ -400,18 +400,39 @@
 
             <div class="tab-pane fade" id="citas" role="tabpanel">
                 <h4 class="fw-bold mb-3 text-center text-md-start" style="color: var(--cyan-neon);">
-                    Últimas Reservas
-                    <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('Este es tu libro de citas. Puedes confirmar pagos para que el dinero entre a la caja fuerte, reagendar horarios o cancelar citas definitivamente con los botones laterales.')"></i>
+                    <i class="bi bi-journal-check me-2"></i>Citas y Pagos
+                    <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('En esta sección verás únicamente las citas pendientes de cobro y las personas agendadas para atender el día de hoy.')"></i>
                 </h4>
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                    <small class="text-white-50"><i class="bi bi-funnel-fill text-info me-1"></i>Mostrando citas pendientes y personas agendadas para hoy</small>
+                    <div class="btn-group btn-group-sm mt-2 mt-md-0 shadow-sm" role="group">
+                        <button type="button" class="btn btn-outline-info active" onclick="filtrarCitasVista('todos', this)"><i class="bi bi-grid-fill me-1"></i>Todas</button>
+                        <button type="button" class="btn btn-outline-warning" onclick="filtrarCitasVista('pendientes', this)"><i class="bi bi-hourglass-split me-1"></i>Pendientes</button>
+                        <button type="button" class="btn btn-outline-success" onclick="filtrarCitasVista('hoy', this)"><i class="bi bi-calendar-event me-1"></i>Agendadas Hoy</button>
+                    </div>
+                </div>
                 <div class="row g-3" style="max-height: 70vh; overflow-y: auto; overflow-x: hidden;">
-                    <div class="col-12 col-md-6 col-lg-4" th:each="c : ${citas}">
+                    <!-- AVISO CUANDO NO HAY CITAS PENDIENTES NI DE HOY -->
+                    <div class="col-12 text-center py-5" th:if="${citas == null or #lists.isEmpty(citas)}">
+                        <div class="p-4 rounded border border-secondary" style="background: rgba(0,0,0,0.3); max-width: 500px; margin: 0 auto;">
+                            <i class="bi bi-calendar-check text-info" style="font-size: 3.5rem;"></i>
+                            <h5 class="text-white mt-3 fw-bold">Sin citas pendientes ni agendadas para hoy</h5>
+                            <p class="text-white-50 small mb-0">Todas las reservas anteriores están al día y no hay pacientes programados para el turno de hoy.</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4 item-cita-card" th:each="c : ${citas}"
+                         th:attr="data-estado=${c.estado == 'RESERVADO' ? 'pendiente' : 'pagado'}, data-es-hoy=${c.fechaHora != null and #temporals.format(c.fechaHora, 'yyyy-MM-dd') == fechaHoy ? 'true' : 'false'}">
                         <div class="grid-card" th:style="${c.estado == 'RESERVADO'} ? 'border-color: #ff9800 !important;' : ''">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
                                     <h6 class="card-title-cp" th:text="${c.cliente != null ? c.cliente.nombre : 'Cliente Web'}">Nombre</h6>
                                     <small class="text-white-50"><i class="bi bi-telephone text-success"></i> <span th:text="${c.cliente != null ? c.cliente.telefono : '---'}">Tel</span></small>
                                 </div>
-                                <span class="badge" th:classappend="${c.estado == 'RESERVADO'} ? 'badge-reservado' : 'badge-confirmado'" th:text="${c.estado == 'RESERVADO'} ? 'PENDIENTE' : 'PAGADO'">Estado</span>
+                                <div class="text-end">
+                                    <span class="badge" th:classappend="${c.estado == 'RESERVADO'} ? 'badge-reservado' : 'badge-confirmado'" th:text="${c.estado == 'RESERVADO'} ? 'PENDIENTE' : 'PAGADO'">Estado</span>
+                                    <span th:if="${c.fechaHora != null and #temporals.format(c.fechaHora, 'yyyy-MM-dd') == fechaHoy}" class="badge bg-info text-dark d-block mt-1" style="font-size: 0.65rem; box-shadow: 0 0 8px rgba(0,229,255,0.4);"><i class="bi bi-clock-fill me-1"></i>HOY</span>
+                                </div>
                             </div>
                             
                             <div class="mb-3">
@@ -2323,6 +2344,26 @@
     function ejecutarReagendamiento(event) { activarEfectoWaooo(event); const id = document.getElementById('reagendarCitaId').value; const fecha = document.getElementById('nuevaFechaInput').value; if(!fecha) return alert("Selecciona fecha"); setTimeout(() => fetch(`/api/admin/citas/reagendar/${id}?nuevaFecha=${fecha}`, {method:'POST'}).then(res => { if(res.ok) window.location.reload(); else alert("Error al reagendar"); }), 800); }
     function confirmarCita(id) { sfxWaooo.currentTime = 0; sfxWaooo.play().catch(()=>{}); if(confirm("¿Confirmar pago y aprobar?")) { fetch('/api/admin/citas/confirmar/'+id, {method:'POST'}).then(()=>window.location.reload()); } }
     function cancelarCita(id) { reproducirError(); if(confirm("¿Eliminar cita definitivamente?")) { fetch('/api/admin/citas/cancelar/'+id, {method:'POST'}).then(()=>window.location.reload()); } }
+
+    window.filtrarCitasVista = function(tipo, btn) {
+        if(typeof reproducirClick === 'function') reproducirClick();
+        if(btn) {
+            document.querySelectorAll('#citas .btn-group button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        const cards = document.querySelectorAll('.item-cita-card');
+        cards.forEach(card => {
+            const est = card.getAttribute('data-estado');
+            const esHoy = card.getAttribute('data-es-hoy') === 'true';
+            if (tipo === 'todos') {
+                card.style.display = 'block';
+            } else if (tipo === 'pendientes') {
+                card.style.display = (est === 'pendiente') ? 'block' : 'none';
+            } else if (tipo === 'hoy') {
+                card.style.display = esHoy ? 'block' : 'none';
+            }
+        });
+    };
 
     let modalAgendarNuevoCRM;
     function abrirModalAgendarNuevo(btn) {
