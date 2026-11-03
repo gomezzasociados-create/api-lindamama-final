@@ -48,6 +48,20 @@ public class SociaRestController {
             if (count >= 10) {
                 return ResponseEntity.badRequest().build(); // Límite alcanzado
             }
+        } else {
+            // Edición de socia existente: no perder foto ni password si vienen vacíos
+            Optional<Socia> existenteOpt = sociaRepository.findById(socia.getId());
+            if (existenteOpt.isPresent()) {
+                Socia existente = existenteOpt.get();
+                if ("__REMOVE__".equals(socia.getFotoUrl())) {
+                    socia.setFotoUrl(null);
+                } else if ((socia.getFotoUrl() == null || socia.getFotoUrl().trim().isEmpty() || "null".equals(socia.getFotoUrl())) && existente.getFotoUrl() != null) {
+                    socia.setFotoUrl(existente.getFotoUrl());
+                }
+                if ((socia.getPassword() == null || socia.getPassword().trim().isEmpty()) && existente.getPassword() != null) {
+                    socia.setPassword(existente.getPassword());
+                }
+            }
         }
         
         Socia guardada = sociaRepository.save(socia);
@@ -119,9 +133,9 @@ public class SociaRestController {
             return ResponseEntity.badRequest().body("El archivo está vacío");
         }
         try {
-            java.io.File uploadDir = new java.io.File("uploads");
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
+            java.nio.file.Path uploadDir = java.nio.file.Paths.get("uploads").toAbsolutePath().normalize();
+            if (!java.nio.file.Files.exists(uploadDir)) {
+                java.nio.file.Files.createDirectories(uploadDir);
             }
 
             String extension = "";
@@ -129,9 +143,12 @@ public class SociaRestController {
             if (originalFilename != null && originalFilename.contains(".")) {
                 extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             }
+            if (extension.isEmpty() || !extension.startsWith(".")) {
+                extension = ".jpg";
+            }
             String nuevoNombre = "socia_" + System.currentTimeMillis() + extension;
 
-            java.nio.file.Path rutaDestino = java.nio.file.Paths.get("uploads", nuevoNombre);
+            java.nio.file.Path rutaDestino = uploadDir.resolve(nuevoNombre);
             java.nio.file.Files.copy(file.getInputStream(), rutaDestino, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
             Map<String, String> response = new HashMap<>();

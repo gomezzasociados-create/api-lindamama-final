@@ -1857,14 +1857,45 @@
                                 <input type="number" class="form-control" id="sociaPorcSocia" min="0" max="100" value="50" disabled>
                             </div>
                         </div>
+                        <!-- FOTO DE PERFIL DE LA SOCIA: SUBIDA MÓVIL / PC Y COMPRESIÓN -->
                         <div class="mb-3">
-                            <label class="form-label text-info fw-bold">Foto de Perfil</label>
-                            <div class="input-group">
-                                <input type="file" class="form-control" id="sociaFotoFile" accept="image/*" onchange="subirFotoSociaServidor()">
-                                <input type="hidden" id="sociaFoto" value="">
+                            <label class="form-label text-info fw-bold d-flex justify-content-between align-items-center mb-1">
+                                <span><i class="bi bi-camera-fill me-1"></i> Foto de Perfil</span>
+                                <span class="badge bg-secondary" style="font-size: 0.65rem;">Móvil / PC</span>
+                            </label>
+
+                            <!-- Zona táctil / clic para seleccionar foto o abrir cámara -->
+                            <div class="p-3 rounded border border-info text-center position-relative mb-2" 
+                                 style="background: rgba(0, 229, 255, 0.05); border-style: dashed !important; cursor: pointer;" 
+                                 onclick="document.getElementById('sociaFotoFile').click()">
+                                <input type="file" id="sociaFotoFile" accept="image/*" class="d-none" onchange="subirFotoSociaServidor(this)">
+                                <i class="bi bi-cloud-arrow-up-fill text-info fs-2 d-block mb-1"></i>
+                                <span class="text-white fw-bold d-block small">Subir foto desde tu dispositivo</span>
+                                <span class="text-white-50" style="font-size: 0.7rem;">Toca para abrir cámara o galería en tu móvil, o seleccionar en tu PC</span>
                             </div>
-                            <div id="socia-preview-container" class="mt-2 text-center" style="display: none;">
-                                <img id="socia-foto-preview" src="" alt="Vista previa" class="rounded border border-info" style="max-height: 100px; box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);">
+
+                            <!-- Estado de carga / compresión instantánea -->
+                            <div id="socia-upload-loading" class="text-center text-info small my-2" style="display: none;">
+                                <div class="spinner-border spinner-border-sm text-info me-2" role="status"></div>
+                                <span>Optimizando y subiendo foto...</span>
+                            </div>
+
+                            <!-- Vista previa con botón para quitar -->
+                            <div id="socia-preview-container" class="text-center position-relative my-2 p-2 rounded border border-info" style="display: none; background: rgba(0,0,0,0.4);">
+                                <img id="socia-foto-preview" src="" alt="Vista previa de perfil" class="rounded" style="max-height: 130px; max-width: 100%; object-fit: cover; box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);">
+                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 rounded-circle p-1" style="width: 26px; height: 26px; line-height: 1;" onclick="eliminarFotoSocia(event)" title="Quitar foto">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+
+                            <!-- Enlace alternativo o edición de URL -->
+                            <div class="mt-1">
+                                <a class="text-white-50 small text-decoration-none d-inline-block mb-1" data-bs-toggle="collapse" href="#collapseUrlSocia" role="button" aria-expanded="false" style="font-size: 0.72rem;">
+                                    <i class="bi bi-link-45deg"></i> O ingresar enlace / URL pública manualmente
+                                </a>
+                                <div class="collapse" id="collapseUrlSocia">
+                                    <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" id="sociaFoto" placeholder="https://... o /uploads/socia_..." oninput="actualizarPreviewSocia(this.value)">
+                                </div>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -3894,11 +3925,15 @@ function imprimirKardexRecibo() {
     
     document.getElementById('socias-tab').addEventListener('click', cargarSocias);
 
+    window.sociasActuales = [];
+
     function cargarSocias() {
         fetch('/api/socias')
             .then(res => res.json())
             .then(socias => {
+                window.sociasActuales = socias;
                 const grid = document.getElementById('grid-socias');
+                if(!grid) return;
                 if(socias.length === 0) {
                     grid.innerHTML = '<div class="col-12 text-center text-muted p-3">No hay socias registradas. Añade una nueva.</div>';
                     return;
@@ -3906,45 +3941,50 @@ function imprimirKardexRecibo() {
                 
                 let html = '';
                 socias.forEach(s => {
-                    let foto = s.fotoUrl ? `<img src="${s.fotoUrl}" class="card-avatar me-3" style="width: 70px; height: 95px;">` : '<i class="bi bi-person-circle text-secondary me-3" style="font-size: 70px;"></i>';
+                    const tieneFoto = s.fotoUrl && s.fotoUrl.trim() !== '' && s.fotoUrl !== 'null';
+                    let foto = tieneFoto 
+                        ? `<img src="${s.fotoUrl}" class="card-avatar me-3" style="width: 70px; height: 95px; object-fit: cover;" onerror="this.onerror=null; this.src='/logo-spa.png';">` 
+                        : '<i class="bi bi-person-circle text-secondary me-3" style="font-size: 70px;"></i>';
+                    
+                    const safeNombre = (s.nombre || '').replace(/'/g, "\\'");
                     html += `
                         <div class="col-12 col-md-6 col-lg-4">
                             <div class="grid-card text-center" style="${!s.activa ? 'opacity: 0.7; filter: grayscale(1);' : ''}">
                                 <div class="d-flex justify-content-center mb-2">
                                     ${foto}
                                 </div>
-                                <h5 class="fw-bold" style="color: var(--cyan-neon);">${s.nombre}</h5>
+                                <h5 class="fw-bold" style="color: var(--cyan-neon);">${s.nombre || 'Sin Nombre'}</h5>
                                 <p class="small text-white-50 mb-2">${s.especialidad || 'Sin especialidad'}</p>
                                 
                                 <div class="d-flex justify-content-between mx-auto mb-3 w-100 p-2 rounded" style="background: rgba(0,0,0,0.3); max-width: 200px;">
                                     <div class="text-center w-50 border-end border-secondary">
                                         <small class="d-block text-white" style="font-size: 0.7rem;">COM. SPA</small>
-                                        <span class="fw-bold text-info">${s.porcentajeSpa}%</span>
+                                        <span class="fw-bold text-info">${s.porcentajeSpa != null ? s.porcentajeSpa : 50}%</span>
                                     </div>
                                     <div class="text-center w-50">
                                         <small class="d-block text-white" style="font-size: 0.7rem;">COM. SOCIA</small>
-                                        <span class="fw-bold text-warning">${s.porcentajeSocia}%</span>
+                                        <span class="fw-bold text-warning">${s.porcentajeSocia != null ? s.porcentajeSocia : 50}%</span>
                                     </div>
                                 </div>
                                 
                                 <div class="card-actions justify-content-center border-top-0 mb-1 gap-1">
-                                    <button class="btn btn-sm btn-cyan flex-grow-1" onclick="editarSocia(${s.id}, '${s.nombre}', '${s.especialidad || ''}', ${s.porcentajeSpa}, ${s.porcentajeSocia}, '${s.fotoUrl || ''}', '${s.descripcion || ''}', '${s.telefono || ''}', '${s.usuario || ''}', '${s.password || ''}')"><i class="bi bi-pencil"></i> Editar</button>
+                                    <button class="btn btn-sm btn-cyan flex-grow-1" onclick="editarSociaPorId(${s.id})"><i class="bi bi-pencil"></i> Editar</button>
                                     <button class="btn btn-sm btn-outline-danger" onclick="borrarSocia(${s.id})"><i class="bi bi-trash"></i></button>
                                 </div>
                                 <div class="card-actions justify-content-center mt-1 pt-2 align-items-center flex-column">
                                     <div class="d-flex w-100 gap-1 mb-2">
-                                        <button class="btn btn-sm btn-fucsia flex-grow-1" onclick="verBalanceSocia(${s.id}, '${s.nombre}')">
+                                        <button class="btn btn-sm btn-fucsia flex-grow-1" onclick="verBalanceSocia(${s.id}, '${safeNombre}')">
                                             <i class="bi bi-cash-coin me-1"></i> Balance
                                         </button>
-                                        <button class="btn btn-sm btn-outline-fucsia px-3" title="Imprimir Balance" onclick="imprimirBalanceSocia(${s.id}, '${s.nombre}', ${s.porcentajeSocia})">
+                                        <button class="btn btn-sm btn-outline-fucsia px-3" title="Imprimir Balance" onclick="imprimirBalanceSocia(${s.id}, '${safeNombre}', ${s.porcentajeSocia != null ? s.porcentajeSocia : 50})">
                                             <i class="bi bi-printer"></i>
                                         </button>
                                     </div>
                                     <div class="d-flex w-100 gap-1 mb-1">
-                                        <button class="btn btn-sm text-dark fw-bold flex-grow-1" style="background-color: #25D366; border-color: #25D366; box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);" onclick="enviarWhatsAppSocia(${s.id}, '${s.nombre}', '${s.telefono || ''}')">
+                                        <button class="btn btn-sm text-dark fw-bold flex-grow-1" style="background-color: #25D366; border-color: #25D366; box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);" onclick="enviarWhatsAppSocia(${s.id}, '${safeNombre}', '${s.telefono || ''}')">
                                             <i class="bi bi-whatsapp me-1"></i> Reporte Diario
                                         </button>
-                                        <button class="btn btn-sm btn-outline-success px-3" title="Imprimir Reporte Diario" onclick="imprimirReporteDiarioSocia(${s.id}, '${s.nombre}', ${s.porcentajeSocia})">
+                                        <button class="btn btn-sm btn-outline-success px-3" title="Imprimir Reporte Diario" onclick="imprimirReporteDiarioSocia(${s.id}, '${safeNombre}', ${s.porcentajeSocia != null ? s.porcentajeSocia : 50})">
                                             <i class="bi bi-printer"></i>
                                         </button>
                                     </div>
@@ -3964,47 +4004,188 @@ function imprimirKardexRecibo() {
         document.getElementById('sociaId').value = '';
         document.getElementById('sociaFoto').value = '';
         document.getElementById('sociaFotoFile').value = '';
-        document.getElementById('socia-preview-container').style.display = 'none';
-        document.getElementById('socia-foto-preview').src = '';
+        
+        const previewImg = document.getElementById('socia-foto-preview');
+        const previewContainer = document.getElementById('socia-preview-container');
+        if (previewImg) previewImg.src = '';
+        if (previewContainer) previewContainer.style.display = 'none';
+        
+        const loadingDiv = document.getElementById('socia-upload-loading');
+        if (loadingDiv) loadingDiv.style.display = 'none';
+        
+        const submitBtn = document.querySelector('#formSocia button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Guardar Socia';
+        }
+        
         document.getElementById('tituloModalSocia').innerText = 'Añadir Nueva Socia';
         if(!modalSociaInst) modalSociaInst = new bootstrap.Modal(document.getElementById('modalSocia'));
         modalSociaInst.show();
     }
 
-    function editarSocia(id, nombre, espec, pSpa, pSocia, foto, desc, telefono, user, pass) {
-        document.getElementById('sociaId').value = id;
-        document.getElementById('sociaNombre').value = nombre;
-        document.getElementById('sociaEspec').value = espec;
-        document.getElementById('sociaPorcSpa').value = pSpa;
-        document.getElementById('sociaPorcSocia').value = pSocia;
-        document.getElementById('sociaFoto').value = foto;
-        document.getElementById('sociaFotoFile').value = '';
-        if (foto && foto.trim() !== '') {
-            document.getElementById('socia-foto-preview').src = foto;
-            document.getElementById('socia-preview-container').style.display = 'block';
-        } else {
-            document.getElementById('socia-foto-preview').src = '';
-            document.getElementById('socia-preview-container').style.display = 'none';
-        }
-        document.getElementById('sociaDesc').value = desc;
-        document.getElementById('sociaTelefono').value = telefono || '';
-        document.getElementById('sociaUser').value = user || '';
-        document.getElementById('sociaPass').value = pass || '';
-        document.getElementById('tituloModalSocia').innerText = 'Editar Socia';
+    function editarSociaPorId(id) {
+        reproducirClick();
+        const s = (window.sociasActuales || []).find(item => item.id === id);
+        if(!s) return;
         
+        document.getElementById('sociaId').value = s.id;
+        document.getElementById('sociaNombre').value = s.nombre || '';
+        document.getElementById('sociaEspec').value = s.especialidad || '';
+        document.getElementById('sociaPorcSpa').value = s.porcentajeSpa != null ? s.porcentajeSpa : 50;
+        document.getElementById('sociaPorcSocia').value = s.porcentajeSocia != null ? s.porcentajeSocia : 50;
+        
+        const fotoVal = (s.fotoUrl && s.fotoUrl !== 'null') ? s.fotoUrl : '';
+        document.getElementById('sociaFoto').value = fotoVal;
+        document.getElementById('sociaFotoFile').value = '';
+        
+        const previewImg = document.getElementById('socia-foto-preview');
+        const previewContainer = document.getElementById('socia-preview-container');
+        if (fotoVal && fotoVal.trim() !== '') {
+            previewImg.src = fotoVal;
+            previewContainer.style.display = 'block';
+        } else {
+            previewImg.src = '';
+            previewContainer.style.display = 'none';
+        }
+        
+        const loadingDiv = document.getElementById('socia-upload-loading');
+        if (loadingDiv) loadingDiv.style.display = 'none';
+        
+        document.getElementById('sociaDesc').value = s.descripcion || '';
+        document.getElementById('sociaTelefono').value = s.telefono || '';
+        document.getElementById('sociaUser').value = s.usuario || '';
+        document.getElementById('sociaPass').value = ''; // En blanco para conservar actual si no se cambia
+        document.getElementById('sociaPass').placeholder = '•••• (dejar vacío para mantener actual)';
+        
+        const submitBtn = document.querySelector('#formSocia button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Actualizar Socia';
+        }
+        
+        document.getElementById('tituloModalSocia').innerText = 'Editar Socia';
         if(!modalSociaInst) modalSociaInst = new bootstrap.Modal(document.getElementById('modalSocia'));
         modalSociaInst.show();
     }
 
+    // Compatibilidad retroactiva
+    function editarSocia(id, nombre, espec, pSpa, pSocia, foto, desc, telefono, user, pass) {
+        editarSociaPorId(id);
+    }
+
+    window.actualizarPreviewSocia = function(url) {
+        const previewImg = document.getElementById('socia-foto-preview');
+        const previewContainer = document.getElementById('socia-preview-container');
+        if (url && url.trim() !== '') {
+            previewImg.src = url.trim();
+            previewContainer.style.display = 'block';
+        } else {
+            previewImg.src = '';
+            previewContainer.style.display = 'none';
+        }
+    };
+
+    window.eliminarFotoSocia = function(event) {
+        if(event) event.stopPropagation();
+        reproducirClick();
+        const idSocia = document.getElementById('sociaId').value;
+        // Si ya existía, enviamos marca para removerla en base de datos
+        document.getElementById('sociaFoto').value = idSocia ? '__REMOVE__' : '';
+        document.getElementById('sociaFotoFile').value = '';
+        
+        const previewImg = document.getElementById('socia-foto-preview');
+        const previewContainer = document.getElementById('socia-preview-container');
+        if (previewImg) previewImg.src = '';
+        if (previewContainer) previewContainer.style.display = 'none';
+    };
+
+    window.subirFotoSociaServidor = function(fileInput) {
+        if (!fileInput) fileInput = document.getElementById('sociaFotoFile');
+        if (!fileInput || !fileInput.files || fileInput.files.length === 0) return;
+
+        const file = fileInput.files[0];
+        const previewContainer = document.getElementById('socia-preview-container');
+        const previewImg = document.getElementById('socia-foto-preview');
+        const loadingDiv = document.getElementById('socia-upload-loading');
+        const submitBtn = document.querySelector('#formSocia button[type="submit"]');
+
+        // 1. Vista previa visual instantánea local (0ms de latencia)
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewContainer.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+
+        if (loadingDiv) loadingDiv.style.display = 'block';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.dataset.originalText = submitBtn.innerText;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Optimizando foto...';
+        }
+
+        // 2. Compresión optimizada para perfiles (800x1000 px, 0.85 de calidad JPEG)
+        const compresor = window.comprimirImagenEnNavegador || ((f) => Promise.resolve(f));
+        compresor(file, 800, 1000, 0.85)
+            .then(archivoListo => {
+                const formData = new FormData();
+                const nombreLimpio = (file.name ? file.name.replace(/\.[^/.]+$/, "") : "socia") + ".jpg";
+                formData.append("file", archivoListo, nombreLimpio);
+
+                return fetch('/api/socias/upload-foto', {
+                    method: 'POST',
+                    body: formData
+                });
+            })
+            .then(res => {
+                if(!res.ok) throw new Error("Error en servidor al subir foto (Código " + res.status + ")");
+                return res.json();
+            })
+            .then(data => {
+                if (data.fotoUrl) {
+                    document.getElementById('sociaFoto').value = data.fotoUrl;
+                    previewImg.src = data.fotoUrl;
+                    if (window.sfxOk) { window.sfxOk.currentTime = 0; window.sfxOk.play().catch(()=>{}); }
+                }
+            })
+            .catch(err => {
+                console.warn("Subida a /uploads/ falló o no disponible, activando persistencia Base64 en base de datos:", err);
+                // Fallback de ultra-seguridad: Guardar en Base64 comprimido en la columna TEXT de la BD
+                compresor(file, 600, 800, 0.8)
+                    .then(blobComprimido => {
+                        const b64Reader = new FileReader();
+                        b64Reader.onload = function(ev) {
+                            const dataUrl = ev.target.result;
+                            document.getElementById('sociaFoto').value = dataUrl;
+                            previewImg.src = dataUrl;
+                            if (window.sfxOk) { window.sfxOk.currentTime = 0; window.sfxOk.play().catch(()=>{}); }
+                        };
+                        b64Reader.readAsDataURL(blobComprimido);
+                    })
+                    .catch(e => {
+                        console.error("Error en compresión fallback:", e);
+                        alert("⚠️ No se pudo procesar la imagen: " + err.message);
+                    });
+            })
+            .finally(() => {
+                if (loadingDiv) loadingDiv.style.display = 'none';
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = submitBtn.dataset.originalText || 'Guardar Socia';
+                }
+            });
+    };
+
     function guardarSocia(event) {
-        event.preventDefault();
+        if (event) event.preventDefault();
         const id = document.getElementById('sociaId').value;
         const payload = {
             id: id ? parseInt(id) : null,
             nombre: document.getElementById('sociaNombre').value,
             especialidad: document.getElementById('sociaEspec').value,
-            porcentajeSpa: parseFloat(document.getElementById('sociaPorcSpa').value),
-            porcentajeSocia: parseFloat(document.getElementById('sociaPorcSocia').value),
+            porcentajeSpa: parseFloat(document.getElementById('sociaPorcSpa').value) || 50,
+            porcentajeSocia: parseFloat(document.getElementById('sociaPorcSocia').value) || 50,
             fotoUrl: document.getElementById('sociaFoto').value,
             descripcion: document.getElementById('sociaDesc').value,
             telefono: document.getElementById('sociaTelefono').value,
@@ -4012,6 +4193,12 @@ function imprimirKardexRecibo() {
             password: document.getElementById('sociaPass').value,
             activa: true
         };
+
+        const submitBtn = document.querySelector('#formSocia button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+        }
 
         fetch('/api/socias', {
             method: 'POST',
@@ -4021,55 +4208,26 @@ function imprimirKardexRecibo() {
         .then(res => {
             if(!res.ok) {
                 if(res.status === 400) throw new Error("Límite de 10 socias alcanzado.");
-                throw new Error("Error guardando.");
+                throw new Error("Error guardando datos de la socia.");
             }
             return res.json();
         })
         .then(data => {
             sfxOk.currentTime = 0; sfxOk.play().catch(()=>{});
-            modalSociaInst.hide();
+            if(modalSociaInst) modalSociaInst.hide();
             cargarSocias();
         })
         .catch(err => {
             sfxFail.currentTime = 0; sfxFail.play().catch(()=>{});
             alert(err.message);
+        })
+        .finally(() => {
+            if(submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Guardar Socia';
+            }
         });
     }
-
-    window.subirFotoSociaServidor = function() {
-        const fileInput = document.getElementById('sociaFotoFile');
-        if (!fileInput || fileInput.files.length === 0) return;
-
-        const file = fileInput.files[0];
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const previewImg = document.getElementById('socia-foto-preview');
-        const previewContainer = document.getElementById('socia-preview-container');
-        previewImg.src = "https://i.gifer.com/ZZ5H.gif"; // spinner
-        previewContainer.style.display = 'block';
-
-        fetch('/api/socias/upload-foto', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => {
-            if(!res.ok) throw new Error("Error en la subida");
-            return res.json();
-        })
-        .then(data => {
-            if (data.fotoUrl) {
-                document.getElementById('sociaFoto').value = data.fotoUrl;
-                previewImg.src = data.fotoUrl;
-            }
-        })
-        .catch(err => {
-            reproducirError();
-            alert("No se pudo cargar la imagen: " + err.message);
-            previewContainer.style.display = 'none';
-            fileInput.value = '';
-        });
-    };
 
     function borrarSocia(id) {
         if(!confirm("¿Estás segura de eliminar esta vacante de Socia permanentemente?")) return;
