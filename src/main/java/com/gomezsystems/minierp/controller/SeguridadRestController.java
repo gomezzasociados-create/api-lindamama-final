@@ -41,13 +41,14 @@ public class SeguridadRestController {
         return ResponseEntity.ok(Map.of(
                 "configurado", true,
                 "longitud", 6,
-                "pin", config.getValor()
+                "pin", config.getValor(),
+                "valor", config.getValor()
         ));
     }
 
     @PutMapping("/pin-maestro")
     public ResponseEntity<?> actualizarPinMaestro(@RequestBody Map<String, String> payload) {
-        String nuevoPin = payload.get("nuevoPin");
+        String nuevoPin = payload.get("nuevoPin") != null ? payload.get("nuevoPin") : payload.get("pin");
         if (nuevoPin == null || !nuevoPin.matches("^\\d{6}$")) {
             return ResponseEntity.badRequest().body(Map.of(
                     "status", "error",

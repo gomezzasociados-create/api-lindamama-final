@@ -179,7 +179,7 @@
         <h3 class="fw-bold mb-1" style="color: var(--cyan-neon); font-family: 'Playfair Display';">Linda Mamá Spa</h3>
         <p class="text-white mb-4 opacity-50 small text-uppercase tracking-wider">Centro de Mando Administrativo</p>
 
-        <input type="password" id="input-pin" class="admin-pin-input" maxlength="20" placeholder="••••" onkeypress="if(event.key === 'Enter') validarAcceso(event)"/>
+        <input type="password" id="input-pin" class="admin-pin-input" maxlength="20" placeholder="••••" autofocus onkeydown="if(event.key === 'Enter' || event.keyCode === 13) validarAcceso(event)" onkeypress="if(event.key === 'Enter') validarAcceso(event)"/>
 
         <button type="button" class="btn btn-admin-login w-100 py-3 fs-6 rounded-pill" onclick="validarAcceso(event)">
             INGRESAR AL SISTEMA <i class="bi bi-arrow-right-short fs-4 align-middle"></i>
@@ -2508,12 +2508,36 @@
     let rolActual = "";
 
     function validarAcceso(event) {
+        if (event && event.preventDefault) event.preventDefault();
         const pinInput = document.getElementById('input-pin');
         if (!pinInput) return;
         const pin = pinInput.value.trim();
         if (!pin) return;
 
-        // Intentar validación dinámica con base de datos en tiempo real
+        // 1. Acceso instantáneo e inmediato para Clave Maestra (6 dígitos) y Administradores Clave (0ms)
+        if (pin === '7777' || pin === '777777') {
+            usuarioActual = "Crisley Paredes";
+            rolActual = "PROPIETARIA";
+            iniciarSesionAdminExitosa();
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pin: pin, origen: 'ADMIN' })
+            }).catch(() => {});
+            return;
+        } else if (pin === '1010') {
+            usuarioActual = "Janneth";
+            rolActual = "ADMINISTRADORA";
+            iniciarSesionAdminExitosa();
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pin: pin, origen: 'ADMIN' })
+            }).catch(() => {});
+            return;
+        }
+
+        // 2. Validación en tiempo real contra base de datos (para nuevos usuarios y contraseñas delegadas)
         fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2530,33 +2554,12 @@
                 if (typeof reproducirError === 'function') reproducirError();
                 alert("⚠️ Acceso denegado: este usuario no tiene permisos asignados para ingresar al Centro de Mando (Admin).");
             } else {
-                // Fallback local por si el servidor no responde
-                if (pin === '7777') {
-                    usuarioActual = "Crisley Paredes";
-                    rolActual = "PROPIETARIA";
-                    iniciarSesionAdminExitosa();
-                } else if (pin === '1010') {
-                    usuarioActual = "Janneth";
-                    rolActual = "ADMINISTRADORA";
-                    iniciarSesionAdminExitosa();
-                } else {
-                    mostrarErrorLogin();
-                }
+                mostrarErrorLogin();
             }
         })
         .catch(err => {
-            // Offline fallback
-            if (pin === '7777') {
-                usuarioActual = "Crisley Paredes";
-                rolActual = "PROPIETARIA";
-                iniciarSesionAdminExitosa();
-            } else if (pin === '1010') {
-                usuarioActual = "Janneth";
-                rolActual = "ADMINISTRADORA";
-                iniciarSesionAdminExitosa();
-            } else {
-                mostrarErrorLogin();
-            }
+            console.error("Error al autenticar:", err);
+            mostrarErrorLogin();
         });
     }
 
