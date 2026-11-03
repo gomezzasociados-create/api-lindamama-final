@@ -200,6 +200,88 @@
     var usuarioActual = "Crisley Paredes";
     var rolActual = "PROPIETARIA";
 
+    window.actualizarMedidoresClientes = function() {
+        const inputs = document.querySelectorAll('.input-kardex-data');
+        if (!inputs || inputs.length === 0) return;
+        inputs.forEach(inp => {
+            const id = inp.id.replace('kjson-', '');
+            const jsonStr = inp.value;
+            let data = null;
+            if (jsonStr && jsonStr.trim() !== '') {
+                try { data = JSON.parse(jsonStr); } catch(e) {}
+            }
+
+            let sesionesRestantes = 0;
+            if (data && data.tratamiento) {
+                for (let k in data.tratamiento) {
+                    let v = parseInt(data.tratamiento[k]);
+                    if (!isNaN(v) && v > 0) sesionesRestantes += v;
+                }
+            }
+
+            let sesionesRealizadas = 0;
+            if (data && Array.isArray(data.visitas)) {
+                sesionesRealizadas = data.visitas.length;
+            }
+
+            const totalAsignadas = sesionesRestantes + sesionesRealizadas;
+
+            const badgeEl = document.getElementById('kmedidor-badge-' + id);
+            const subtextEl = document.getElementById('kmedidor-subtext-' + id);
+            const restantesEl = document.getElementById('kcontador-restantes-' + id);
+            const visitasEl = document.getElementById('khistorial-visitas-' + id);
+            const barraEl = document.getElementById('kbarra-avance-' + id);
+            const porcEl = document.getElementById('kporcentaje-avance-' + id);
+
+            if (!badgeEl) return;
+
+            if (totalAsignadas === 0) {
+                badgeEl.className = 'badge bg-warning text-dark fw-bold';
+                badgeEl.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> PENDIENTE';
+                if (subtextEl) {
+                    subtextEl.className = 'text-warning d-block mt-1';
+                    subtextEl.innerText = 'Sin sesiones asignadas';
+                }
+                if (restantesEl) restantesEl.innerText = '0';
+                if (visitasEl) visitasEl.innerText = '0 visitas';
+                if (barraEl) {
+                    barraEl.style.width = '0%';
+                    barraEl.className = 'progress-bar bg-secondary';
+                }
+                if (porcEl) porcEl.innerText = '0%';
+            } else if (sesionesRestantes > 0) {
+                badgeEl.className = 'badge bg-success fw-bold text-white';
+                badgeEl.innerHTML = '<i class="bi bi-activity me-1"></i> ACTIVO';
+                if (subtextEl) {
+                    subtextEl.className = 'text-success d-block fw-bold mt-1';
+                    subtextEl.innerText = `Le faltan ${sesionesRestantes} ses.`;
+                }
+                if (restantesEl) restantesEl.innerText = `${sesionesRestantes}`;
+                if (visitasEl) visitasEl.innerText = `${sesionesRealizadas} visitas`;
+                const porc = Math.min(100, Math.round((sesionesRealizadas / totalAsignadas) * 100));
+                if (barraEl) {
+                    barraEl.style.width = porc + '%';
+                    barraEl.className = 'progress-bar bg-success';
+                }
+                if (porcEl) porcEl.innerText = porc + '%';
+            } else {
+                badgeEl.className = 'badge bg-info fw-bold text-dark';
+                badgeEl.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> FINALIZADO';
+                if (subtextEl) {
+                    subtextEl.className = 'text-info d-block fw-bold mt-1';
+                    subtextEl.innerText = `Completó ${sesionesRealizadas} ses.`;
+                }
+                if (restantesEl) restantesEl.innerText = '0 (Plan listo)';
+                if (visitasEl) visitasEl.innerText = `${sesionesRealizadas} visitas`;
+                if (barraEl) {
+                    barraEl.style.width = '100%';
+                    barraEl.className = 'progress-bar bg-info';
+                }
+                if (porcEl) porcEl.innerText = '100%';
+            }
+        });
+    };
+
     function iniciarSesionAdminExitosa() {
         try { localStorage.setItem('spa_usuario', usuarioActual); } catch(e) {}
         try { localStorage.setItem('spa_rol', rolActual); } catch(e) {}
@@ -222,8 +304,14 @@
                 ingresosEl.style.color = "#888";
             }
         }
-        if (typeof actualizarMedidoresClientes === 'function') {
-            try { actualizarMedidoresClientes(); } catch(e) {}
+        if (typeof window.actualizarMedidoresClientes === 'function') {
+            try { window.actualizarMedidoresClientes(); } catch(e) {}
+        }
+        if (typeof window.cargarModuloContrasenas === 'function') {
+            try { window.cargarModuloContrasenas(); } catch(e) {}
+        }
+        if (typeof window.cargarDatosTesoreria === 'function') {
+            try { window.cargarDatosTesoreria(); } catch(e) {}
         }
     }
 
@@ -329,6 +417,15 @@
                 if (welcomeScreen) welcomeScreen.style.display = 'none';
                 appDash.style.display = 'block';
                 if (labelUsr) labelUsr.innerHTML = '<i class="bi bi-person-circle"></i> ' + usuarioActual;
+                if (typeof window.actualizarMedidoresClientes === 'function') {
+                    try { window.actualizarMedidoresClientes(); } catch(e) {}
+                }
+                if (typeof window.cargarModuloContrasenas === 'function') {
+                    try { window.cargarModuloContrasenas(); } catch(e) {}
+                }
+                if (typeof window.cargarDatosTesoreria === 'function') {
+                    try { window.cargarDatosTesoreria(); } catch(e) {}
+                }
                 return true;
             }
         } catch(e) {}
@@ -368,8 +465,8 @@
             <li class="nav-item"><button class="nav-link" id="catalogo-tab" data-bs-toggle="tab" data-bs-target="#catalogo" type="button" onclick="reproducirClick()"><i class="bi bi-box-seam me-2"></i>Catálogo</button></li>
             <li class="nav-item"><button class="nav-link" id="citas-tab" data-bs-toggle="tab" data-bs-target="#citas" type="button" onclick="reproducirClick()"><i class="bi bi-hourglass-split me-2"></i>Citas Pendientes</button></li>
             <li class="nav-item"><button class="nav-link" id="agenda-tab" data-bs-toggle="tab" data-bs-target="#agenda" type="button" onclick="reproducirClick(); initAgendaCalendar();"><i class="bi bi-calendar3 me-2"></i>Agenda</button></li>
-            <li class="nav-item"><button class="nav-link" id="crm-tab" data-bs-toggle="tab" data-bs-target="#crm" type="button" onclick="reproducirClick()"><i class="bi bi-people-fill me-2"></i>CRM Clientes</button></li>
-            <li class="nav-item"><button class="nav-link" id="tesoreria-tab" data-bs-toggle="tab" data-bs-target="#tesoreria" type="button" onclick="reproducirClick()"><i class="bi bi-safe-fill me-2"></i>Tesorería y Caja</button></li>
+            <li class="nav-item"><button class="nav-link" id="crm-tab" data-bs-toggle="tab" data-bs-target="#crm" type="button" onclick="reproducirClick(); if(typeof actualizarMedidoresClientes==='function') actualizarMedidoresClientes();"><i class="bi bi-people-fill me-2"></i>CRM Clientes</button></li>
+            <li class="nav-item"><button class="nav-link" id="tesoreria-tab" data-bs-toggle="tab" data-bs-target="#tesoreria" type="button" onclick="reproducirClick(); if(typeof cargarDatosTesoreria==='function') cargarDatosTesoreria();"><i class="bi bi-safe-fill me-2"></i>Tesorería y Caja</button></li>
             <li class="nav-item"><button class="nav-link" id="socias-tab" data-bs-toggle="tab" data-bs-target="#socias" type="button" onclick="reproducirClick()"><i class="bi bi-person-badge me-2"></i>Gestión de Socias</button></li>
             <li class="nav-item"><button class="nav-link" id="ebitda-tab" data-bs-toggle="tab" data-bs-target="#ebitda" type="button" onclick="reproducirClick(); initEbitdaReport();"><i class="bi bi-graph-up-arrow me-2"></i>Análisis EBITDA</button></li>
             <li class="nav-item"><button class="nav-link" id="contrasenas-tab" data-bs-toggle="tab" data-bs-target="#contrasenas" type="button" onclick="reproducirClick(); cargarModuloContrasenas();"><i class="bi bi-key-fill me-2 text-warning"></i>Contraseñas</button></li>
@@ -743,8 +840,8 @@
                                     </div>
                                     <!-- ETIQUETA MEDIDORA SEGÚN CONTROL DE SESIONES DEL KARDEX -->
                                     <div class="text-end" th:id="'kmedidor-box-' + ${cli.id}">
-                                        <span class="badge bg-secondary" th:id="'kmedidor-badge-' + ${cli.id}">Pendiente</span>
-                                        <small class="text-white-50 d-block mt-1" th:id="'kmedidor-subtext-' + ${cli.id}" style="font-size:0.65rem;">Calculando...</small>
+                                        <span class="badge bg-warning text-dark fw-bold" th:id="'kmedidor-badge-' + ${cli.id}"><i class="bi bi-hourglass-split me-1"></i> PENDIENTE</span>
+                                        <small class="text-warning d-block mt-1" th:id="'kmedidor-subtext-' + ${cli.id}" style="font-size:0.65rem;">Sin sesiones asignadas</small>
                                     </div>
                                 </div>
                             </div>
@@ -851,7 +948,7 @@
                         <h6 class="fw-bold text-danger mb-3 border-bottom border-danger pb-2">
                             <i class="bi bi-arrow-down-circle-fill me-1"></i> Historial de Gastos (Egresos)
                         </h6>
-                        <div class="row g-2" style="max-height: 420px; overflow-y: auto; overflow-x: hidden;">
+                        <div id="tesoreria-egresos-container" class="row g-2" style="max-height: 420px; overflow-y: auto; overflow-x: hidden;">
                             <div class="col-12" th:each="e : ${egresos}">
                                 <div class="grid-card p-2 d-flex justify-content-between align-items-center">
                                     <div>
@@ -1409,13 +1506,14 @@
                                 <table class="table table-dark table-hover align-middle table-sm" style="font-size: 0.85rem;">
                                     <thead>
                                         <tr>
+                                            <th style="width: 50px;">#</th>
                                             <th>Colaborador(a)</th>
                                             <th>Usuario / Login</th>
                                             <th>Clave / PIN</th>
                                             <th>Rol</th>
                                             <th class="text-center">Permisos</th>
                                             <th class="text-center">Estado</th>
-                                            <th class="text-center">Acciones</th>
+                                            <th class="text-end">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbl-seguridad-usuarios">
@@ -2537,6 +2635,40 @@
                         <button type="button" class="btn btn-danger fw-bold px-4" onclick="ejecutarReinicioFinanzasSeguro()">
                             <i class="bi bi-trash3-fill me-1"></i>Confirmar Reinicio
                         </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR PAGO O ABONO DEL KARDEX -->
+    <div class="modal fade" id="modalEditarPagoKardex" tabindex="-1" aria-hidden="true" style="z-index: 1070;">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content" style="background: #19052a; border: 1px solid var(--cyan-neon); box-shadow: 0 0 20px rgba(0,229,255,0.3);">
+                <div class="modal-header border-bottom border-secondary py-2">
+                    <h6 class="modal-title fw-bold text-info m-0"><i class="bi bi-pencil-square me-1"></i> Editar Pago / Abono</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <input type="hidden" id="edit-pago-id">
+                    <input type="hidden" id="edit-pago-es-real">
+                    
+                    <div class="mb-2">
+                        <label class="small text-white-50 fw-bold">Monto ($):</label>
+                        <input type="number" id="edit-pago-monto" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="0">
+                    </div>
+                    <div class="mb-2">
+                        <label class="small text-white-50 fw-bold">Fecha:</label>
+                        <input type="date" id="edit-pago-fecha" class="form-control form-control-sm bg-dark text-white border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-white-50 fw-bold">Detalle / Concepto:</label>
+                        <input type="text" id="edit-pago-nota" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Detalle del pago...">
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2 pt-2 border-top border-secondary">
+                        <button type="button" class="btn btn-sm btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-sm btn-success fw-bold" onclick="guardarEdicionPagoKardex()"><i class="bi bi-check-lg me-1"></i> Guardar</button>
                     </div>
                 </div>
             </div>
@@ -4245,40 +4377,6 @@ function imprimirKardexRecibo() {
                     }
                 <\/script>
             
-    <!-- MODAL EDITAR PAGO O ABONO DEL KARDEX -->
-    <div class="modal fade" id="modalEditarPagoKardex" tabindex="-1" aria-hidden="true" style="z-index: 1070;">
-        <div class="modal-dialog modal-sm modal-dialog-centered">
-            <div class="modal-content" style="background: #19052a; border: 1px solid var(--cyan-neon); box-shadow: 0 0 20px rgba(0,229,255,0.3);">
-                <div class="modal-header border-bottom border-secondary py-2">
-                    <h6 class="modal-title fw-bold text-info m-0"><i class="bi bi-pencil-square me-1"></i> Editar Pago / Abono</h6>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-3">
-                    <input type="hidden" id="edit-pago-id">
-                    <input type="hidden" id="edit-pago-es-real">
-                    
-                    <div class="mb-2">
-                        <label class="small text-white-50 fw-bold">Monto ($):</label>
-                        <input type="number" id="edit-pago-monto" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="0">
-                    </div>
-                    <div class="mb-2">
-                        <label class="small text-white-50 fw-bold">Fecha:</label>
-                        <input type="date" id="edit-pago-fecha" class="form-control form-control-sm bg-dark text-white border-secondary">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small text-white-50 fw-bold">Detalle / Concepto:</label>
-                        <input type="text" id="edit-pago-nota" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Detalle del pago...">
-                    </div>
-                    
-                    <div class="d-flex justify-content-end gap-2 pt-2 border-top border-secondary">
-                        <button type="button" class="btn btn-sm btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-sm btn-success fw-bold" onclick="guardarEdicionPagoKardex()"><i class="bi bi-check-lg me-1"></i> Guardar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </body>
             </html>
         `);
@@ -4444,26 +4542,66 @@ function imprimirKardexRecibo() {
     // 🔥 CONTROL DE CIERRE DE CAJA & TESORERÍA DINÁMICA 🔥
     // ==========================================
     window.cargarDatosTesoreria = function(event) {
-        if (event) event.stopPropagation();
+        if (event && event.stopPropagation) event.stopPropagation();
         if (typeof reproducirClick === 'function') reproducirClick();
 
-        // 1. Refrescar ventas del turno
-        fetch('/api/pos/caja-fuerte')
-            .then(res => res.json())
+        fetch('/api/pos/tesoreria-datos')
+            .then(res => {
+                if (!res.ok) throw new Error("Fallback a caja-fuerte");
+                return res.json();
+            })
+            .catch(() => {
+                // Fallback combinando caja-fuerte y cortes
+                return Promise.all([
+                    fetch('/api/pos/caja-fuerte').then(r => r.json()),
+                    fetch('/api/pos/cortes').then(r => r.json()).catch(() => [])
+                ]).then(([cf, cz]) => ({
+                    ventasTurno: cf.ventas || [],
+                    ventasHistorial: cf.ventasHistorial || cf.ventas || [],
+                    egresosTurno: cf.egresos || [],
+                    egresosHistorial: cf.egresosHistorial || cf.egresos || [],
+                    cortes: Array.isArray(cz) ? cz : []
+                }));
+            })
             .then(data => {
+                const ventasTurno = Array.isArray(data.ventasTurno) ? data.ventasTurno : [];
+                const ventasHistorial = Array.isArray(data.ventasHistorial) ? data.ventasHistorial : [];
+                const egresos = Array.isArray(data.egresosHistorial) && data.egresosHistorial.length > 0 ? data.egresosHistorial : (data.egresosTurno || []);
+                const cortes = Array.isArray(data.cortes) ? data.cortes : [];
+
+                // 1. RENDERIZAR VENTAS Y PAGOS
                 const ventasCont = document.getElementById('tesoreria-ventas-container');
                 if (ventasCont) {
                     ventasCont.innerHTML = '';
-                    if (!data.ventas || data.ventas.length === 0) {
-                        ventasCont.innerHTML = '<div class="col-12 text-center"><span class="text-muted small py-3">No hay ventas registradas en el turno actual (Caja al día).</span></div>';
+                    if (ventasTurno.length === 0 && ventasHistorial.length === 0) {
+                        ventasCont.innerHTML = '<div class="col-12 text-center"><span class="text-muted small py-3">No hay ventas registradas aún.</span></div>';
                     } else {
-                        data.ventas.forEach(v => {
+                        if (ventasTurno.length === 0) {
+                            ventasCont.innerHTML += `
+                                <div class="col-12">
+                                    <div class="p-2 mb-2 rounded text-center" style="background: rgba(0, 229, 255, 0.08); border: 1px dashed var(--cyan-neon);">
+                                        <small class="text-info fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Caja al día (Turno cerrado sin ventas pendientes)</small>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        const listaMostrar = ventasTurno.length > 0 ? ventasTurno : ventasHistorial.slice(0, 20);
+                        listaMostrar.forEach(v => {
                             const fec = v.fechaHora ? new Date(v.fechaHora).toLocaleString('es-CL', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '--/--';
                             const cli = v.cliente ? v.cliente.nombre : 'Cliente General';
+                            const esTurnoAbierto = !v.cierreAplicado;
+                            
                             let badge = '<span class="badge bg-success" style="font-size: 0.55rem;">PAGADO</span>';
-                            if (v.estado === 'CONFIRMADO') badge = '<span class="badge bg-success" style="font-size: 0.55rem;">CONFIRMADO</span>';
-                            else if (v.estado === 'RESERVADO') badge = '<span class="badge bg-info text-dark" style="font-size: 0.55rem;">RESERVADO</span>';
-                            else if (v.estado === 'PENDIENTE') badge = '<span class="badge bg-warning text-dark" style="font-size: 0.55rem;">PENDIENTE</span>';
+                            if (!esTurnoAbierto) {
+                                badge = '<span class="badge bg-secondary" style="font-size: 0.55rem;"><i class="bi bi-lock me-1"></i>CONSOLIDADO</span>';
+                            } else if (v.estado === 'CONFIRMADO') {
+                                badge = '<span class="badge bg-success" style="font-size: 0.55rem;">CONFIRMADO</span>';
+                            } else if (v.estado === 'RESERVADO') {
+                                badge = '<span class="badge bg-info text-dark" style="font-size: 0.55rem;">RESERVADO</span>';
+                            } else if (v.estado === 'PENDIENTE') {
+                                badge = '<span class="badge bg-warning text-dark" style="font-size: 0.55rem;">PENDIENTE</span>';
+                            }
 
                             ventasCont.innerHTML += `
                                 <div class="col-12">
@@ -4481,7 +4619,7 @@ function imprimirKardexRecibo() {
                                                 <div class="fw-bold text-success">+$${Math.round(v.montoTotal || 0).toLocaleString('es-CL')}</div>
                                                 <span class="badge bg-secondary" style="font-size: 0.6rem;">${v.tipoPago || 'EFECTIVO'}</span>
                                             </div>
-                                            <button class="btn btn-sm btn-outline-danger p-0 px-2 mt-1" style="font-size: 0.68rem;" onclick="solicitarEliminarVentaSegura(${v.id}, '${cli.replace(/'/g, "\\'")}', ${v.montoTotal || 0})" title="Eliminar pago erróneo (Requiere PIN de 6 dígitos)">
+                                            <button class="btn btn-sm btn-outline-danger p-0 px-2 mt-1" style="font-size: 0.68rem;" onclick="solicitarEliminarVentaSegura(${v.id}, '${(cli || 'Cliente').replace(/'/g, "\\'")}', ${v.montoTotal || 0})" title="Eliminar pago erróneo (Requiere PIN de 6 dígitos)">
                                                 <i class="bi bi-trash me-1"></i>Eliminar
                                             </button>
                                         </div>
@@ -4491,17 +4629,45 @@ function imprimirKardexRecibo() {
                         });
                     }
                 }
-            })
-            .catch(err => console.error("Error al cargar ventas en tesorería:", err));
 
-        // 2. Refrescar historial de cierres Z
-        fetch('/api/pos/cortes')
-            .then(res => res.json())
-            .then(cortes => {
+                // 2. RENDERIZAR EGRESOS / GASTOS
+                const egresosCont = document.getElementById('tesoreria-egresos-container');
+                if (egresosCont) {
+                    egresosCont.innerHTML = '';
+                    if (egresos.length === 0) {
+                        egresosCont.innerHTML = '<div class="col-12 text-center"><span class="text-muted small py-3">No hay egresos registrados.</span></div>';
+                    } else {
+                        egresos.forEach(e => {
+                            const fec = e.fechaHora ? new Date(e.fechaHora).toLocaleString('es-CL', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '--/--';
+                            const desc = e.descripcion || 'Gasto Operativo';
+                            egresosCont.innerHTML += `
+                                <div class="col-12">
+                                    <div class="grid-card p-2 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-white-50 d-block">${fec}</small>
+                                            <span class="text-white text-truncate d-inline-block" style="max-width: 140px;">${desc}</span>
+                                        </div>
+                                        <div class="text-end d-flex flex-column align-items-end justify-content-between">
+                                            <div>
+                                                <div class="fw-bold text-danger">-$${Math.round(e.monto || 0).toLocaleString('es-CL')}</div>
+                                                <span class="badge bg-secondary" style="font-size: 0.6rem;">${e.metodoSalida || 'EFECTIVO'}</span>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-danger p-0 px-2 mt-1" style="font-size: 0.68rem;" onclick="solicitarEliminarEgresoSeguro(${e.id}, '${desc.replace(/'/g, "\\'")}', ${e.monto || 0})" title="Eliminar gasto erróneo (Requiere PIN de 6 dígitos)">
+                                                <i class="bi bi-trash me-1"></i>Eliminar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+
+                // 3. RENDERIZAR CORTES Z
                 const cortesCont = document.getElementById('tesoreria-cortes-container');
                 if (cortesCont) {
                     cortesCont.innerHTML = '';
-                    if (!cortes || cortes.length === 0) {
+                    if (cortes.length === 0) {
                         cortesCont.innerHTML = '<div class="col-12 text-center"><span class="text-muted small py-3">No hay Cierres Z registrados aún.</span></div>';
                     } else {
                         cortes.forEach(cz => {
@@ -4550,7 +4716,9 @@ function imprimirKardexRecibo() {
                     }
                 }
             })
-            .catch(err => console.error("Error al cargar cortes Z en tesorería:", err));
+            .catch(err => {
+                console.error("Error al cargar datos de tesorería:", err);
+            });
     };
 
     window.ejecutarCorteCajaDesdeAdmin = function(event) {
@@ -6854,7 +7022,7 @@ function imprimirKardexRecibo() {
         }
     }
 
-    function actualizarMedidoresClientes() {
+    window.actualizarMedidoresClientes = function() {
         const inputs = document.querySelectorAll('.input-kardex-data');
         inputs.forEach(inp => {
             const id = inp.id.replace('kjson-', '');
@@ -6951,32 +7119,70 @@ function imprimirKardexRecibo() {
     // =========================================================================
     // 🔐 GESTIÓN DE SEGURIDAD, CONTRASEÑAS Y PIN MAESTRO DE 6 DÍGITOS
     // =========================================================================
-    let pinMaestroCache = '777777';
+    let pinMaestroCache = localStorage.getItem('spa_pin_maestro') || '777777';
     let pinMaestroVisible = false;
     let usuariosSeguridadCache = [];
     let accionPendienteSegura = null;
 
     window.cargarModuloContrasenas = function() {
+        // Cargar PIN Maestro de 6 dígitos
         fetch('/api/seguridad/pin-maestro')
             .then(res => res.json())
             .then(data => {
-                if (data && data.valor) {
-                    pinMaestroCache = data.valor;
+                if (data && (data.valor || data.pin)) {
+                    pinMaestroCache = data.valor || data.pin;
+                    try { localStorage.setItem('spa_pin_maestro', pinMaestroCache); } catch(e) {}
                 }
                 const disp = document.getElementById('txt-pin-maestro-display');
                 if (disp) {
                     disp.textContent = pinMaestroVisible ? pinMaestroCache : '••••••';
                 }
             })
-            .catch(err => console.error("Error al cargar PIN Maestro:", err));
+            .catch(err => {
+                console.error("Error al cargar PIN Maestro:", err);
+                const disp = document.getElementById('txt-pin-maestro-display');
+                if (disp) disp.textContent = pinMaestroVisible ? pinMaestroCache : '••••••';
+            });
 
+        // Cargar Usuarios y Colaboradoras
         fetch('/api/seguridad/usuarios')
             .then(res => res.json())
             .then(data => {
-                usuariosSeguridadCache = Array.isArray(data) ? data : [];
+                if (Array.isArray(data) && data.length > 0) {
+                    usuariosSeguridadCache = data;
+                    try { localStorage.setItem('spa_usuarios_seguridad', JSON.stringify(data)); } catch(e) {}
+                } else {
+                    const saved = localStorage.getItem('spa_usuarios_seguridad');
+                    if (saved) {
+                        try { usuariosSeguridadCache = JSON.parse(saved); } catch(e) {}
+                    }
+                    if (!usuariosSeguridadCache || usuariosSeguridadCache.length === 0) {
+                        usuariosSeguridadCache = [
+                            { id: 1, nombre: 'Crisley Paredes', username: 'crisley', rol: 'PROPIETARIA', accesoAdmin: true, accesoPos: true, pin: '7777', activo: true },
+                            { id: 2, nombre: 'Janneth', username: 'janneth', rol: 'ADMINISTRADORA', accesoAdmin: true, accesoPos: true, pin: '1010', activo: true },
+                            { id: 3, nombre: 'Daniela Camacho', username: 'daniela.camacho', rol: 'CAJERA', accesoAdmin: false, accesoPos: true, pin: '2020', activo: true },
+                            { id: 4, nombre: 'Daniela Montaño', username: 'daniela.montano', rol: 'CAJERA', accesoAdmin: false, accesoPos: true, pin: '3030', activo: true }
+                        ];
+                    }
+                }
                 renderizarTablaUsuariosSeguridad();
             })
-            .catch(err => console.error("Error al cargar Usuarios de Seguridad:", err));
+            .catch(err => {
+                console.error("Error al cargar Usuarios de Seguridad:", err);
+                const saved = localStorage.getItem('spa_usuarios_seguridad');
+                if (saved) {
+                    try { usuariosSeguridadCache = JSON.parse(saved); } catch(e) {}
+                }
+                if (!usuariosSeguridadCache || usuariosSeguridadCache.length === 0) {
+                    usuariosSeguridadCache = [
+                        { id: 1, nombre: 'Crisley Paredes', username: 'crisley', rol: 'PROPIETARIA', accesoAdmin: true, accesoPos: true, pin: '7777', activo: true },
+                        { id: 2, nombre: 'Janneth', username: 'janneth', rol: 'ADMINISTRADORA', accesoAdmin: true, accesoPos: true, pin: '1010', activo: true },
+                        { id: 3, nombre: 'Daniela Camacho', username: 'daniela.camacho', rol: 'CAJERA', accesoAdmin: false, accesoPos: true, pin: '2020', activo: true },
+                        { id: 4, nombre: 'Daniela Montaño', username: 'daniela.montano', rol: 'CAJERA', accesoAdmin: false, accesoPos: true, pin: '3030', activo: true }
+                    ];
+                }
+                renderizarTablaUsuariosSeguridad();
+            });
     };
 
     window.toggleVerPinMaestro = function() {
@@ -6992,7 +7198,7 @@ function imprimirKardexRecibo() {
     };
 
     window.guardarNuevoPinMaestro = function(e) {
-        if (e) e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         const p1 = (document.getElementById('input-nuevo-pin-maestro')?.value || '').trim();
         const p2 = (document.getElementById('input-confirmar-pin-maestro')?.value || '').trim();
 
@@ -7017,6 +7223,7 @@ function imprimirKardexRecibo() {
         .then(data => {
             pinMaestroCache = p1;
             pinMaestroVisible = false;
+            try { localStorage.setItem('spa_pin_maestro', p1); } catch(e) {}
             const disp = document.getElementById('txt-pin-maestro-display');
             if (disp) disp.textContent = '••••••';
             const btn = document.getElementById('btn-toggle-pin-maestro');
@@ -7028,7 +7235,7 @@ function imprimirKardexRecibo() {
             if (inp2) inp2.value = '';
 
             if (typeof reproducirClick === 'function') reproducirClick();
-            alert("✅ Clave Maestra de 6 dígitos actualizada con éxito.");
+            alert("✅ Clave Maestra de 6 dígitos actualizada con éxito en el sistema.");
         })
         .catch(err => {
             console.error(err);
@@ -7041,7 +7248,7 @@ function imprimirKardexRecibo() {
         if (!tbody) return;
 
         if (usuariosSeguridadCache.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No hay usuarios registrados.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No hay usuarios registrados.</td></tr>';
             return;
         }
 
@@ -7049,39 +7256,41 @@ function imprimirKardexRecibo() {
         usuariosSeguridadCache.forEach(u => {
             const adminBadge = u.accesoAdmin 
                 ? '<span class="badge bg-danger text-white"><i class="bi bi-shield-lock-fill me-1"></i>Admin</span>' 
-                : '<span class="badge bg-secondary opacity-50">Sin Admin</span>';
+                : '<span class="badge bg-dark border text-white-50">Sin Admin</span>';
             const posBadge = u.accesoPos 
                 ? '<span class="badge bg-success text-white"><i class="bi bi-cart-check-fill me-1"></i>POS</span>' 
-                : '<span class="badge bg-secondary opacity-50">Sin POS</span>';
+                : '<span class="badge bg-dark border text-white-50">Sin POS</span>';
             const estadoBadge = u.activo 
                 ? '<span class="badge bg-success">Activo</span>' 
                 : '<span class="badge bg-secondary">Inactivo</span>';
 
             html += `
                 <tr>
-                    <td class="fw-bold">#${u.id}</td>
+                    <td class="text-white-50 small">#${u.id}</td>
                     <td>
-                        <div class="fw-bold text-dark">${escapeHtml(u.nombre || '')}</div>
-                        <small class="text-muted"><i class="bi bi-person me-1"></i>${escapeHtml(u.username || '')}</small>
+                        <div class="fw-bold text-white fs-6"><i class="bi bi-person-circle text-info me-1"></i>${escapeHtml(u.nombre || '')}</div>
                     </td>
                     <td>
-                        <span class="badge bg-light text-dark border">${escapeHtml(u.rol || 'ESTETICA')}</span>
+                        <span class="badge bg-dark border border-secondary text-info font-monospace px-2 py-1">${escapeHtml(u.username || '')}</span>
                     </td>
                     <td>
-                        <div class="d-flex gap-1 flex-wrap">
+                        <span class="font-monospace fw-bold text-warning bg-black px-2 py-1 rounded border border-warning" id="user-pin-val-${u.id}">••••</span>
+                        <button class="btn btn-sm btn-link p-0 ms-1 text-warning" type="button" onclick="toggleVerPinUsuario(${u.id}, '${escapeHtml(u.pin || '')}')" title="Ver / Ocultar PIN">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary border text-white">${escapeHtml(u.rol || 'COLABORADORA')}</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex gap-1 justify-content-center flex-wrap">
                             ${adminBadge}
                             ${posBadge}
                         </div>
                     </td>
-                    <td>
-                        <span class="font-monospace fw-bold text-primary bg-light px-2 py-1 rounded border" id="user-pin-val-${u.id}">••••</span>
-                        <button class="btn btn-sm btn-link p-0 ms-1 text-muted" type="button" onclick="toggleVerPinUsuario(${u.id}, '${escapeHtml(u.pin || '')}')" title="Ver / Ocultar PIN">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                    </td>
-                    <td>${estadoBadge}</td>
+                    <td class="text-center">${estadoBadge}</td>
                     <td class="text-end">
-                        <button class="btn btn-sm btn-outline-primary me-1" onclick="abrirModalEditarUsuario(${u.id})" title="Editar usuario y PIN">
+                        <button class="btn btn-sm btn-outline-info me-1" onclick="abrirModalEditarUsuario(${u.id})" title="Editar usuario y PIN">
                             <i class="bi bi-pencil-square"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-danger" onclick="eliminarUsuarioSeguridad(${u.id}, '${escapeHtml(u.nombre || '')}')" title="Eliminar usuario">
@@ -7396,19 +7605,28 @@ function imprimirKardexRecibo() {
     };
 
     document.addEventListener('DOMContentLoaded', function() {
-        actualizarMedidoresClientes();
+        if (typeof actualizarMedidoresClientes === 'function') actualizarMedidoresClientes();
+        if (typeof cargarModuloContrasenas === 'function') cargarModuloContrasenas();
+        if (typeof cargarDatosTesoreria === 'function') cargarDatosTesoreria();
 
         const crmTab = document.getElementById('crm-tab');
         if (crmTab) {
             crmTab.addEventListener('shown.bs.tab', function() {
-                actualizarMedidoresClientes();
+                if (typeof actualizarMedidoresClientes === 'function') actualizarMedidoresClientes();
+            });
+        }
+
+        const tesoreriaTab = document.getElementById('tesoreria-tab');
+        if (tesoreriaTab) {
+            tesoreriaTab.addEventListener('shown.bs.tab', function() {
+                if (typeof cargarDatosTesoreria === 'function') cargarDatosTesoreria();
             });
         }
 
         const contrasenasTab = document.getElementById('contrasenas-tab');
         if (contrasenasTab) {
             contrasenasTab.addEventListener('shown.bs.tab', function() {
-                cargarModuloContrasenas();
+                if (typeof cargarModuloContrasenas === 'function') cargarModuloContrasenas();
             });
         }
 

@@ -61,6 +61,7 @@ public class AdminViewController {
         
         // TESORERÍA (Se agregan los faltantes)
         try { model.addAttribute("ventasTurno", ventaRepository.findByCierreAplicadoFalseOrderByFechaHoraDesc()); } catch (Exception e) { model.addAttribute("ventasTurno", new ArrayList<>()); }
+        try { model.addAttribute("ventasHistorial", ventaRepository.findTop50ByOrderByFechaHoraDesc()); } catch (Exception e) { model.addAttribute("ventasHistorial", new ArrayList<>()); }
         try { model.addAttribute("egresos", egresoRepository.findAllByOrderByFechaHoraDesc()); } catch (Exception e) { model.addAttribute("egresos", new ArrayList<>()); }
         try { model.addAttribute("cortes", corteZRepository.findAllByOrderByFechaGeneracionDesc()); } catch (Exception e) { model.addAttribute("cortes", new ArrayList<>()); }
         

@@ -14,6 +14,10 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
     // las ventas de hoy que aún no han sido cerradas en el Reporte Z.
     List<Venta> findByCierreAplicadoFalseOrderByFechaHoraDesc();
 
+    List<Venta> findAllByOrderByFechaHoraDesc();
+
+    List<Venta> findTop50ByOrderByFechaHoraDesc();
+
     List<Venta> findByClienteIdOrderByFechaHoraDesc(Long clienteId);
 
     List<Venta> findBySociaIdAndLiquidadoSociaFalseOrderByFechaHoraDesc(Long sociaId);

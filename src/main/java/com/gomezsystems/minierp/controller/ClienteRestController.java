@@ -31,8 +31,39 @@ public class ClienteRestController {
     }
 
     // 2. Guardar o Actualizar (Coincide con /api/clientes/guardar)
+    // Conserva kardexJson y demás datos si no vienen en el payload
     @PostMapping("/guardar")
     public Cliente guardarCliente(@RequestBody Cliente nuevoCliente) {
+        if (nuevoCliente.getId() != null) {
+            Cliente existente = clienteRepository.findById(nuevoCliente.getId()).orElse(null);
+            if (existente != null) {
+                if (nuevoCliente.getNombre() != null && !nuevoCliente.getNombre().trim().isEmpty()) {
+                    existente.setNombre(nuevoCliente.getNombre().trim());
+                }
+                if (nuevoCliente.getTelefono() != null) {
+                    existente.setTelefono(nuevoCliente.getTelefono());
+                }
+                if (nuevoCliente.getCorreo() != null) {
+                    existente.setCorreo(nuevoCliente.getCorreo());
+                }
+                if (nuevoCliente.getCumpleanos() != null) {
+                    existente.setCumpleanos(nuevoCliente.getCumpleanos());
+                }
+                if (nuevoCliente.getNotasMedicas() != null) {
+                    existente.setNotasMedicas(nuevoCliente.getNotasMedicas());
+                }
+                if (nuevoCliente.getHistorialCompras() != null) {
+                    existente.setHistorialCompras(nuevoCliente.getHistorialCompras());
+                }
+                if (nuevoCliente.getKardexJson() != null && !nuevoCliente.getKardexJson().trim().isEmpty()) {
+                    existente.setKardexJson(nuevoCliente.getKardexJson());
+                }
+                if (nuevoCliente.getDeudaActiva() != null) {
+                    existente.setDeudaActiva(nuevoCliente.getDeudaActiva());
+                }
+                return clienteRepository.save(existente);
+            }
+        }
         return clienteRepository.save(nuevoCliente);
     }
 

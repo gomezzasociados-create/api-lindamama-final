@@ -307,8 +307,21 @@ public class VentasRestController {
         response.put("deudaPorSocia", deudaPorSocia);
         response.put("numVentas", activas.size());
         response.put("numVentasPagadas", ventasPagadasCount);
+        response.put("ventasHistorial", ventaRepository.findTop50ByOrderByFechaHoraDesc());
+        response.put("egresosHistorial", egresoRepository.findAllByOrderByFechaHoraDesc());
 
         return response;
+    }
+
+    @GetMapping("/tesoreria-datos")
+    public java.util.Map<String, Object> obtenerDatosTesoreriaCompleta() {
+        java.util.Map<String, Object> res = new java.util.HashMap<>();
+        res.put("ventasTurno", ventaRepository.findByCierreAplicadoFalseOrderByFechaHoraDesc());
+        res.put("ventasHistorial", ventaRepository.findTop50ByOrderByFechaHoraDesc());
+        res.put("egresosTurno", egresoRepository.findByCierreAplicadoFalseOrderByFechaHoraDesc());
+        res.put("egresosHistorial", egresoRepository.findAllByOrderByFechaHoraDesc());
+        res.put("cortes", corteZRepository.findAllByOrderByFechaGeneracionDesc());
+        return res;
     }
 
     // ========================================================
