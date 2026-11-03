@@ -20,6 +20,7 @@ public class FinanzasRestController {
     @Autowired private EgresoRepository egresoRepository;
     @Autowired private PagoComisionRepository pagoComisionRepository;
     @Autowired private SociaRepository sociaRepository;
+    @Autowired private CorteZRepository corteZRepository;
 
     @GetMapping("/ebitda")
     public ResponseEntity<Map<String, Object>> getEbitdaReport(
@@ -37,6 +38,7 @@ public class FinanzasRestController {
             List<Venta> ventas = ventaRepository.findByFechaHoraBetweenOrderByFechaHoraDesc(inicioLDT, finLDT);
             List<Egreso> egresos = egresoRepository.findByFechaHoraBetweenOrderByFechaHoraDesc(inicioLDT, finLDT);
             List<PagoComision> pagosComisiones = pagoComisionRepository.findByFechaHoraBetweenOrderByFechaHoraDesc(inicioLDT, finLDT);
+            List<CorteZ> cortes = corteZRepository.findByFechaGeneracionBetweenOrderByFechaGeneracionDesc(inicioLDT, finLDT);
 
             // Mapear ventas simplificadas
             List<Map<String, Object>> ventasMapped = ventas.stream().map(v -> {
@@ -53,6 +55,7 @@ public class FinanzasRestController {
                 map.put("montoSocia", v.getMontoSocia() != null ? v.getMontoSocia() : 0.0);
                 map.put("tipoPago", v.getTipoPago());
                 map.put("estado", v.getEstado());
+                map.put("cierreAplicado", v.isCierreAplicado());
                 return map;
             }).collect(Collectors.toList());
 
@@ -68,6 +71,7 @@ public class FinanzasRestController {
                 map.put("vidaUtilMeses", e.getVidaUtilMeses());
                 map.put("categoria", e.getCategoria());
                 map.put("valorResidual", e.getValorResidual());
+                map.put("cierreAplicado", e.isCierreAplicado());
                 return map;
             }).collect(Collectors.toList());
 
@@ -91,9 +95,22 @@ public class FinanzasRestController {
             double totalComisionesPagadas = pagosComisiones.stream().mapToDouble(p -> p.getMonto() != null ? p.getMonto() : 0.0).sum();
 
             for (Venta v : ventas) {
-                if ("PAGADO".equalsIgnoreCase(v.getEstado())) {
-                    totalVentasGross += (v.getMontoTotal() != null ? v.getMontoTotal() : 0.0);
-                    totalVentasSpa += (v.getMontoSpa() != null ? v.getMontoSpa() : 0.0);
+                boolean esVentaValida = false;
+                String est = v.getEstado() != null ? v.getEstado().toUpperCase() : "";
+                if (v.isCierreAplicado()) {
+                    esVentaValida = true; // Si está consolidada en un cierre de caja, cuenta sí o sí
+                } else if ("PAGADO".equals(est) || "CONFIRMADO".equals(est) || "COMPLETADO".equals(est) || "FINALIZADO".equals(est)) {
+                    esVentaValida = true;
+                } else if (!"RESERVADO".equals(est) && !"PENDIENTE".equals(est)) {
+                    esVentaValida = true;
+                } else if (v.getTotalPagado() != null && v.getTotalPagado() > 0) {
+                    esVentaValida = true;
+                }
+
+                if (esVentaValida) {
+                    Double montoReal = (v.getTotalPagado() != null && v.getTotalPagado() > 0) ? v.getTotalPagado() : (v.getMontoTotal() != null ? v.getMontoTotal() : 0.0);
+                    totalVentasGross += (v.getMontoTotal() != null ? v.getMontoTotal() : montoReal);
+                    totalVentasSpa += (v.getMontoSpa() != null ? v.getMontoSpa() : montoReal);
                     totalVentasSocia += (v.getMontoSocia() != null ? v.getMontoSocia() : 0.0);
                     totalPropinas += (v.getPropina() != null ? v.getPropina() : 0.0);
                 }
@@ -195,6 +212,36 @@ public class FinanzasRestController {
             // EBIT Devengado (Utilidad Operativa Real): EBITDA - Depreciación
             double ebitDevengado = ebitdaDevengado - totalDepreciacion;
 
+            // Mapear Cortes Z (Cierres de Caja)
+            List<Map<String, Object>> cortesMapped = cortes.stream().map(c -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", c.getId());
+                map.put("fecha", c.getFechaGeneracion().toString());
+                map.put("totalEfectivo", c.getTotalEfectivo() != null ? c.getTotalEfectivo() : 0.0);
+                map.put("totalTarjeta", c.getTotalTarjeta() != null ? c.getTotalTarjeta() : 0.0);
+                map.put("totalTransferencia", c.getTotalTransferencia() != null ? c.getTotalTransferencia() : 0.0);
+                map.put("totalFiado", c.getTotalFiado() != null ? c.getTotalFiado() : 0.0);
+                map.put("totalEgresos", c.getTotalEgresos() != null ? c.getTotalEgresos() : 0.0);
+                map.put("efectivoEsperadoCajon", c.getEfectivoEsperadoCajon() != null ? c.getEfectivoEsperadoCajon() : 0.0);
+                map.put("detalleInforme", c.getDetalleInforme());
+                double totalVentasCorte = (c.getTotalEfectivo() != null ? c.getTotalEfectivo() : 0.0)
+                        + (c.getTotalTarjeta() != null ? c.getTotalTarjeta() : 0.0)
+                        + (c.getTotalTransferencia() != null ? c.getTotalTransferencia() : 0.0)
+                        + (c.getTotalFiado() != null ? c.getTotalFiado() : 0.0);
+                map.put("totalVentas", totalVentasCorte);
+                return map;
+            }).collect(Collectors.toList());
+
+            double totalCortesVentas = cortes.stream().mapToDouble(c -> 
+                (c.getTotalEfectivo() != null ? c.getTotalEfectivo() : 0.0) +
+                (c.getTotalTarjeta() != null ? c.getTotalTarjeta() : 0.0) +
+                (c.getTotalTransferencia() != null ? c.getTotalTransferencia() : 0.0) +
+                (c.getTotalFiado() != null ? c.getTotalFiado() : 0.0)
+            ).sum();
+            double totalCortesEfectivo = cortes.stream().mapToDouble(c -> c.getTotalEfectivo() != null ? c.getTotalEfectivo() : 0.0).sum();
+            double totalCortesNeto = cortes.stream().mapToDouble(c -> c.getEfectivoEsperadoCajon() != null ? c.getEfectivoEsperadoCajon() : 0.0).sum();
+            double totalCortesEgresos = cortes.stream().mapToDouble(c -> c.getTotalEgresos() != null ? c.getTotalEgresos() : 0.0).sum();
+
             Map<String, Object> summary = new HashMap<>();
             summary.put("totalVentasGross", totalVentasGross);
             summary.put("totalVentasSpa", totalVentasSpa);
@@ -209,11 +256,18 @@ public class FinanzasRestController {
             summary.put("ebitdaCaja", ebitdaCaja);
             summary.put("ebitDevengado", ebitDevengado);
 
+            summary.put("numCortesZ", cortes.size());
+            summary.put("totalCortesVentas", totalCortesVentas);
+            summary.put("totalCortesEfectivo", totalCortesEfectivo);
+            summary.put("totalCortesNeto", totalCortesNeto);
+            summary.put("totalCortesEgresos", totalCortesEgresos);
+
             Map<String, Object> response = new HashMap<>();
             response.put("ventas", ventasMapped);
             response.put("egresos", egresosMapped);
             response.put("pagosComisiones", pagosMapped);
             response.put("inversionesDepreciacion", detallesInversiones);
+            response.put("cortes", cortesMapped);
             response.put("opexPorCategoria", opexPorCategoria);
             response.put("capexPorCategoria", capexPorCategoria);
             response.put("summary", summary);

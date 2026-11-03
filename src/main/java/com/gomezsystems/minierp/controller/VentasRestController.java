@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -325,26 +326,38 @@ public class VentasRestController {
             Double tEfe = 0.0, tFia = 0.0, tTar = 0.0, tTra = 0.0, tEgr = 0.0;
 
             for(Venta v : activas) {
-                if ("RESERVADO".equals(v.getEstado())) continue;
+                if ("RESERVADO".equalsIgnoreCase(v.getEstado())) continue;
 
-                Double pagado = v.getTotalPagado() != null ? v.getTotalPagado() : v.getMontoTotal();
+                Double pagado = (v.getTotalPagado() != null && v.getTotalPagado() > 0) ? v.getTotalPagado() : (v.getMontoTotal() != null ? v.getMontoTotal() : 0.0);
                 String tipo = v.getTipoPago() != null ? v.getTipoPago().toUpperCase() : "";
 
-                if(tipo.contains("EFECTIVO") || tipo.contains("CONTADO")) tEfe += pagado;
-                else if(tipo.contains("FIADO")) tFia += pagado;
-                else if(tipo.contains("TARJETA") || tipo.contains("MERCADOPAGO") || tipo.contains("MERCADO_PAGO")) tTar += pagado;
-                else if(tipo.contains("TRANSFERENCIA")) tTra += pagado;
+                if (tipo.contains("EFECTIVO") || tipo.contains("CONTADO")) {
+                    tEfe += pagado;
+                } else if (tipo.contains("FIADO") || tipo.contains("CREDITO_CLIENTE")) {
+                    tFia += pagado;
+                } else if (tipo.contains("TARJETA") || tipo.contains("MERCADOPAGO") || tipo.contains("MERCADO_PAGO") || tipo.contains("POS") || tipo.contains("DEBITO") || tipo.contains("CREDITO") || tipo.contains("REDCOMPRA") || tipo.contains("WEBPAY")) {
+                    tTar += pagado;
+                } else if (tipo.contains("TRANSFERENCIA") || tipo.contains("TRANSF") || tipo.contains("BANCO")) {
+                    tTra += pagado;
+                } else {
+                    tEfe += pagado;
+                }
 
                 v.setCierreAplicado(true);
             }
 
             for(Egreso e : egresos) {
-                if ("EFECTIVO".equalsIgnoreCase(e.getMetodoSalida())) tEgr += e.getMonto();
+                if ("EFECTIVO".equalsIgnoreCase(e.getMetodoSalida())) {
+                    tEgr += (e.getMonto() != null ? e.getMonto() : 0.0);
+                }
                 e.setCierreAplicado(true);
             }
 
             ventaRepository.saveAll(activas);
             egresoRepository.saveAll(egresos);
+
+            Double totalVentasTurno = tEfe + tTar + tTra + tFia;
+            Double netoCajon = tEfe - tEgr;
 
             CorteZ corte = new CorteZ();
             corte.setTotalEfectivo(tEfe);
@@ -352,14 +365,26 @@ public class VentasRestController {
             corte.setTotalTarjeta(tTar);
             corte.setTotalTransferencia(tTra);
             corte.setTotalEgresos(tEgr);
-            corte.setEfectivoEsperadoCajon(tEfe - tEgr);
-            corte.setDetalleInforme("Cierre Spa. Gastos de caja: $" + tEgr + " | Efectivo Neto en Cajón: $" + (tEfe - tEgr));
+            corte.setEfectivoEsperadoCajon(netoCajon);
+            corte.setFechaGeneracion(LocalDateTime.now());
+            corte.setDetalleInforme("Cierre Z Spa. Total ventas turno: $" + Math.round(totalVentasTurno) + " (Efectivo: $" + Math.round(tEfe) + ", Tarjetas/POS: $" + Math.round(tTar) + ", Transferencias: $" + Math.round(tTra) + ", Fiado: $" + Math.round(tFia) + ") | Gastos caja: $" + Math.round(tEgr) + " | Efectivo Neto en Cajón: $" + Math.round(netoCajon));
 
             corteZRepository.save(corte);
             return "OK";
         } catch (Exception e) {
+            e.printStackTrace();
             return "ERROR: " + e.getMessage();
         }
+    }
+
+    @GetMapping("/cortes")
+    public List<CorteZ> listarCortes() {
+        return corteZRepository.findAllByOrderByFechaGeneracionDesc();
+    }
+
+    @GetMapping("/cortes/{id}")
+    public ResponseEntity<CorteZ> obtenerCortePorId(@PathVariable Long id) {
+        return corteZRepository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     // ========================================================

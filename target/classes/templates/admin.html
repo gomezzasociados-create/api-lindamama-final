@@ -632,14 +632,22 @@
             </div>
 
             <div class="tab-pane fade" id="tesoreria" role="tabpanel">
-                <div class="d-flex justify-content-between align-items-center mb-4 header-tab">
+                <div class="d-flex justify-content-between align-items-center mb-4 header-tab flex-wrap gap-2">
                     <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">
                         <i class="bi bi-safe-fill"></i> Auditoría de Tesorería
-                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('En el panel de auditoría puedes revisar todos los gastos y los reportes de cierre Z generados al terminar cada turno. Puedes auditar el efectivo neto presionando Ver Caja Fuerte.')"></i>
+                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('En el panel de auditoría puedes revisar todos los gastos y los reportes de cierre Z generados al terminar cada turno. Puedes auditar el efectivo neto presionando Ver Caja Fuerte o realizar el cierre definitivo con el botón Realizar Cierre de Caja.')"></i>
                     </h4>
-                    <button class="btn btn-outline-info fw-bold px-4" onclick="verEstadoCajaAdmin(event)" style="box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);">
-                        <i class="bi bi-eye-fill me-2"></i>Ver Caja del Turno Actual
-                    </button>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-outline-warning fw-bold px-3" onclick="ejecutarCorteCajaDesdeAdmin(event)">
+                            <i class="bi bi-lock-fill me-1"></i>Realizar Cierre de Caja
+                        </button>
+                        <button class="btn btn-outline-info fw-bold px-3" onclick="verEstadoCajaAdmin(event)" style="box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);">
+                            <i class="bi bi-eye-fill me-1"></i>Ver Caja del Turno Actual
+                        </button>
+                        <button class="btn btn-outline-light fw-bold px-3" onclick="cargarDatosTesoreria(event)" title="Actualizar datos de tesorería">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Refrescar
+                        </button>
+                    </div>
                 </div>
 
                 <div class="row g-4">
@@ -648,13 +656,14 @@
                         <h6 class="fw-bold text-success mb-3 border-bottom border-success pb-2">
                             <i class="bi bi-arrow-up-circle-fill me-1"></i> Ventas del Turno (Caja Abierta)
                         </h6>
-                        <div class="row g-2" style="max-height: 420px; overflow-y: auto; overflow-x: hidden;">
+                        <div id="tesoreria-ventas-container" class="row g-2" style="max-height: 420px; overflow-y: auto; overflow-x: hidden;">
                             <div class="col-12" th:each="v : ${ventasTurno}">
                                 <div class="grid-card p-2 d-flex justify-content-between align-items-center">
                                     <div>
                                         <div class="d-flex align-items-center gap-1">
                                             <small class="text-white-50" th:text="${#temporals.format(v.fechaHora, 'dd/MM HH:mm')}">Fecha</small>
                                             <span th:if="${v.estado == 'PAGADO'}" class="badge bg-success" style="font-size: 0.55rem;">PAGADO</span>
+                                            <span th:if="${v.estado == 'CONFIRMADO'}" class="badge bg-success" style="font-size: 0.55rem;">CONFIRMADO</span>
                                             <span th:if="${v.estado == 'RESERVADO'}" class="badge bg-info text-dark" style="font-size: 0.55rem;">RESERVADO</span>
                                             <span th:if="${v.estado == 'PENDIENTE'}" class="badge bg-warning text-dark" style="font-size: 0.55rem;">PENDIENTE</span>
                                         </div>
@@ -668,7 +677,7 @@
                                 </div>
                             </div>
                             <div class="col-12 text-center" th:if="${#lists.isEmpty(ventasTurno)}">
-                                <span class="text-muted small py-3">No hay ventas registradas en el turno actual.</span>
+                                <span class="text-muted small py-3">No hay ventas registradas en el turno actual (Caja al día).</span>
                             </div>
                         </div>
                     </div>
@@ -702,24 +711,37 @@
                         <h6 class="fw-bold text-info mb-3 border-bottom border-info pb-2">
                             <i class="bi bi-file-earmark-bar-graph-fill me-1"></i> Historial de Cierres (Reportes Z)
                         </h6>
-                        <div class="row g-2" style="max-height: 420px; overflow-y: auto; overflow-x: hidden;">
+                        <div id="tesoreria-cortes-container" class="row g-2" style="max-height: 420px; overflow-y: auto; overflow-x: hidden;">
                             <div class="col-12" th:each="cz : ${cortes}">
                                 <div class="grid-card p-3">
                                     <div class="d-flex justify-content-between border-bottom border-info pb-2 mb-2">
-                                        <span class="text-white-50 small">Cierre Z</span>
+                                        <span class="text-white-50 small"><i class="bi bi-file-earmark-bar-graph-fill text-info me-1"></i>Cierre Z #<span th:text="${cz.id}">1</span></span>
                                         <span class="fw-bold text-white" th:text="${#temporals.format(cz.fechaGeneracion, 'dd/MM/yy HH:mm')}">Fecha</span>
                                     </div>
                                     <div class="d-flex justify-content-between mb-1">
-                                        <small class="text-white-50">Ventas:</small>
+                                        <small class="text-white-50">Efectivo:</small>
                                         <span class="text-success fw-bold" th:text="${cz.totalEfectivo != null ? '$' + #numbers.formatInteger(cz.totalEfectivo, 0, 'POINT') : '$0'}">$0</span>
                                     </div>
                                     <div class="d-flex justify-content-between mb-1">
-                                        <small class="text-white-50">Gastos:</small>
+                                        <small class="text-white-50">Tarjetas / POS:</small>
+                                        <span class="text-primary fw-bold" th:text="${cz.totalTarjeta != null ? '$' + #numbers.formatInteger(cz.totalTarjeta, 0, 'POINT') : '$0'}">$0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small class="text-white-50">Transferencias:</small>
+                                        <span class="text-warning fw-bold" th:text="${cz.totalTransferencia != null ? '$' + #numbers.formatInteger(cz.totalTransferencia, 0, 'POINT') : '$0'}">$0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small class="text-white-50">Gastos Turno:</small>
                                         <span class="text-danger fw-bold" th:text="${cz.totalEgresos != null ? '-$' + #numbers.formatInteger(cz.totalEgresos, 0, 'POINT') : '$0'}">$0</span>
                                     </div>
-                                    <div class="d-flex justify-content-between mt-2 pt-2 border-top border-secondary">
-                                        <small class="fw-bold text-info">NETO:</small>
-                                        <span class="fw-bold" style="color: var(--cyan-neon); font-size: 1.1rem;" th:text="${cz.efectivoEsperadoCajon != null ? '$' + #numbers.formatInteger(cz.efectivoEsperadoCajon, 0, 'POINT') : '$0'}">$0</span>
+                                    <div class="d-flex justify-content-between mt-2 pt-2 border-top border-secondary align-items-center">
+                                        <div>
+                                            <small class="fw-bold text-info d-block">NETO CAJÓN:</small>
+                                            <span class="fw-bold" style="color: var(--cyan-neon); font-size: 1.1rem;" th:text="${cz.efectivoEsperadoCajon != null ? '$' + #numbers.formatInteger(cz.efectivoEsperadoCajon, 0, 'POINT') : '$0'}">$0</span>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-info" th:onclick="'imprimirTicketCorteZPorId(' + ${cz.id} + ')'" title="Imprimir Comprobante Cierre Z">
+                                            <i class="bi bi-printer-fill me-1"></i>Ticket
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -857,6 +879,10 @@
                             </div>
                             <h3 class="fw-bold text-white mb-1" id="ebitda-val-ventas">$0</h3>
                             <span class="text-white-50 small d-block" style="font-size:0.7rem;">Spa: <span class="text-info" id="ebitda-val-spa">$0</span> | Socias: <span class="text-warning" id="ebitda-val-socia-dev">$0</span></span>
+                            <div class="mt-1 d-flex gap-1 align-items-center">
+                                <span class="badge bg-primary" id="ebitda-val-cortes-badge" style="font-size: 0.65rem;">0 Cierres Z</span>
+                                <small class="text-white-50" style="font-size: 0.68rem;" id="ebitda-val-cortes-sum">Consolidado en Cierres: $0</small>
+                            </div>
                             <a href="#desc-ventas" class="text-white-50 text-decoration-none small d-block mt-2" data-bs-toggle="collapse" style="font-size: 0.68rem;">
                                 <i class="bi bi-info-circle me-1"></i>Guía Rápida <i class="bi bi-chevron-down ms-1"></i>
                             </a>
@@ -1004,10 +1030,11 @@
                     <h5 class="fw-bold text-white mb-3"><i class="bi bi-journal-text text-info me-2"></i>Detalle de Transacciones del Periodo</h5>
                     
                     <ul class="nav nav-tabs mb-3" id="ebitdaTabs" role="tablist">
-                        <li class="nav-item"><button class="nav-link active py-2" id="eb-ventas-tab" data-bs-toggle="tab" data-bs-target="#eb-ventas" type="button">Ventas (Ingresos)</button></li>
-                        <li class="nav-item"><button class="nav-link py-2" id="eb-egresos-tab" data-bs-toggle="tab" data-bs-target="#eb-egresos" type="button">Egresos (Gastos)</button></li>
+                        <li class="nav-item"><button class="nav-link active py-2" id="eb-ventas-tab" data-bs-toggle="tab" data-bs-target="#eb-ventas" type="button">Ventas (Ingresos) <span class="badge bg-secondary ms-1" id="eb-badge-ventas">0</span></button></li>
+                        <li class="nav-item"><button class="nav-link py-2" id="eb-egresos-tab" data-bs-toggle="tab" data-bs-target="#eb-egresos" type="button">Egresos (Gastos) <span class="badge bg-secondary ms-1" id="eb-badge-egresos">0</span></button></li>
                         <li class="nav-item"><button class="nav-link py-2" id="eb-pagos-tab" data-bs-toggle="tab" data-bs-target="#eb-pagos" type="button">Pagos Comisión</button></li>
                         <li class="nav-item"><button class="nav-link py-2" id="eb-inversiones-tab" data-bs-toggle="tab" data-bs-target="#eb-inversiones" type="button">Inversiones & Vida Útil (CAPEX)</button></li>
+                        <li class="nav-item"><button class="nav-link py-2" id="eb-cortes-tab" data-bs-toggle="tab" data-bs-target="#eb-cortes" type="button"><i class="bi bi-file-earmark-bar-graph-fill me-1 text-info"></i>Cierres de Caja (Reportes Z) <span class="badge bg-info text-dark ms-1" id="eb-badge-cortes">0</span></button></li>
                     </ul>
 
                     <div class="tab-content">
@@ -1025,12 +1052,13 @@
                                             <th>Monto Spa</th>
                                             <th>Comisión</th>
                                             <th>Pago</th>
+                                            <th>Estado Cierre</th>
                                             <th>Socia</th>
                                             <th class="text-center">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody id="ebitda-tbl-ventas">
-                                        <tr><td colspan="10" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
+                                        <tr><td colspan="11" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1097,6 +1125,30 @@
                                     </thead>
                                     <tbody id="ebitda-tbl-inversiones">
                                         <tr><td colspan="8" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Cierres de Caja (Reportes Z) -->
+                        <div class="tab-pane fade" id="eb-cortes" role="tabpanel">
+                            <div class="table-responsive" style="max-height: 40vh; overflow-y: auto;">
+                                <table class="table table-dark table-hover align-middle table-sm" style="font-size:0.85rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha / Hora Cierre</th>
+                                            <th>Reporte</th>
+                                            <th>Efectivo</th>
+                                            <th>Tarjetas / POS</th>
+                                            <th>Transferencias</th>
+                                            <th>Gastos Turno</th>
+                                            <th>Neto Cajón</th>
+                                            <th>Resumen</th>
+                                            <th class="text-center">Ticket</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ebitda-tbl-cortes">
+                                        <tr><td colspan="9" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1812,7 +1864,10 @@
                         </table>
                     </div>
                 </div>
-                <div class="modal-footer border-top border-secondary pt-2">
+                <div class="modal-footer border-top border-secondary pt-2 d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-warning fw-bold" onclick="ejecutarCorteCajaDesdeAdmin(event)">
+                        <i class="bi bi-lock-fill me-1"></i>Ejecutar Cierre de Caja (Corte Z)
+                    </button>
                     <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
@@ -3918,6 +3973,262 @@ function imprimirKardexRecibo() {
                 console.error(err);
             });
     }
+
+    // ==========================================
+    // 🔥 CONTROL DE CIERRE DE CAJA & TESORERÍA DINÁMICA 🔥
+    // ==========================================
+    window.cargarDatosTesoreria = function(event) {
+        if (event) event.stopPropagation();
+        if (typeof reproducirClick === 'function') reproducirClick();
+
+        // 1. Refrescar ventas del turno
+        fetch('/api/pos/caja-fuerte')
+            .then(res => res.json())
+            .then(data => {
+                const ventasCont = document.getElementById('tesoreria-ventas-container');
+                if (ventasCont) {
+                    ventasCont.innerHTML = '';
+                    if (!data.ventas || data.ventas.length === 0) {
+                        ventasCont.innerHTML = '<div class="col-12 text-center"><span class="text-muted small py-3">No hay ventas registradas en el turno actual (Caja al día).</span></div>';
+                    } else {
+                        data.ventas.forEach(v => {
+                            const fec = v.fechaHora ? new Date(v.fechaHora).toLocaleString('es-CL', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '--/--';
+                            const cli = v.cliente ? v.cliente.nombre : 'Cliente General';
+                            let badge = '<span class="badge bg-success" style="font-size: 0.55rem;">PAGADO</span>';
+                            if (v.estado === 'CONFIRMADO') badge = '<span class="badge bg-success" style="font-size: 0.55rem;">CONFIRMADO</span>';
+                            else if (v.estado === 'RESERVADO') badge = '<span class="badge bg-info text-dark" style="font-size: 0.55rem;">RESERVADO</span>';
+                            else if (v.estado === 'PENDIENTE') badge = '<span class="badge bg-warning text-dark" style="font-size: 0.55rem;">PENDIENTE</span>';
+
+                            ventasCont.innerHTML += `
+                                <div class="col-12">
+                                    <div class="grid-card p-2 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <small class="text-white-50">${fec}</small>
+                                                ${badge}
+                                            </div>
+                                            <div class="fw-bold text-white text-truncate" style="max-width: 140px;">${cli}</div>
+                                            <small class="text-white-50 text-truncate d-block" style="max-width: 140px;">${v.detalle || 'Venta'}</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold text-success">+$${Math.round(v.montoTotal || 0).toLocaleString('es-CL')}</div>
+                                            <span class="badge bg-secondary" style="font-size: 0.6rem;">${v.tipoPago || 'EFECTIVO'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            })
+            .catch(err => console.error("Error al cargar ventas en tesorería:", err));
+
+        // 2. Refrescar historial de cierres Z
+        fetch('/api/pos/cortes')
+            .then(res => res.json())
+            .then(cortes => {
+                const cortesCont = document.getElementById('tesoreria-cortes-container');
+                if (cortesCont) {
+                    cortesCont.innerHTML = '';
+                    if (!cortes || cortes.length === 0) {
+                        cortesCont.innerHTML = '<div class="col-12 text-center"><span class="text-muted small py-3">No hay Cierres Z registrados aún.</span></div>';
+                    } else {
+                        cortes.forEach(cz => {
+                            const fec = cz.fechaGeneracion ? new Date(cz.fechaGeneracion).toLocaleString('es-CL', {day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'}) : '--/--';
+                            cortesCont.innerHTML += `
+                                <div class="col-12">
+                                    <div class="grid-card p-3">
+                                        <div class="d-flex justify-content-between border-bottom border-info pb-2 mb-2">
+                                            <span class="text-white-50 small"><i class="bi bi-file-earmark-bar-graph-fill text-info me-1"></i>Cierre Z #${cz.id}</span>
+                                            <span class="fw-bold text-white">${fec}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small class="text-white-50">Efectivo:</small>
+                                            <span class="text-success fw-bold">$${Math.round(cz.totalEfectivo || 0).toLocaleString('es-CL')}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small class="text-white-50">Tarjetas / POS:</small>
+                                            <span class="text-primary fw-bold">$${Math.round(cz.totalTarjeta || 0).toLocaleString('es-CL')}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small class="text-white-50">Transferencias:</small>
+                                            <span class="text-warning fw-bold">$${Math.round(cz.totalTransferencia || 0).toLocaleString('es-CL')}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small class="text-white-50">Gastos Turno:</small>
+                                            <span class="text-danger fw-bold">-$${Math.round(cz.totalEgresos || 0).toLocaleString('es-CL')}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mt-2 pt-2 border-top border-secondary align-items-center">
+                                            <div>
+                                                <small class="fw-bold text-info d-block">NETO CAJÓN:</small>
+                                                <span class="fw-bold" style="color: var(--cyan-neon); font-size: 1.1rem;">$${Math.round(cz.efectivoEsperadoCajon || 0).toLocaleString('es-CL')}</span>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-info" onclick="imprimirTicketCorteZPorId(${cz.id})" title="Imprimir Comprobante Cierre Z">
+                                                <i class="bi bi-printer-fill me-1"></i>Ticket
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            })
+            .catch(err => console.error("Error al cargar cortes Z en tesorería:", err));
+    };
+
+    window.ejecutarCorteCajaDesdeAdmin = function(event) {
+        if (event) event.stopPropagation();
+        if (typeof reproducirClick === 'function') reproducirClick();
+        if (!confirm("⚠️ ¿Estás seguro de realizar el Cierre de Caja (Corte Z) del turno actual?\n\n• Se consolidarán todas las ventas y egresos abiertos.\n• Se calculará el efectivo neto esperado en el cajón.\n• Se generará el reporte Z y se sumará al historial de Tesorería y análisis EBITDA.")) {
+            return;
+        }
+        if (typeof sfxWaooo !== 'undefined') {
+            sfxWaooo.currentTime = 0;
+            sfxWaooo.play().catch(()=>{});
+        }
+        fetch('/api/pos/ejecutar-corte', { method: 'POST' })
+            .then(res => res.text())
+            .then(resText => {
+                if (resText === 'OK' || resText.startsWith('OK')) {
+                    alert("✅ Cierre de Caja (Corte Z) ejecutado con éxito.");
+                    const modalEl = document.getElementById('modalCajaAdmin');
+                    if (modalEl) {
+                        const modalInst = bootstrap.Modal.getInstance(modalEl);
+                        if (modalInst) modalInst.hide();
+                    }
+                    cargarDatosTesoreria();
+                    if (typeof consultarEbitda === 'function') consultarEbitda();
+                } else {
+                    alert("⚠️ Respuesta del servidor: " + resText);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("❌ Error al comunicar con el servidor para ejecutar el cierre.");
+            });
+    };
+
+    window.imprimirTicketCorteZPorId = function(id) {
+        if (typeof reproducirClick === 'function') reproducirClick();
+        fetch('/api/pos/cortes/' + id)
+            .then(res => {
+                if (!res.ok) throw new Error("Corte no encontrado");
+                return res.json();
+            })
+            .then(cz => {
+                imprimirComprobanteCorteZ(cz);
+            })
+            .catch(err => {
+                console.error(err);
+                alert("⚠️ Error al obtener datos del Cierre Z #" + id);
+            });
+    };
+
+    window.imprimirComprobanteCorteZ = function(cz) {
+        const fmt = (num) => '$' + Math.round(num || 0).toLocaleString('es-CL');
+        const fec = cz.fechaGeneracion ? new Date(cz.fechaGeneracion).toLocaleString('es-CL') : new Date().toLocaleString('es-CL');
+        const totalVentasTurno = (cz.totalEfectivo || 0) + (cz.totalTarjeta || 0) + (cz.totalTransferencia || 0) + (cz.totalFiado || 0);
+
+        const win = window.open('', '_blank', 'width=380,height=600');
+        win.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Cierre Z #${cz.id} - Linda Mamá Spa</title>
+                <style>
+                    body {
+                        font-family: 'Courier New', Courier, monospace;
+                        font-size: 13px;
+                        color: #000;
+                        margin: 0;
+                        padding: 15px;
+                        width: 280px;
+                    }
+                    .text-center { text-align: center; }
+                    .text-end { text-align: right; }
+                    .fw-bold { font-weight: bold; }
+                    .border-top { border-top: 1px dashed #000; padding-top: 5px; }
+                    .border-bottom { border-bottom: 1px dashed #000; padding-bottom: 5px; }
+                    .my-2 { margin-top: 8px; margin-bottom: 8px; }
+                    .py-1 { padding-top: 3px; padding-bottom: 3px; }
+                    .d-flex { display: flex; justify-content: space-between; }
+                    @media print {
+                        .no-print { display: none; }
+                        body { padding: 0; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="text-center border-bottom pb-2">
+                    <h3 style="margin: 0;">LINDA MAMÁ SPA</h3>
+                    <div style="font-size: 11px;">REPORTE DE CIERRE DE CAJA (CORTE Z)</div>
+                    <div class="fw-bold my-2" style="font-size: 14px;">COMPROBANTE CIERRE #${cz.id}</div>
+                    <div style="font-size: 11px;">${fec}</div>
+                </div>
+
+                <div class="my-2">
+                    <div class="d-flex py-1">
+                        <span>Total Efectivo:</span>
+                        <span class="fw-bold">${fmt(cz.totalEfectivo)}</span>
+                    </div>
+                    <div class="d-flex py-1">
+                        <span>Tarjetas / POS:</span>
+                        <span class="fw-bold">${fmt(cz.totalTarjeta)}</span>
+                    </div>
+                    <div class="d-flex py-1">
+                        <span>Transferencias:</span>
+                        <span class="fw-bold">${fmt(cz.totalTransferencia)}</span>
+                    </div>
+                    <div class="d-flex py-1">
+                        <span>Crédito / Fiado:</span>
+                        <span>${fmt(cz.totalFiado)}</span>
+                    </div>
+                    <div class="d-flex py-1 border-top fw-bold">
+                        <span>VENTAS TOTALES:</span>
+                        <span>${fmt(totalVentasTurno)}</span>
+                    </div>
+                </div>
+
+                <div class="my-2 border-top">
+                    <div class="d-flex py-1">
+                        <span>Gastos / Egresos Caja:</span>
+                        <span class="fw-bold">-${fmt(cz.totalEgresos)}</span>
+                    </div>
+                </div>
+
+                <div class="my-2 border-top border-bottom py-1">
+                    <div class="d-flex fw-bold" style="font-size: 14px;">
+                        <span>EFECTIVO EN CAJÓN:</span>
+                        <span>${fmt(cz.efectivoEsperadoCajon)}</span>
+                    </div>
+                </div>
+
+                <div class="my-2" style="font-size: 10px; color: #333;">
+                    ${cz.detalleInforme ? cz.detalleInforme : ''}
+                </div>
+
+                <div class="text-center border-top pt-2" style="font-size: 11px;">
+                    <div>Cierre Z procesado en MiniERP</div>
+                    <div class="my-2">__________________________<br>Firma Responsable</div>
+                </div>
+
+                <div class="no-print text-center my-2" style="margin-top: 20px;">
+                    <button onclick="window.print()" style="padding: 6px 16px; font-weight: bold; cursor: pointer;">Imprimir</button>
+                    <button onclick="window.close()" style="padding: 6px 16px; margin-left: 8px; cursor: pointer;">Cerrar</button>
+                </div>
+
+                <script>
+                    window.onload = function() {
+                        setTimeout(() => window.print(), 300);
+                    };
+                <\/script>
+            </body>
+            </html>
+        `);
+        win.document.close();
+    };
     // ==========================================
     // 🔥 GESTIÓN DE SOCIAS (10 CUPOS MAX) 🔥
     // ==========================================
@@ -4576,12 +4887,19 @@ function imprimirKardexRecibo() {
     // ==============================================
     // LÓGICA DE CONTROL FINANCIERO: EBITDA
     // ==============================================
+    function getLocalDateString(d) {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     window.initEbitdaReport = function() {
         if (!document.getElementById('ebitda-inicio').value) {
             const hoy = new Date();
             const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-            document.getElementById('ebitda-inicio').value = primerDia.toISOString().split('T')[0];
-            document.getElementById('ebitda-fin').value = hoy.toISOString().split('T')[0];
+            document.getElementById('ebitda-inicio').value = getLocalDateString(primerDia);
+            document.getElementById('ebitda-fin').value = getLocalDateString(hoy);
         }
         window.consultarEbitda();
     };
@@ -4607,8 +4925,8 @@ function imprimirKardexRecibo() {
             fin = new Date();
         }
 
-        document.getElementById('ebitda-inicio').value = inicio.toISOString().split('T')[0];
-        document.getElementById('ebitda-fin').value = fin.toISOString().split('T')[0];
+        document.getElementById('ebitda-inicio').value = getLocalDateString(inicio);
+        document.getElementById('ebitda-fin').value = getLocalDateString(fin);
         window.consultarEbitda();
     };
 
@@ -4713,6 +5031,20 @@ function imprimirKardexRecibo() {
                 document.getElementById('ebitda-val-spa').innerText = '$' + Math.round(s.totalVentasSpa || 0).toLocaleString('es-CL');
                 document.getElementById('ebitda-val-socia-dev').innerText = '$' + Math.round(s.totalVentasSocia || 0).toLocaleString('es-CL');
 
+                // Resumen de Cierres Z
+                const cortesBadge = document.getElementById('ebitda-val-cortes-badge');
+                if (cortesBadge) cortesBadge.innerText = `${s.numCortesZ || 0} Cierres Z`;
+                const cortesSum = document.getElementById('ebitda-val-cortes-sum');
+                if (cortesSum) cortesSum.innerText = `Consolidado en Cierres: $${Math.round(s.totalCortesVentas || 0).toLocaleString('es-CL')}`;
+
+                // Badges de pestañas
+                const badgeVentas = document.getElementById('eb-badge-ventas');
+                if (badgeVentas) badgeVentas.innerText = (data.ventas ? data.ventas.length : 0);
+                const badgeEgresos = document.getElementById('eb-badge-egresos');
+                if (badgeEgresos) badgeEgresos.innerText = (data.egresos ? data.egresos.length : 0);
+                const badgeCortes = document.getElementById('eb-badge-cortes');
+                if (badgeCortes) badgeCortes.innerText = (data.cortes ? data.cortes.length : 0);
+
                 const totalGastosYComisiones = (s.totalEgresos || 0) + (s.totalComisionesPagadas || 0);
                 document.getElementById('ebitda-val-gastos').innerText = '$' + Math.round(totalGastosYComisiones).toLocaleString('es-CL');
                 document.getElementById('ebitda-val-egresos').innerText = '$' + Math.round(s.totalEgresos || 0).toLocaleString('es-CL');
@@ -4787,11 +5119,12 @@ function imprimirKardexRecibo() {
                 const tblVentas = document.getElementById('ebitda-tbl-ventas');
                 tblVentas.innerHTML = '';
                 if (!data.ventas || data.ventas.length === 0) {
-                    tblVentas.innerHTML = '<tr><td colspan="10" class="text-center text-muted py-3">No hay ventas registradas en este periodo</td></tr>';
+                    tblVentas.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-3">No hay ventas registradas en este periodo</td></tr>';
                 } else {
                     data.ventas.forEach(v => {
                         const fec = new Date(v.fecha).toLocaleString('es-CL', {dateStyle:'short', timeStyle:'short'});
                         const estBadge = v.estado === 'PAGADO' ? '<span class="badge bg-success">PAGADO</span>' : '<span class="badge bg-warning text-dark">PENDIENTE</span>';
+                        const cierreBadge = v.cierreAplicado ? '<span class="badge bg-primary" style="font-size:0.65rem;"><i class="bi bi-lock-fill me-1"></i>Cierre Z</span>' : '<span class="badge bg-warning text-dark" style="font-size:0.65rem;"><i class="bi bi-unlock-fill me-1"></i>Caja Abierta</span>';
                         tblVentas.innerHTML += `<tr>
                             <td>${fec}</td>
                             <td class="fw-bold">${v.clienteNombre}</td>
@@ -4801,6 +5134,7 @@ function imprimirKardexRecibo() {
                             <td class="text-info">$${Math.round(v.montoSpa || 0).toLocaleString('es-CL')}</td>
                             <td class="text-warning">$${Math.round(v.montoSocia || 0).toLocaleString('es-CL')}</td>
                             <td class="small">${v.tipoPago}</td>
+                            <td>${cierreBadge}</td>
                             <td>${estBadge} ${v.sociaNombre}</td>
                             <td class="text-center">
                                 <button class="btn btn-sm btn-outline-warning p-1 py-0 me-1" onclick="abrirModalEditarVenta(${v.id})" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -4897,6 +5231,35 @@ function imprimirKardexRecibo() {
                             </td>
                         </tr>`;
                     });
+                }
+
+                // Tabla Cierres Z (Reportes Z)
+                const tblCortes = document.getElementById('ebitda-tbl-cortes');
+                if (tblCortes) {
+                    tblCortes.innerHTML = '';
+                    if (!data.cortes || data.cortes.length === 0) {
+                        tblCortes.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-3">No hay cierres de caja registrados en este periodo</td></tr>';
+                    } else {
+                        data.cortes.forEach(c => {
+                            const fec = c.fechaGeneracion ? new Date(c.fechaGeneracion).toLocaleString('es-CL', {dateStyle:'short', timeStyle:'short'}) : '--/--';
+                            const neto = c.efectivoEsperadoCajon || 0;
+                            tblCortes.innerHTML += `<tr>
+                                <td>${fec}</td>
+                                <td class="fw-bold text-info"><i class="bi bi-file-earmark-bar-graph-fill me-1"></i>Cierre Z #${c.id}</td>
+                                <td class="fw-bold text-success">$${Math.round(c.totalEfectivo || 0).toLocaleString('es-CL')}</td>
+                                <td class="fw-bold text-primary">$${Math.round(c.totalTarjeta || 0).toLocaleString('es-CL')}</td>
+                                <td class="fw-bold text-warning">$${Math.round(c.totalTransferencia || 0).toLocaleString('es-CL')}</td>
+                                <td class="fw-bold text-danger">-$${Math.round(c.totalEgresos || 0).toLocaleString('es-CL')}</td>
+                                <td class="fw-bold" style="color: var(--cyan-neon); font-size: 0.95rem;">$${Math.round(neto).toLocaleString('es-CL')}</td>
+                                <td class="small text-white-50 text-truncate" style="max-width: 220px;" title="${c.detalleInforme || ''}">${c.detalleInforme || 'Cierre registrado'}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-info p-1 py-0 px-2" onclick="imprimirTicketCorteZPorId(${c.id})" title="Imprimir Comprobante Cierre Z">
+                                        <i class="bi bi-printer-fill me-1"></i>Ticket
+                                    </button>
+                                </td>
+                            </tr>`;
+                        });
+                    }
                 }
             })
             .catch(err => {
@@ -5665,6 +6028,26 @@ function imprimirKardexRecibo() {
             });
         }
 
+        // Construir tabla de Cierres Z
+        let cortesRows = "";
+        if (!data.cortes || data.cortes.length === 0) {
+            cortesRows = `<tr><td colspan="6" style="color:gray; text-align:center;">Sin Cierres de Caja (Reportes Z) registrados en este periodo</td></tr>`;
+        } else {
+            data.cortes.forEach(c => {
+                const fec = c.fechaGeneracion ? new Date(c.fechaGeneracion).toLocaleString('es-CL') : '--';
+                cortesRows += `
+                    <tr>
+                        <td><strong>Cierre Z #${c.id}</strong><br><small style="color:gray;">${fec}</small></td>
+                        <td style="text-align:right;" class="text-success">${fmt(c.totalEfectivo)}</td>
+                        <td style="text-align:right;" class="text-info">${fmt(c.totalTarjeta)}</td>
+                        <td style="text-align:right;" class="text-warning">${fmt(c.totalTransferencia)}</td>
+                        <td style="text-align:right;" class="text-danger">-${fmt(c.totalEgresos)}</td>
+                        <td style="text-align:right; font-weight:bold; color:#0b78d6;">${fmt(c.efectivoEsperadoCajon)}</td>
+                    </tr>
+                `;
+            });
+        }
+
         const win = window.open("", "_blank");
         win.document.write(`
             <html>
@@ -5884,7 +6267,34 @@ function imprimirKardexRecibo() {
                     </tbody>
                 </table>
 
-                <h2>4. Glosario de Términos para Socias</h2>
+                <h2>4. Auditoría de Cierres de Caja (Cortes Z)</h2>
+                <p style="font-size:11px; color:#555; margin-bottom:10px;">
+                    Historial de cierres de caja consolidados durante el periodo seleccionado:
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reporte / Fecha</th>
+                            <th style="text-align:right;">Efectivo</th>
+                            <th style="text-align:right;">Tarjetas / POS</th>
+                            <th style="text-align:right;">Transferencias</th>
+                            <th style="text-align:right;">Gastos Turno</th>
+                            <th style="text-align:right;">Neto Cajón</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${cortesRows}
+                        <tr style="font-weight:bold; background-color:#f8f9fa;">
+                            <td>Total Consolidado en Cierres (${s.numCortesZ || 0})</td>
+                            <td style="text-align:right;" class="text-success">${fmt(s.totalCortesEfectivo)}</td>
+                            <td colspan="2"></td>
+                            <td style="text-align:right;" class="text-danger">-${fmt(s.totalCortesEgresos)}</td>
+                            <td style="text-align:right; color:#0b78d6;">${fmt(s.totalCortesNeto)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>5. Glosario de Términos para Socias</h2>
                 <div class="glosario-item">
                     <strong>OPEX (Gastos Operativos):</strong> Son las compras que se consumen rápido o los cobros mensuales obligatorios para que el local pueda abrir. Ejemplos: sábanas desechables, arriendo, luz, sueldos administrativos.
                 </div>
