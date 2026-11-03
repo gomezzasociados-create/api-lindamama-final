@@ -56,6 +56,21 @@ window.initAgendaCalendar = function() {
                     omitZeroMinute: false,
                     meridiem: 'short'
                 },
+                selectable: true,
+                selectMirror: true,
+                unselectAuto: true,
+                dateClick: function(info) {
+                    if (typeof reproducirClick === 'function') reproducirClick();
+                    if (typeof window.abrirModalAgendarDesdeAgenda === 'function') {
+                        window.abrirModalAgendarDesdeAgenda(info.dateStr, selectedAgendaSociaId);
+                    }
+                },
+                select: function(info) {
+                    if (typeof reproducirClick === 'function') reproducirClick();
+                    if (typeof window.abrirModalAgendarDesdeAgenda === 'function') {
+                        window.abrirModalAgendarDesdeAgenda(info.startStr, selectedAgendaSociaId);
+                    }
+                },
                 events: function(info, successCallback, failureCallback) {
                     fetch('/api/citas')
                         .then(r => r.json())
