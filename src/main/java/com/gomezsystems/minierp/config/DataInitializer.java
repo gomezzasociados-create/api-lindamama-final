@@ -1,7 +1,11 @@
 package com.gomezsystems.minierp.config;
 
 import com.gomezsystems.minierp.model.Tratamiento;
+import com.gomezsystems.minierp.model.Usuario;
+import com.gomezsystems.minierp.model.ConfiguracionSeguridad;
 import com.gomezsystems.minierp.repository.TratamientoRepository;
+import com.gomezsystems.minierp.repository.UsuarioRepository;
+import com.gomezsystems.minierp.repository.ConfiguracionSeguridadRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +23,33 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private TratamientoRepository tratamientoRepo;
 
+    @Autowired
+    private UsuarioRepository usuarioRepo;
+
+    @Autowired
+    private ConfiguracionSeguridadRepository configuracionSeguridadRepo;
+
     @Override
     public void run(String... args) throws Exception {
+        // Inicializar Clave Maestra de Seguridad (6 Dígitos) si no existe
+        if (configuracionSeguridadRepo.findByClave("PIN_MAESTRO_TESORERIA").isEmpty()) {
+            configuracionSeguridadRepo.save(new ConfiguracionSeguridad(
+                    "PIN_MAESTRO_TESORERIA",
+                    "777777",
+                    "Clave Maestra de 6 dígitos para reinicio y eliminación segura en Tesorería y Finanzas"
+            ));
+            System.out.println("🔐 [GOMEZ SYSTEMS] Clave maestra de 6 dígitos inicializada: 777777");
+        }
+
+        // Inicializar Usuarios de Administración y POS si la tabla está vacía
+        if (usuarioRepo.count() == 0) {
+            usuarioRepo.save(new Usuario("Crisley Paredes", "crisley", "7777", "PROPIETARIA", true, true));
+            usuarioRepo.save(new Usuario("Janneth", "janneth", "1010", "ADMINISTRADORA", true, true));
+            usuarioRepo.save(new Usuario("Daniela Camacho", "daniela.camacho", "2020", "CAJERA", false, true));
+            usuarioRepo.save(new Usuario("Daniela Montaño", "daniela.montano", "3030", "CAJERA", false, true));
+            System.out.println("👥 [GOMEZ SYSTEMS] Usuarios iniciales del Spa registrados exitosamente.");
+        }
+
         if (tratamientoRepo.count() == 0) {
             System.out.println("🚀 [GOMEZ SYSTEMS] Base de datos vacía. Migrando datos desde CSV...");
             cargarDatos("data/PACKS.csv");

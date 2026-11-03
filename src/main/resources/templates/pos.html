@@ -363,7 +363,7 @@
     <div class="login-box" id="login-box">
         <h2 class="fw-bold mb-1" style="color: var(--cyan-neon); font-family: 'Playfair Display';"><i class="bi bi-cart-check-fill me-2"></i>Caja POS Neón</h2>
         <p class="text-white mb-4 opacity-75">Control de Venta Directa Linda Mamá Spa</p>
-        <input type="password" id="input-pin" class="pin-input" maxlength="4" placeholder="••••" onkeypress="if(event.key === 'Enter') validarAcceso(event)">
+        <input type="password" id="input-pin" class="pin-input" maxlength="20" placeholder="••••" onkeypress="if(event.key === 'Enter') validarAcceso(event)">
         <button type="button" class="btn btn-fucsia w-100 py-3 fs-5 mt-2" onclick="validarAcceso(event)">✨ ABRIR TURNO</button>
     </div>
 </div>
@@ -625,42 +625,85 @@
     let listaClientes = [];
 
     function validarAcceso() {
-        const pin = document.getElementById('input-pin').value;
-        const pins = {'7777': 'Crisley Paredes', '1010': 'Janneth', '2020': 'Daniela Camacho', '3030': 'Daniela Montaño'};
-        
-        if (pins[pin]) {
-            vendedorActual = pins[pin];
-            sfxOk.play().catch(()=>{});
-            localStorage.setItem('spa_usuario', vendedorActual);
-            
-            document.getElementById('login-screen').style.display = 'none';
-            const welcomeScreen = document.getElementById('welcome-screen');
-            welcomeScreen.style.display = 'flex';
-            
-            const primerNombre = vendedorActual.split(' ')[0];
-            document.getElementById('welcome-message').innerText = "¡Bienvenida " + primerNombre + "!";
-            
-            if ('speechSynthesis' in window) {
-                const mensajeVoz = new SpeechSynthesisUtterance("Bienvenida " + primerNombre + ". Iniciando sistema de caja.");
-                mensajeVoz.lang = 'es-ES';
-                mensajeVoz.rate = 1.0;
-                window.speechSynthesis.speak(mensajeVoz);
+        const pinInput = document.getElementById('input-pin');
+        if (!pinInput) return;
+        const pin = pinInput.value.trim();
+        if (!pin) return;
+
+        // Intentar validación dinámica con base de datos en tiempo real
+        fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin: pin, origen: 'POS' })
+        })
+        .then(res => {
+            if (res.ok) {
+                return res.json().then(data => {
+                    iniciarSesionPosExitosa(data.user || 'Cajera');
+                });
+            } else if (res.status === 403) {
+                sfxFail.play().catch(()=>{});
+                alert("⚠️ Acceso denegado: este usuario no tiene permisos asignados para el Punto de Venta (POS).");
+            } else {
+                // Fallback local por si el servidor no responde o está offline
+                const pins = {'7777': 'Crisley Paredes', '1010': 'Janneth', '2020': 'Daniela Camacho', '3030': 'Daniela Montaño'};
+                if (pins[pin]) {
+                    iniciarSesionPosExitosa(pins[pin]);
+                } else {
+                    sfxFail.play().catch(()=>{});
+                    const loginBox = document.getElementById('login-box');
+                    if (loginBox) {
+                        loginBox.classList.add('shake-error');
+                        setTimeout(() => loginBox.classList.remove('shake-error'), 400);
+                    }
+                }
             }
-            
-            setTimeout(() => {
-                sfxWaooo.play().catch(()=>{});
-                welcomeScreen.style.display = 'none';
-                document.getElementById('app-pos').style.display = 'block';
-                const ahora = new Date();
-                ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
-                document.getElementById('fecha-servicio').value = ahora.toISOString().slice(0,16);
-            }, 2000);
-        } else {
-            sfxFail.play().catch(()=>{});
-            const loginBox = document.getElementById('login-box');
-            loginBox.classList.add('shake-error');
-            setTimeout(() => loginBox.classList.remove('shake-error'), 400);
+        })
+        .catch(err => {
+            // Offline fallback
+            const pins = {'7777': 'Crisley Paredes', '1010': 'Janneth', '2020': 'Daniela Camacho', '3030': 'Daniela Montaño'};
+            if (pins[pin]) {
+                iniciarSesionPosExitosa(pins[pin]);
+            } else {
+                sfxFail.play().catch(()=>{});
+                const loginBox = document.getElementById('login-box');
+                if (loginBox) {
+                    loginBox.classList.add('shake-error');
+                    setTimeout(() => loginBox.classList.remove('shake-error'), 400);
+                }
+            }
+        });
+    }
+
+    function iniciarSesionPosExitosa(nombreUsuario) {
+        vendedorActual = nombreUsuario;
+        sfxOk.play().catch(()=>{});
+        localStorage.setItem('spa_usuario', vendedorActual);
+        
+        document.getElementById('login-screen').style.display = 'none';
+        const welcomeScreen = document.getElementById('welcome-screen');
+        welcomeScreen.style.display = 'flex';
+        
+        const primerNombre = vendedorActual.split(' ')[0];
+        document.getElementById('welcome-message').innerText = "¡Bienvenida " + primerNombre + "!";
+        
+        if ('speechSynthesis' in window) {
+            const mensajeVoz = new SpeechSynthesisUtterance("Bienvenida " + primerNombre + ". Iniciando sistema de caja.");
+            mensajeVoz.lang = 'es-ES';
+            mensajeVoz.rate = 1.0;
+            window.speechSynthesis.speak(mensajeVoz);
         }
+        
+        setTimeout(() => {
+            sfxWaooo.play().catch(()=>{});
+            welcomeScreen.style.display = 'none';
+            document.getElementById('app-pos').style.display = 'block';
+            const ahora = new Date();
+            ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
+            if (document.getElementById('fecha-servicio')) {
+                document.getElementById('fecha-servicio').value = ahora.toISOString().slice(0, 16);
+            }
+        }, 1800);
     }
 
     function filtrarPorCategoria(cat, btn) {

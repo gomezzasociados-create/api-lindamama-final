@@ -21,6 +21,7 @@ public class FinanzasRestController {
     @Autowired private PagoComisionRepository pagoComisionRepository;
     @Autowired private SociaRepository sociaRepository;
     @Autowired private CorteZRepository corteZRepository;
+    @Autowired private ConfiguracionSeguridadRepository configuracionSeguridadRepo;
 
     @GetMapping("/ebitda")
     public ResponseEntity<Map<String, Object>> getEbitdaReport(
@@ -436,6 +437,131 @@ public class FinanzasRestController {
             return ResponseEntity.ok().body(Map.of("mensaje", "Pago de comisión eliminado correctamente"));
         }
         return ResponseEntity.notFound().build();
+    }
+
+    // ========================================================
+    // 4. MÉTODOS SEGUROS CON AUTORIZACIÓN PIN MAESTRO 6 DÍGITOS
+    // ========================================================
+
+    private boolean validarPinMaestro(String pin) {
+        if (pin == null || pin.trim().isEmpty()) return false;
+        ConfiguracionSeguridad config = configuracionSeguridadRepo.findByClave("PIN_MAESTRO_TESORERIA").orElse(null);
+        String valido = config != null ? config.getValor() : "777777";
+        return pin.trim().equals(valido);
+    }
+
+    // ELIMINACIÓN SEGURA DE PAGO / VENTA
+    @PostMapping("/eliminar-pago-seguro/{id}")
+    public ResponseEntity<?> eliminarPagoSeguro(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        String pin = payload.get("pinSeguridad");
+        if (!validarPinMaestro(pin)) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", "error",
+                    "mensaje", "Clave de seguridad de 6 dígitos incorrecta. Operación no autorizada."
+            ));
+        }
+
+        Optional<Venta> vOpt = ventaRepository.findById(id);
+        if (vOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("status", "error", "mensaje", "El pago o venta no fue encontrado."));
+        }
+
+        ventaRepository.delete(vOpt.get());
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "mensaje", "Pago / Venta eliminada correctamente de Tesorería y Finanzas."
+        ));
+    }
+
+    // ELIMINACIÓN SEGURA DE GASTO / EGRESO
+    @PostMapping("/eliminar-egreso-seguro/{id}")
+    public ResponseEntity<?> eliminarEgresoSeguro(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        String pin = payload.get("pinSeguridad");
+        if (!validarPinMaestro(pin)) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", "error",
+                    "mensaje", "Clave de seguridad de 6 dígitos incorrecta. Operación no autorizada."
+            ));
+        }
+
+        Optional<Egreso> eOpt = egresoRepository.findById(id);
+        if (eOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("status", "error", "mensaje", "El egreso o gasto no fue encontrado."));
+        }
+
+        egresoRepository.delete(eOpt.get());
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "mensaje", "Gasto / Egreso eliminado correctamente de Tesorería y Finanzas."
+        ));
+    }
+
+    // ELIMINACIÓN SEGURA DE CIERRE Z
+    @PostMapping("/eliminar-corte-seguro/{id}")
+    public ResponseEntity<?> eliminarCorteSeguro(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        String pin = payload.get("pinSeguridad");
+        if (!validarPinMaestro(pin)) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", "error",
+                    "mensaje", "Clave de seguridad de 6 dígitos incorrecta. Operación no autorizada."
+            ));
+        }
+
+        Optional<CorteZ> czOpt = corteZRepository.findById(id);
+        if (czOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("status", "error", "mensaje", "El Cierre Z no fue encontrado."));
+        }
+
+        corteZRepository.delete(czOpt.get());
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "mensaje", "Reporte de Cierre Z eliminado correctamente."
+        ));
+    }
+
+    // REINICIO SEGURO DE FINANZAS
+    @PostMapping("/reiniciar-seguro")
+    public ResponseEntity<?> reiniciarFinanzasSeguro(@RequestBody Map<String, String> payload) {
+        String pin = payload.get("pinSeguridad");
+        String modo = payload.getOrDefault("modo", "TURNO_ACTUAL");
+
+        if (!validarPinMaestro(pin)) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", "error",
+                    "mensaje", "Clave de seguridad de 6 dígitos incorrecta. Operación no autorizada."
+            ));
+        }
+
+        if ("TURNO_ACTUAL".equalsIgnoreCase(modo)) {
+            // Reiniciar únicamente movimientos abiertos del turno actual
+            List<Venta> ventasTurno = ventaRepository.findByCierreAplicadoFalseOrderByFechaHoraDesc();
+            if (!ventasTurno.isEmpty()) {
+                ventaRepository.deleteAll(ventasTurno);
+            }
+
+            List<Egreso> egresosTurno = egresoRepository.findByCierreAplicadoFalseOrderByFechaHoraDesc();
+            if (!egresosTurno.isEmpty()) {
+                egresoRepository.deleteAll(egresosTurno);
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "ok",
+                    "mensaje", "Caja del turno actual reiniciada exitosamente. Se eliminaron los movimientos no consolidados."
+            ));
+        } else if ("TODO".equalsIgnoreCase(modo)) {
+            // Reinicio completo de finanzas
+            egresoRepository.deleteAll();
+            pagoComisionRepository.deleteAll();
+            corteZRepository.deleteAll();
+            ventaRepository.deleteAll();
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "ok",
+                    "mensaje", "Historial financiero reiniciado completamente a cero con éxito."
+            ));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "mensaje", "Modo de reinicio inválido."));
+        }
     }
 }
 

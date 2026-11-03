@@ -179,7 +179,7 @@
         <h3 class="fw-bold mb-1" style="color: var(--cyan-neon); font-family: 'Playfair Display';">Linda Mamá Spa</h3>
         <p class="text-white mb-4 opacity-50 small text-uppercase tracking-wider">Centro de Mando Administrativo</p>
 
-        <input type="password" id="input-pin" class="admin-pin-input" maxlength="4" placeholder="••••" onkeypress="if(event.key === 'Enter') validarAcceso(event)"/>
+        <input type="password" id="input-pin" class="admin-pin-input" maxlength="20" placeholder="••••" onkeypress="if(event.key === 'Enter') validarAcceso(event)"/>
 
         <button type="button" class="btn btn-admin-login w-100 py-3 fs-6 rounded-pill" onclick="validarAcceso(event)">
             INGRESAR AL SISTEMA <i class="bi bi-arrow-right-short fs-4 align-middle"></i>
@@ -217,6 +217,7 @@
             <li class="nav-item"><button class="nav-link" id="tesoreria-tab" data-bs-toggle="tab" data-bs-target="#tesoreria" type="button" onclick="reproducirClick()"><i class="bi bi-safe-fill me-2"></i>Tesorería y Caja</button></li>
             <li class="nav-item"><button class="nav-link" id="socias-tab" data-bs-toggle="tab" data-bs-target="#socias" type="button" onclick="reproducirClick()"><i class="bi bi-person-badge me-2"></i>Gestión de Socias</button></li>
             <li class="nav-item"><button class="nav-link" id="ebitda-tab" data-bs-toggle="tab" data-bs-target="#ebitda" type="button" onclick="reproducirClick(); initEbitdaReport();"><i class="bi bi-graph-up-arrow me-2"></i>Análisis EBITDA</button></li>
+            <li class="nav-item"><button class="nav-link" id="contrasenas-tab" data-bs-toggle="tab" data-bs-target="#contrasenas" type="button" onclick="reproducirClick(); cargarModuloContrasenas();"><i class="bi bi-key-fill me-2 text-warning"></i>Contraseñas</button></li>
         </ul>
 
         <div class="tab-content" id="adminTabsContent">
@@ -644,6 +645,9 @@
                         <button class="btn btn-outline-info fw-bold px-3" onclick="verEstadoCajaAdmin(event)" style="box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);">
                             <i class="bi bi-eye-fill me-1"></i>Ver Caja del Turno Actual
                         </button>
+                        <button class="btn btn-outline-danger fw-bold px-3" onclick="abrirModalReiniciarFinanzas(event)" title="Reiniciar finanzas o caja abierta de forma segura con PIN de 6 dígitos">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>Reiniciar Finanzas
+                        </button>
                         <button class="btn btn-outline-light fw-bold px-3" onclick="cargarDatosTesoreria(event)" title="Actualizar datos de tesorería">
                             <i class="bi bi-arrow-clockwise me-1"></i>Refrescar
                         </button>
@@ -670,9 +674,14 @@
                                         <div class="fw-bold text-white text-truncate" style="max-width: 140px;" th:text="${v.cliente != null ? v.cliente.nombre : 'Cliente General'}">Cliente</div>
                                         <small class="text-white-50 text-truncate d-block" style="max-width: 140px;" th:text="${v.detalle}">Detalle</small>
                                     </div>
-                                    <div class="text-end">
-                                        <div class="fw-bold text-success" th:text="'+$' + ${#numbers.formatInteger(v.montoTotal != null ? v.montoTotal : 0, 0, 'POINT')}">$0</div>
-                                        <span class="badge bg-secondary" style="font-size: 0.6rem;" th:text="${v.tipoPago}">Tipo</span>
+                                    <div class="text-end d-flex flex-column align-items-end justify-content-between">
+                                        <div>
+                                            <div class="fw-bold text-success" th:text="'+$' + ${#numbers.formatInteger(v.montoTotal != null ? v.montoTotal : 0, 0, 'POINT')}">$0</div>
+                                            <span class="badge bg-secondary" style="font-size: 0.6rem;" th:text="${v.tipoPago}">Tipo</span>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-danger p-0 px-2 mt-1" style="font-size: 0.68rem;" th:onclick="'solicitarEliminarVentaSegura(' + ${v.id} + ', \'' + ${v.cliente != null ? #strings.escapeJavaScript(v.cliente.nombre) : 'Cliente'} + '\', ' + ${v.montoTotal} + ')'" title="Eliminar pago erróneo (Requiere PIN de 6 dígitos)">
+                                            <i class="bi bi-trash me-1"></i>Eliminar
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -694,9 +703,14 @@
                                         <small class="text-white-50 d-block" th:text="${#temporals.format(e.fechaHora, 'dd/MM HH:mm')}">Fecha</small>
                                         <span class="text-white text-truncate d-inline-block" style="max-width: 140px;" th:text="${e.descripcion}">Motivo</span>
                                     </div>
-                                    <div class="text-end">
-                                        <div class="fw-bold text-danger" th:text="'-$' + ${#numbers.formatInteger(e.monto, 0, 'POINT')}">$0</div>
-                                        <span class="badge bg-secondary" style="font-size: 0.6rem;" th:text="${e.metodoSalida}">Tipo</span>
+                                    <div class="text-end d-flex flex-column align-items-end justify-content-between">
+                                        <div>
+                                            <div class="fw-bold text-danger" th:text="'-$' + ${#numbers.formatInteger(e.monto, 0, 'POINT')}">$0</div>
+                                            <span class="badge bg-secondary" style="font-size: 0.6rem;" th:text="${e.metodoSalida}">Tipo</span>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-danger p-0 px-2 mt-1" style="font-size: 0.68rem;" th:onclick="'solicitarEliminarEgresoSeguro(' + ${e.id} + ', \'' + ${#strings.escapeJavaScript(e.descripcion)} + '\', ' + ${e.monto} + ')'" title="Eliminar gasto erróneo (Requiere PIN de 6 dígitos)">
+                                            <i class="bi bi-trash me-1"></i>Eliminar
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -739,9 +753,14 @@
                                             <small class="fw-bold text-info d-block">NETO CAJÓN:</small>
                                             <span class="fw-bold" style="color: var(--cyan-neon); font-size: 1.1rem;" th:text="${cz.efectivoEsperadoCajon != null ? '$' + #numbers.formatInteger(cz.efectivoEsperadoCajon, 0, 'POINT') : '$0'}">$0</span>
                                         </div>
-                                        <button class="btn btn-sm btn-outline-info" th:onclick="'imprimirTicketCorteZPorId(' + ${cz.id} + ')'" title="Imprimir Comprobante Cierre Z">
-                                            <i class="bi bi-printer-fill me-1"></i>Ticket
-                                        </button>
+                                        <div class="d-flex gap-1">
+                                            <button class="btn btn-sm btn-outline-info" th:onclick="'imprimirTicketCorteZPorId(' + ${cz.id} + ')'" title="Imprimir Comprobante Cierre Z">
+                                                <i class="bi bi-printer-fill me-1"></i>Ticket
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" th:onclick="'solicitarEliminarCorteSeguro(' + ${cz.id} + ')'" title="Eliminar Cierre Z (Requiere PIN de 6 dígitos)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1149,6 +1168,103 @@
                                     </thead>
                                     <tbody id="ebitda-tbl-cortes">
                                         <tr><td colspan="9" class="text-center text-muted py-3">Selecciona un periodo y presiona Filtrar</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA PESTAÑA: GESTIÓN DE CONTRASEÑAS & ACCESOS -->
+            <div class="tab-pane fade" id="contrasenas" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-4 header-tab flex-wrap gap-2">
+                    <h4 class="fw-bold m-0" style="color: var(--cyan-neon);">
+                        <i class="bi bi-key-fill text-warning me-2"></i>Gestión de Contraseñas & Control de Accesos
+                        <i class="bi bi-volume-up-fill text-warning ms-2 fs-5" style="cursor:pointer;" onclick="reproducirVozInstruccion('En este módulo puedes configurar la clave maestra de seis dígitos para autorizaciones de tesorería y reinicio de finanzas, además de crear y gestionar los accesos privados para cada colaboradora del spa.')"></i>
+                    </h4>
+                    <span class="badge px-3 py-2 text-white" style="background: rgba(0, 229, 255, 0.1); border: 1px solid var(--cyan-neon);">
+                        <i class="bi bi-shield-check text-success me-1"></i> SEGURIDAD ACTIVA
+                    </span>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <!-- PANEL 1: CLAVE MAESTRA DE SEGURIDAD (6 DÍGITOS) -->
+                    <div class="col-12 col-lg-5">
+                        <div class="grid-card p-4 h-100" style="border-left: 4px solid #ffc107 !important;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold text-warning m-0">
+                                    <i class="bi bi-shield-lock-fill me-2"></i>Clave Maestra de Tesorería (6 Dígitos)
+                                </h5>
+                                <i class="bi bi-lock-fill text-warning fs-4"></i>
+                            </div>
+
+                            <p class="small text-white-50 mb-3" style="font-size: 0.8rem; line-height: 1.4;">
+                                Esta clave de <strong>6 dígitos</strong> es la llave de seguridad requerida para operaciones críticas de Tesorería: 
+                                <strong>eliminar pagos erróneos</strong>, <strong>anular gastos</strong> y <strong>reiniciar finanzas</strong>.
+                            </p>
+
+                            <div class="p-3 rounded mb-3" style="background: rgba(255, 193, 7, 0.08); border: 1px dashed rgba(255, 193, 7, 0.4);">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-white-50 d-block" style="font-size: 0.72rem;">CLAVE MAESTRA ACTUAL</small>
+                                        <span id="txt-pin-maestro-display" class="fw-bold fs-4 tracking-widest text-warning">••••••</span>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-warning" type="button" onclick="toggleVerPinMaestro()" id="btn-toggle-pin-maestro" title="Ver / Ocultar Clave">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white small fw-bold">Nueva Clave Maestra (6 Dígitos Numéricos)</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="password" id="input-nuevo-pin-maestro" class="form-control bg-dark text-white border-secondary text-center fw-bold fs-5 tracking-widest" maxlength="6" placeholder="Ej: 777777" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                </div>
+                                <small class="text-white-50" style="font-size: 0.7rem;">Solo números del 0 al 9. Longitud exacta: 6 dígitos.</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white small fw-bold">Confirmar Nueva Clave</label>
+                                <input type="password" id="input-confirmar-pin-maestro" class="form-control form-control-sm bg-dark text-white border-secondary text-center fw-bold fs-5 tracking-widest" maxlength="6" placeholder="Repite los 6 dígitos" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            </div>
+
+                            <button class="btn btn-warning w-100 fw-bold py-2 text-dark shadow-sm" onclick="guardarNuevoPinMaestro(event)">
+                                <i class="bi bi-check-circle-fill me-1"></i> ACTUALIZAR CLAVE MAESTRA
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 2: GESTIÓN DE CREDENCIALES DE COLABORADORES (ADMIN & POS) -->
+                    <div class="col-12 col-lg-7">
+                        <div class="grid-card p-4 h-100" style="border-left: 4px solid var(--cyan-neon) !important;">
+                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                <div>
+                                    <h5 class="fw-bold text-white m-0" style="color: var(--cyan-neon) !important;">
+                                        <i class="bi bi-people-fill me-2 text-info"></i>Credenciales de Acceso (Admin & POS)
+                                    </h5>
+                                    <small class="text-white-50">Gestiona los PINs de tus colaboradoras para ingresar al sistema sin tocar el código.</small>
+                                </div>
+                                <button class="btn btn-cyan btn-sm fw-bold px-3 py-2 rounded-pill shadow-sm" onclick="abrirModalNuevoUsuario()">
+                                    <i class="bi bi-person-plus-fill me-1"></i> + Nuevo Usuario
+                                </button>
+                            </div>
+
+                            <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+                                <table class="table table-dark table-hover align-middle table-sm" style="font-size: 0.85rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Colaborador(a)</th>
+                                            <th>Usuario / Login</th>
+                                            <th>Clave / PIN</th>
+                                            <th>Rol</th>
+                                            <th class="text-center">Permisos</th>
+                                            <th class="text-center">Estado</th>
+                                            <th class="text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbl-seguridad-usuarios">
+                                        <tr><td colspan="7" class="text-center text-muted py-3">Cargando usuarios del sistema...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -2188,6 +2304,157 @@
         </div>
     </div>
 
+    <!-- MODAL DE AUTORIZACIÓN PIN MAESTRO DE 6 DÍGITOS -->
+    <div class="modal fade" id="modalAutorizacionPin6" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content p-3" style="background-color: var(--violeta-profundo); border: 2px solid #ffc107; border-radius: 20px;">
+                <div class="modal-header border-0 pb-1">
+                    <h5 class="modal-title fw-bold text-warning m-0">
+                        <i class="bi bi-shield-lock-fill me-2"></i>Autorización Requerida
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-2 text-center">
+                    <p class="text-white small mb-2" id="modalPin6-descripcion">Ingresa la clave maestra de 6 dígitos para autorizar esta eliminación:</p>
+                    <div class="p-2 rounded mb-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255, 193, 7, 0.2);">
+                        <span class="text-white-50 small d-block" style="font-size:0.7rem;">REGISTRO A ELIMINAR</span>
+                        <strong class="text-warning fs-6 d-block text-truncate" id="modalPin6-detalle">Detalle</strong>
+                    </div>
+
+                    <label class="form-label text-warning small fw-bold">Clave Maestra de Seguridad (6 Dígitos)</label>
+                    <input type="password" id="input-pin-autorizacion-6" class="form-control text-center fw-bold fs-4 bg-dark text-white border-warning tracking-widest mb-3" maxlength="6" placeholder="••••••" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onkeypress="if(event.key === 'Enter') ejecutarAccionConPin6()">
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-light w-50" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-warning w-50 fw-bold text-dark" onclick="ejecutarAccionConPin6()">
+                            <i class="bi bi-check-lg me-1"></i>Autorizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PARA REINICIAR FINANZAS -->
+    <div class="modal fade" id="modalReiniciarFinanzas" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-3" style="background-color: var(--violeta-profundo); border: 2px solid #dc3545; border-radius: 20px;">
+                <div class="modal-header border-bottom border-secondary pb-2">
+                    <h5 class="modal-title fw-bold text-danger m-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Reiniciar Finanzas & Tesorería
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <p class="text-white small mb-3">
+                        Selecciona el tipo de reinicio que deseas realizar. Esta acción requiere confirmación con la <strong>clave maestra de 6 dígitos</strong> para prevenir errores humanos.
+                    </p>
+
+                    <div class="mb-3">
+                        <label class="form-label text-white small fw-bold">Modo de Reinicio</label>
+                        <div class="form-check p-3 rounded mb-2 border border-secondary" style="background: rgba(255,255,255,0.03);">
+                            <input class="form-check-input" type="radio" name="modoReinicio" id="modoReinicioTurno" value="TURNO_ACTUAL" checked>
+                            <label class="form-check-label text-white" for="modoReinicioTurno">
+                                <strong class="text-warning">Reiniciar Turno Actual (Caja Abierta)</strong>
+                                <small class="text-white-50 d-block" style="font-size: 0.72rem;">
+                                    Elimina únicamente las ventas y gastos registrados en el turno abierto (antes del Cierre Z). Ideal para corregir errores de digitación del día sin perder cierres históricos.
+                                </small>
+                            </label>
+                        </div>
+                        <div class="form-check p-3 rounded border border-danger" style="background: rgba(220, 53, 69, 0.08);">
+                            <input class="form-check-input" type="radio" name="modoReinicio" id="modoReinicioTodo" value="TODO">
+                            <label class="form-check-label text-white" for="modoReinicioTodo">
+                                <strong class="text-danger">Reiniciar Finanzas Completo (Puesta a Cero)</strong>
+                                <small class="text-white-50 d-block" style="font-size: 0.72rem;">
+                                    Borra TODO el historial financiero (ventas, egresos, comisiones y cierres Z). Pone todas las métricas en $0 para arrancar un nuevo ciclo contable limpio.
+                                </small>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-danger small fw-bold">Ingresa la Clave Maestra de 6 Dígitos</label>
+                        <input type="password" id="input-pin-reinicio-6" class="form-control text-center fw-bold fs-4 bg-dark text-white border-danger tracking-widest" maxlength="6" placeholder="••••••" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onkeypress="if(event.key === 'Enter') ejecutarReinicioFinanzasSeguro()">
+                    </div>
+
+                    <div class="d-flex justify-content-between gap-2 mt-3">
+                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-danger fw-bold px-4" onclick="ejecutarReinicioFinanzasSeguro()">
+                            <i class="bi bi-trash3-fill me-1"></i>Confirmar Reinicio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CREAR / EDITAR USUARIO (CREDENCIALES) -->
+    <div class="modal fade" id="modalUsuarioSeguridad" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-3" style="background-color: var(--violeta-profundo); border: 2px solid var(--cyan-neon); border-radius: 20px;">
+                <div class="modal-header border-bottom border-secondary pb-2">
+                    <h5 class="modal-title fw-bold text-white m-0" id="modalUsuarioSeguridadTitulo">
+                        <i class="bi bi-person-fill-lock text-cyan-neon me-2"></i>Usuario Colaborador
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <input type="hidden" id="usr-sec-id">
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-white small fw-bold">Nombre Completo</label>
+                        <input type="text" id="usr-sec-nombre" class="form-control bg-dark text-white border-secondary" placeholder="Ej: Daniela Camacho">
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-white small fw-bold">Usuario (Login)</label>
+                            <input type="text" id="usr-sec-username" class="form-control bg-dark text-white border-secondary" placeholder="Ej: daniela">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-white small fw-bold">Clave / PIN Privado</label>
+                            <input type="password" id="usr-sec-pin" class="form-control bg-dark text-white border-secondary" placeholder="••••" maxlength="20">
+                            <small class="text-white-50" style="font-size: 0.68rem;">Clave que usará para ingresar.</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-white small fw-bold">Rol Asignado</label>
+                        <select id="usr-sec-rol" class="form-select bg-dark text-white border-secondary">
+                            <option value="PROPIETARIA">PROPIETARIA (Acceso Total y Máximo)</option>
+                            <option value="ADMINISTRADORA" selected>ADMINISTRADORA (Control General Spa)</option>
+                            <option value="CAJERA">CAJERA (Cobros y Facturación POS)</option>
+                            <option value="RECEPCION">RECEPCIONISTA (Citas y Clientes)</option>
+                        </select>
+                    </div>
+
+                    <div class="p-3 rounded mb-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
+                        <label class="form-label text-info small fw-bold d-block mb-2">Permisos de Acceso al Sistema</label>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="usr-sec-acceso-admin" checked>
+                            <label class="form-check-label text-white small" for="usr-sec-acceso-admin">Permitir ingreso al Centro de Mando (Admin)</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="usr-sec-acceso-pos" checked>
+                            <label class="form-check-label text-white small" for="usr-sec-acceso-pos">Permitir ingreso al Punto de Venta (POS)</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="usr-sec-activo" checked>
+                            <label class="form-check-label text-white small" for="usr-sec-activo">Usuario Activo en el Spa</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between gap-2">
+                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-cyan fw-bold px-4" onclick="guardarUsuarioSeguridad()">
+                            <i class="bi bi-save me-1"></i>Guardar Credenciales
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="print-area">
         <div style="text-align: center; margin-bottom: 15px;">
             <h3 style="margin: 0;">LINDA MAMÁ SPA</h3>
@@ -2244,24 +2511,65 @@
         const pinInput = document.getElementById('input-pin');
         if (!pinInput) return;
         const pin = pinInput.value.trim();
+        if (!pin) return;
 
-        if (pin === '7777') {
-            usuarioActual = "Crisley Paredes";
-            rolActual = "PROPIETARIA";
-        } else if (pin === '1010') {
-            usuarioActual = "Janneth";
-            rolActual = "ADMINISTRADORA";
-        } else {
-            // Error visual y sonoro
-            if (typeof reproducirError === 'function') reproducirError();
-            const loginBox = document.getElementById('login-box');
-            if (loginBox) {
-                loginBox.classList.add('shake-error');
-                setTimeout(() => loginBox.classList.remove('shake-error'), 400);
+        // Intentar validación dinámica con base de datos en tiempo real
+        fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin: pin, origen: 'ADMIN' })
+        })
+        .then(res => {
+            if (res.ok) {
+                return res.json().then(data => {
+                    usuarioActual = data.user || 'Administradora';
+                    rolActual = data.rol || 'ADMINISTRADORA';
+                    iniciarSesionAdminExitosa();
+                });
+            } else if (res.status === 403) {
+                if (typeof reproducirError === 'function') reproducirError();
+                alert("⚠️ Acceso denegado: este usuario no tiene permisos asignados para ingresar al Centro de Mando (Admin).");
+            } else {
+                // Fallback local por si el servidor no responde
+                if (pin === '7777') {
+                    usuarioActual = "Crisley Paredes";
+                    rolActual = "PROPIETARIA";
+                    iniciarSesionAdminExitosa();
+                } else if (pin === '1010') {
+                    usuarioActual = "Janneth";
+                    rolActual = "ADMINISTRADORA";
+                    iniciarSesionAdminExitosa();
+                } else {
+                    mostrarErrorLogin();
+                }
             }
-            return;
-        }
+        })
+        .catch(err => {
+            // Offline fallback
+            if (pin === '7777') {
+                usuarioActual = "Crisley Paredes";
+                rolActual = "PROPIETARIA";
+                iniciarSesionAdminExitosa();
+            } else if (pin === '1010') {
+                usuarioActual = "Janneth";
+                rolActual = "ADMINISTRADORA";
+                iniciarSesionAdminExitosa();
+            } else {
+                mostrarErrorLogin();
+            }
+        });
+    }
 
+    function mostrarErrorLogin() {
+        if (typeof reproducirError === 'function') reproducirError();
+        const loginBox = document.getElementById('login-box');
+        if (loginBox) {
+            loginBox.classList.add('shake-error');
+            setTimeout(() => loginBox.classList.remove('shake-error'), 400);
+        }
+    }
+
+    function iniciarSesionAdminExitosa() {
         // Éxito en el login
         try {
             if (sfxOk) { sfxOk.currentTime = 0; sfxOk.play().catch(()=>{}); }
@@ -4010,9 +4318,14 @@ function imprimirKardexRecibo() {
                                             <div class="fw-bold text-white text-truncate" style="max-width: 140px;">${cli}</div>
                                             <small class="text-white-50 text-truncate d-block" style="max-width: 140px;">${v.detalle || 'Venta'}</small>
                                         </div>
-                                        <div class="text-end">
-                                            <div class="fw-bold text-success">+$${Math.round(v.montoTotal || 0).toLocaleString('es-CL')}</div>
-                                            <span class="badge bg-secondary" style="font-size: 0.6rem;">${v.tipoPago || 'EFECTIVO'}</span>
+                                        <div class="text-end d-flex flex-column align-items-end justify-content-between">
+                                            <div>
+                                                <div class="fw-bold text-success">+$${Math.round(v.montoTotal || 0).toLocaleString('es-CL')}</div>
+                                                <span class="badge bg-secondary" style="font-size: 0.6rem;">${v.tipoPago || 'EFECTIVO'}</span>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-danger p-0 px-2 mt-1" style="font-size: 0.68rem;" onclick="solicitarEliminarVentaSegura(${v.id}, '${cli.replace(/'/g, "\\'")}', ${v.montoTotal || 0})" title="Eliminar pago erróneo (Requiere PIN de 6 dígitos)">
+                                                <i class="bi bi-trash me-1"></i>Eliminar
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -4063,9 +4376,14 @@ function imprimirKardexRecibo() {
                                                 <small class="fw-bold text-info d-block">NETO CAJÓN:</small>
                                                 <span class="fw-bold" style="color: var(--cyan-neon); font-size: 1.1rem;">$${Math.round(cz.efectivoEsperadoCajon || 0).toLocaleString('es-CL')}</span>
                                             </div>
-                                            <button class="btn btn-sm btn-outline-info" onclick="imprimirTicketCorteZPorId(${cz.id})" title="Imprimir Comprobante Cierre Z">
-                                                <i class="bi bi-printer-fill me-1"></i>Ticket
-                                            </button>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-sm btn-outline-info" onclick="imprimirTicketCorteZPorId(${cz.id})" title="Imprimir Comprobante Cierre Z">
+                                                    <i class="bi bi-printer-fill me-1"></i>Ticket
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="solicitarEliminarCorteSeguro(${cz.id})" title="Eliminar Cierre Z (Requiere PIN de 6 dígitos)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -6462,6 +6780,463 @@ function imprimirKardexRecibo() {
         });
     }
 
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    // =========================================================================
+    // 🔐 GESTIÓN DE SEGURIDAD, CONTRASEÑAS Y PIN MAESTRO DE 6 DÍGITOS
+    // =========================================================================
+    let pinMaestroCache = '777777';
+    let pinMaestroVisible = false;
+    let usuariosSeguridadCache = [];
+    let accionPendienteSegura = null;
+
+    window.cargarModuloContrasenas = function() {
+        fetch('/api/seguridad/pin-maestro')
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.valor) {
+                    pinMaestroCache = data.valor;
+                }
+                const disp = document.getElementById('txt-pin-maestro-display');
+                if (disp) {
+                    disp.textContent = pinMaestroVisible ? pinMaestroCache : '••••••';
+                }
+            })
+            .catch(err => console.error("Error al cargar PIN Maestro:", err));
+
+        fetch('/api/seguridad/usuarios')
+            .then(res => res.json())
+            .then(data => {
+                usuariosSeguridadCache = Array.isArray(data) ? data : [];
+                renderizarTablaUsuariosSeguridad();
+            })
+            .catch(err => console.error("Error al cargar Usuarios de Seguridad:", err));
+    };
+
+    window.toggleVerPinMaestro = function() {
+        pinMaestroVisible = !pinMaestroVisible;
+        const disp = document.getElementById('txt-pin-maestro-display');
+        const btn = document.getElementById('btn-toggle-pin-maestro');
+        if (disp) {
+            disp.textContent = pinMaestroVisible ? pinMaestroCache : '••••••';
+        }
+        if (btn) {
+            btn.innerHTML = pinMaestroVisible ? '<i class="bi bi-eye-slash-fill me-1"></i>Ocultar' : '<i class="bi bi-eye-fill me-1"></i>Ver Clave';
+        }
+    };
+
+    window.guardarNuevoPinMaestro = function(e) {
+        if (e) e.preventDefault();
+        const p1 = (document.getElementById('input-nuevo-pin-maestro')?.value || '').trim();
+        const p2 = (document.getElementById('input-confirmar-pin-maestro')?.value || '').trim();
+
+        if (p1.length !== 6 || !/^\d{6}$/.test(p1)) {
+            alert("⚠️ La clave maestra de seguridad debe tener exactamente 6 dígitos numéricos.");
+            return;
+        }
+        if (p1 !== p2) {
+            alert("⚠️ Los 6 dígitos de confirmación no coinciden.");
+            return;
+        }
+
+        fetch('/api/seguridad/pin-maestro', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin: p1 })
+        })
+        .then(res => {
+            if (!res.ok) return res.text().then(t => { throw new Error(t); });
+            return res.json();
+        })
+        .then(data => {
+            pinMaestroCache = p1;
+            pinMaestroVisible = false;
+            const disp = document.getElementById('txt-pin-maestro-display');
+            if (disp) disp.textContent = '••••••';
+            const btn = document.getElementById('btn-toggle-pin-maestro');
+            if (btn) btn.innerHTML = '<i class="bi bi-eye-fill me-1"></i>Ver Clave';
+
+            const inp1 = document.getElementById('input-nuevo-pin-maestro');
+            const inp2 = document.getElementById('input-confirmar-pin-maestro');
+            if (inp1) inp1.value = '';
+            if (inp2) inp2.value = '';
+
+            if (typeof reproducirClick === 'function') reproducirClick();
+            alert("✅ Clave Maestra de 6 dígitos actualizada con éxito.");
+        })
+        .catch(err => {
+            console.error(err);
+            alert("❌ Error al guardar nueva clave maestra: " + (err.message || err));
+        });
+    };
+
+    function renderizarTablaUsuariosSeguridad() {
+        const tbody = document.getElementById('tbl-seguridad-usuarios');
+        if (!tbody) return;
+
+        if (usuariosSeguridadCache.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No hay usuarios registrados.</td></tr>';
+            return;
+        }
+
+        let html = '';
+        usuariosSeguridadCache.forEach(u => {
+            const adminBadge = u.accesoAdmin 
+                ? '<span class="badge bg-danger text-white"><i class="bi bi-shield-lock-fill me-1"></i>Admin</span>' 
+                : '<span class="badge bg-secondary opacity-50">Sin Admin</span>';
+            const posBadge = u.accesoPos 
+                ? '<span class="badge bg-success text-white"><i class="bi bi-cart-check-fill me-1"></i>POS</span>' 
+                : '<span class="badge bg-secondary opacity-50">Sin POS</span>';
+            const estadoBadge = u.activo 
+                ? '<span class="badge bg-success">Activo</span>' 
+                : '<span class="badge bg-secondary">Inactivo</span>';
+
+            html += `
+                <tr>
+                    <td class="fw-bold">#${u.id}</td>
+                    <td>
+                        <div class="fw-bold text-dark">${escapeHtml(u.nombre || '')}</div>
+                        <small class="text-muted"><i class="bi bi-person me-1"></i>${escapeHtml(u.username || '')}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border">${escapeHtml(u.rol || 'ESTETICA')}</span>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1 flex-wrap">
+                            ${adminBadge}
+                            ${posBadge}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="font-monospace fw-bold text-primary bg-light px-2 py-1 rounded border" id="user-pin-val-${u.id}">••••</span>
+                        <button class="btn btn-sm btn-link p-0 ms-1 text-muted" type="button" onclick="toggleVerPinUsuario(${u.id}, '${escapeHtml(u.pin || '')}')" title="Ver / Ocultar PIN">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                    <td>${estadoBadge}</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="abrirModalEditarUsuario(${u.id})" title="Editar usuario y PIN">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarUsuarioSeguridad(${u.id}, '${escapeHtml(u.nombre || '')}')" title="Eliminar usuario">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    window.toggleVerPinUsuario = function(id, pin) {
+        const el = document.getElementById('user-pin-val-' + id);
+        if (!el) return;
+        if (el.textContent === '••••') {
+            el.textContent = pin;
+        } else {
+            el.textContent = '••••';
+        }
+    };
+
+    window.abrirModalNuevoUsuario = function() {
+        document.getElementById('usr-sec-id').value = '';
+        document.getElementById('usr-sec-nombre').value = '';
+        document.getElementById('usr-sec-username').value = '';
+        document.getElementById('usr-sec-pin').value = '';
+        document.getElementById('usr-sec-rol').value = 'ESTETICA';
+        document.getElementById('usr-sec-admin').checked = false;
+        document.getElementById('usr-sec-pos').checked = true;
+        document.getElementById('usr-sec-activo').checked = true;
+
+        const tit = document.getElementById('modalUsuarioSeguridadTitulo');
+        if (tit) tit.innerHTML = '<i class="bi bi-person-plus-fill me-2 text-primary"></i>Nuevo Colaborador / Usuario';
+
+        const modalEl = document.getElementById('modalUsuarioSeguridad');
+        if (modalEl) {
+            const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+            m.show();
+        }
+    };
+
+    window.abrirModalEditarUsuario = function(id) {
+        const u = usuariosSeguridadCache.find(x => x.id === id);
+        if (!u) return;
+
+        document.getElementById('usr-sec-id').value = u.id;
+        document.getElementById('usr-sec-nombre').value = u.nombre || '';
+        document.getElementById('usr-sec-username').value = u.username || '';
+        document.getElementById('usr-sec-pin').value = u.pin || '';
+        document.getElementById('usr-sec-rol').value = u.rol || 'ESTETICA';
+        document.getElementById('usr-sec-admin').checked = !!u.accesoAdmin;
+        document.getElementById('usr-sec-pos').checked = !!u.accesoPos;
+        document.getElementById('usr-sec-activo').checked = u.activo !== false;
+
+        const tit = document.getElementById('modalUsuarioSeguridadTitulo');
+        if (tit) tit.innerHTML = '<i class="bi bi-pencil-fill me-2 text-primary"></i>Editar Usuario: ' + (u.nombre || '');
+
+        const modalEl = document.getElementById('modalUsuarioSeguridad');
+        if (modalEl) {
+            const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+            m.show();
+        }
+    };
+
+    window.guardarUsuarioSeguridad = function() {
+        const id = document.getElementById('usr-sec-id').value;
+        const nombre = (document.getElementById('usr-sec-nombre').value || '').trim();
+        const username = (document.getElementById('usr-sec-username').value || '').trim();
+        const pin = (document.getElementById('usr-sec-pin').value || '').trim();
+        const rol = document.getElementById('usr-sec-rol').value;
+        const accesoAdmin = document.getElementById('usr-sec-admin').checked;
+        const accesoPos = document.getElementById('usr-sec-pos').checked;
+        const activo = document.getElementById('usr-sec-activo').checked;
+
+        if (!nombre) {
+            alert("⚠️ Ingrese el nombre del usuario o colaboradora.");
+            return;
+        }
+        if (!pin || pin.length < 4) {
+            alert("⚠️ El PIN privado debe tener al menos 4 dígitos numéricos.");
+            return;
+        }
+        if (!accesoAdmin && !accesoPos) {
+            alert("⚠️ Seleccione al menos un permiso de acceso (Admin o POS).");
+            return;
+        }
+
+        const payload = {
+            nombre: nombre,
+            username: username || nombre.toLowerCase().replace(/\s+/g, '.'),
+            pin: pin,
+            rol: rol,
+            accesoAdmin: accesoAdmin,
+            accesoPos: accesoPos,
+            activo: activo
+        };
+
+        const isEdit = id && parseInt(id) > 0;
+        const url = isEdit ? '/api/seguridad/usuarios/' + id : '/api/seguridad/usuarios';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if (!res.ok) return res.text().then(t => { throw new Error(t); });
+            return res.json();
+        })
+        .then(saved => {
+            const modalEl = document.getElementById('modalUsuarioSeguridad');
+            if (modalEl) {
+                const m = bootstrap.Modal.getInstance(modalEl);
+                if (m) m.hide();
+            }
+            if (typeof reproducirClick === 'function') reproducirClick();
+            alert("✅ Usuario y credenciales guardados correctamente.");
+            cargarModuloContrasenas();
+        })
+        .catch(err => {
+            console.error(err);
+            alert("❌ Error al guardar usuario: " + (err.message || err));
+        });
+    };
+
+    window.eliminarUsuarioSeguridad = function(id, nombre) {
+        if (!confirm(`¿Está seguro de eliminar al usuario "${nombre}" del sistema? Perderá acceso inmediato a Admin y POS.`)) {
+            return;
+        }
+
+        fetch('/api/seguridad/usuarios/' + id, { method: 'DELETE' })
+            .then(res => {
+                if (!res.ok) return res.text().then(t => { throw new Error(t); });
+                return res.json();
+            })
+            .then(data => {
+                if (typeof reproducirClick === 'function') reproducirClick();
+                alert("✅ Usuario eliminado exitosamente.");
+                cargarModuloContrasenas();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("❌ No se pudo eliminar: " + (err.message || err));
+            });
+    };
+
+    // =========================================================================
+    // 🛡️ ELIMINACIÓN SEGURA EN TESORERÍA (REQUIERE PIN DE 6 DÍGITOS)
+    // =========================================================================
+    window.solicitarEliminarVentaSegura = function(id, cliente, monto) {
+        accionPendienteSegura = {
+            tipo: 'VENTA',
+            id: id,
+            desc: `Pago de $${Math.round(monto || 0).toLocaleString('es-CL')} (${cliente})`
+        };
+        configurarYAbrirModalPin6(
+            "Eliminar Registro de Venta / Pago",
+            `Se eliminará: <strong>${accionPendienteSegura.desc}</strong>.<br><span class="text-danger">Esta acción descontará el monto de Tesorería.</span>`
+        );
+    };
+
+    window.solicitarEliminarEgresoSeguro = function(id, descripcion, monto) {
+        accionPendienteSegura = {
+            tipo: 'EGRESO',
+            id: id,
+            desc: `Gasto de $${Math.round(monto || 0).toLocaleString('es-CL')} (${descripcion})`
+        };
+        configurarYAbrirModalPin6(
+            "Eliminar Registro de Gasto / Egreso",
+            `Se eliminará: <strong>${accionPendienteSegura.desc}</strong>.<br><span class="text-success">El dinero volverá a reflejarse en la caja.</span>`
+        );
+    };
+
+    window.solicitarEliminarCorteSeguro = function(id) {
+        accionPendienteSegura = {
+            tipo: 'CORTE',
+            id: id,
+            desc: `Cierre Z #${id}`
+        };
+        configurarYAbrirModalPin6(
+            "Eliminar Cierre de Caja (Corte Z)",
+            `Se eliminará el <strong>Cierre Z #${id}</strong> del historial de cierres guardados.`
+        );
+    };
+
+    function configurarYAbrirModalPin6(titulo, detalle) {
+        const titEl = document.getElementById('modal-pin6-accion-titulo');
+        const detEl = document.getElementById('modal-pin6-accion-detalle');
+        const inp = document.getElementById('input-pin-autorizacion-6');
+
+        if (titEl) titEl.textContent = titulo;
+        if (detEl) detEl.innerHTML = detalle;
+        if (inp) inp.value = '';
+
+        const modalEl = document.getElementById('modalAutorizacionPin6');
+        if (modalEl) {
+            const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+            m.show();
+            setTimeout(() => { if (inp) inp.focus(); }, 400);
+        }
+    }
+
+    window.ejecutarAccionConPin6 = function() {
+        if (!accionPendienteSegura) return;
+
+        const pin = (document.getElementById('input-pin-autorizacion-6')?.value || '').trim();
+        if (pin.length !== 6 || !/^\d{6}$/.test(pin)) {
+            alert("⚠️ Ingrese la clave maestra de seguridad de 6 dígitos.");
+            return;
+        }
+
+        let url = '';
+        if (accionPendienteSegura.tipo === 'VENTA') {
+            url = '/api/finanzas/eliminar-pago-seguro/' + accionPendienteSegura.id;
+        } else if (accionPendienteSegura.tipo === 'EGRESO') {
+            url = '/api/finanzas/eliminar-egreso-seguro/' + accionPendienteSegura.id;
+        } else if (accionPendienteSegura.tipo === 'CORTE') {
+            url = '/api/finanzas/eliminar-corte-seguro/' + accionPendienteSegura.id;
+        }
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pinSeguridad: pin })
+        })
+        .then(res => {
+            if (!res.ok) return res.text().then(t => { throw new Error(t); });
+            return res.json();
+        })
+        .then(data => {
+            const modalEl = document.getElementById('modalAutorizacionPin6');
+            if (modalEl) {
+                const m = bootstrap.Modal.getInstance(modalEl);
+                if (m) m.hide();
+            }
+            if (typeof reproducirClick === 'function') reproducirClick();
+            alert("✅ Registro eliminado correctamente.");
+            cargarDatosTesoreria();
+            if (typeof consultarEbitda === 'function') consultarEbitda();
+            accionPendienteSegura = null;
+        })
+        .catch(err => {
+            console.error(err);
+            alert("❌ " + (err.message || "Error al procesar la eliminación. Verifique su clave maestra de 6 dígitos."));
+        });
+    };
+
+    // =========================================================================
+    // 🔄 REINICIO SEGURO DE FINANZAS (CON CLAVE DE 6 DÍGITOS)
+    // =========================================================================
+    window.abrirModalReiniciarFinanzas = function(e) {
+        if (e) e.preventDefault();
+        const inp = document.getElementById('input-pin-reinicio-6');
+        if (inp) inp.value = '';
+
+        const radTurno = document.getElementById('modoReinicioTurno');
+        if (radTurno) radTurno.checked = true;
+
+        const modalEl = document.getElementById('modalReiniciarFinanzas');
+        if (modalEl) {
+            const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+            m.show();
+            setTimeout(() => { if (inp) inp.focus(); }, 400);
+        }
+    };
+
+    window.ejecutarReinicioFinanzasSeguro = function() {
+        const modo = document.querySelector('input[name="modoReinicio"]:checked')?.value || 'TURNO_ACTUAL';
+        const pin = (document.getElementById('input-pin-reinicio-6')?.value || '').trim();
+
+        if (pin.length !== 6 || !/^\d{6}$/.test(pin)) {
+            alert("⚠️ Debe ingresar la clave maestra de seguridad de 6 dígitos.");
+            return;
+        }
+
+        if (modo === 'TODO') {
+            if (!confirm("⚠️ ¡ADVERTENCIA CRÍTICA! ⚠️\n\n¿Está absolutamente seguro de reiniciar TODO el módulo de finanzas a CERO ($0)?\n\nSe eliminarán todas las ventas, todos los gastos y todos los cierres Z históricos.\nEsta operación NO se puede deshacer.")) {
+                return;
+            }
+        } else {
+            if (!confirm("¿Está seguro de reiniciar los movimientos (ventas y gastos) del turno actual de caja?")) {
+                return;
+            }
+        }
+
+        fetch('/api/finanzas/reiniciar-seguro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ modo: modo, pinSeguridad: pin })
+        })
+        .then(res => {
+            if (!res.ok) return res.text().then(t => { throw new Error(t); });
+            return res.json();
+        })
+        .then(data => {
+            const modalEl = document.getElementById('modalReiniciarFinanzas');
+            if (modalEl) {
+                const m = bootstrap.Modal.getInstance(modalEl);
+                if (m) m.hide();
+            }
+            if (typeof reproducirClick === 'function') reproducirClick();
+            alert("✅ " + (data.mensaje || "Finanzas reiniciadas exitosamente."));
+            cargarDatosTesoreria();
+            if (typeof consultarEbitda === 'function') consultarEbitda();
+        })
+        .catch(err => {
+            console.error(err);
+            alert("❌ " + (err.message || "Error al reiniciar finanzas. Verifique su clave maestra."));
+        });
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
         actualizarMedidoresClientes();
 
@@ -6469,6 +7244,13 @@ function imprimirKardexRecibo() {
         if (crmTab) {
             crmTab.addEventListener('shown.bs.tab', function() {
                 actualizarMedidoresClientes();
+            });
+        }
+
+        const contrasenasTab = document.getElementById('contrasenas-tab');
+        if (contrasenasTab) {
+            contrasenasTab.addEventListener('shown.bs.tab', function() {
+                cargarModuloContrasenas();
             });
         }
 
