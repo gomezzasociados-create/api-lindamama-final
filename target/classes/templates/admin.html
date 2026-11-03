@@ -312,19 +312,28 @@
         });
     };
 
-    // Auto-login inmediato si ya existe una sesión guardada
-    try {
-        const savedUsuario = localStorage.getItem('spa_usuario');
-        const savedRol = localStorage.getItem('spa_rol');
-        if (savedUsuario) {
-            usuarioActual = savedUsuario;
-            rolActual = savedRol || "PROPIETARIA";
-            const loginScr = document.getElementById('login-screen');
+    // Función global para verificar y mostrar panel si ya existe sesión
+    window.verificarYMostrarPanelSiAutenticado = function() {
+        try {
+            const savedUsuario = localStorage.getItem('spa_usuario');
+            const savedRol = localStorage.getItem('spa_rol');
             const appDash = document.getElementById('app-dashboard');
-            if (loginScr) loginScr.style.display = 'none';
-            if (appDash) appDash.style.display = 'block';
-        }
-    } catch(e) {}
+            const loginScr = document.getElementById('login-screen');
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const labelUsr = document.getElementById('etiqueta-usuario');
+
+            if (savedUsuario && appDash) {
+                usuarioActual = savedUsuario;
+                rolActual = savedRol || "PROPIETARIA";
+                if (loginScr) loginScr.style.display = 'none';
+                if (welcomeScreen) welcomeScreen.style.display = 'none';
+                appDash.style.display = 'block';
+                if (labelUsr) labelUsr.innerHTML = '<i class="bi bi-person-circle"></i> ' + usuarioActual;
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    };
 </script>
 
 <div id="welcome-screen">
@@ -334,6 +343,12 @@
 </div>
 
 <div id="app-dashboard">
+    <script>
+        // Si ya hay sesión guardada, mostrar app-dashboard de inmediato
+        if (typeof verificarYMostrarPanelSiAutenticado === 'function') {
+            verificarYMostrarPanelSiAutenticado();
+        }
+    </script>
     <nav class="navbar navbar-expand navbar-cyber sticky-top">
         <div class="container-fluid px-2 px-md-4">
             <a class="navbar-brand" href="#"><i class="bi bi-stars me-1 text-info"></i>Linda Mamá <span class="d-none d-md-inline">| <span style="font-family: 'Poppins'; font-size: 1rem; color: var(--cyan-neon);">CENTRO DE MANDO</span></span></a>
@@ -5321,9 +5336,9 @@ function imprimirKardexRecibo() {
         // Auto-login si ya existe una sesión guardada
         const savedUsuario = localStorage.getItem('spa_usuario');
         const savedRol = localStorage.getItem('spa_rol');
-        if (savedUsuario && savedRol) {
+        if (savedUsuario) {
             usuarioActual = savedUsuario;
-            rolActual = savedRol;
+            rolActual = savedRol || "PROPIETARIA";
             
             // Ocultar login y mostrar dashboard inmediatamente
             const loginScr = document.getElementById('login-screen');

@@ -449,13 +449,22 @@
         });
     };
 
-    // Auto-login instantáneo si ya había sesión guardada
-    try {
-        const savedUsuario = localStorage.getItem('spa_usuario');
-        if (savedUsuario) {
-            iniciarSesionPosExitosa(savedUsuario);
-        }
-    } catch(e) {}
+    window.verificarYMostrarPosSiAutenticado = function() {
+        try {
+            const savedUsuario = localStorage.getItem('spa_usuario');
+            const appPos = document.getElementById('app-pos');
+            const loginScr = document.getElementById('login-screen');
+            const welcomeScreen = document.getElementById('welcome-screen');
+
+            if (savedUsuario && appPos) {
+                if (loginScr) loginScr.style.display = 'none';
+                if (welcomeScreen) welcomeScreen.style.display = 'none';
+                appPos.style.display = 'block';
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    };
 </script>
 
 <!-- PANTALLA DE BIENVENIDA VIP -->
@@ -467,6 +476,11 @@
 
 <!-- APLICACIÓN POS -->
 <div id="app-pos">
+    <script>
+        if (typeof verificarYMostrarPosSiAutenticado === 'function') {
+            verificarYMostrarPosSiAutenticado();
+        }
+    </script>
     <nav class="navbar navbar-expand navbar-cyber">
         <div class="container-fluid px-2 px-md-4">
             <a class="navbar-brand m-0" href="/admin"><i class="bi bi-stars me-2 text-info"></i>Linda Mamá Spa</a>
