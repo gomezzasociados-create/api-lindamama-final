@@ -1,6 +1,6 @@
 // sw.js - Service Worker Ultra-Acelerador Linda Mamá Spa
 // Implementa estrategia Stale-While-Revalidate para carga instantánea de recursos multimedia, fuentes y scripts
-const CACHE_NAME = 'spa-pwa-cache-v3';
+const CACHE_NAME = 'spa-pwa-cache-v4';
 const STATIC_ASSETS = [
   '/',
   '/catalogo',
