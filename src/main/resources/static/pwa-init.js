@@ -1,4 +1,19 @@
 // pwa-init.js - Manejo del Service Worker y Acelerador PWA Linda Mamá Spa
+if ('caches' in window) {
+  caches.keys().then(keys => {
+    keys.forEach(k => {
+      if (k !== 'spa-pwa-cache-v15') {
+        caches.delete(k);
+      } else {
+        caches.open(k).then(c => {
+          c.delete('/admin');
+          c.delete('/pos');
+        });
+      }
+    });
+  }).catch(() => {});
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')

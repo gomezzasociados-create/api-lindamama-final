@@ -355,6 +355,100 @@
         });
     };
 
+    // Función global para calcular el avance del CRM instantáneamente
+    window.actualizarMedidoresClientes = function() {
+        const inputs = document.querySelectorAll('.input-kardex-data');
+        if (!inputs || inputs.length === 0) return;
+        inputs.forEach(inp => {
+            const id = inp.id.replace('kjson-', '');
+            const jsonStr = inp.value;
+            let data = null;
+            if (jsonStr && jsonStr.trim() !== '') {
+                try { 
+                    data = JSON.parse(jsonStr); 
+                    if (typeof data === 'string') {
+                        try { data = JSON.parse(data); } catch(e2) {}
+                    }
+                } catch(e) {}
+            }
+
+            let sesionesRestantes = 0;
+            if (data && data.tratamiento && typeof data.tratamiento === 'object') {
+                for (let k in data.tratamiento) {
+                    let v = parseInt(data.tratamiento[k]);
+                    if (!isNaN(v) && v > 0) sesionesRestantes += v;
+                }
+            } else if (data && typeof data.sesionesRestantes === 'number') {
+                sesionesRestantes = data.sesionesRestantes;
+            }
+
+            let sesionesRealizadas = 0;
+            if (data && Array.isArray(data.visitas)) {
+                sesionesRealizadas = data.visitas.length;
+            } else if (data && typeof data.visitas === 'number') {
+                sesionesRealizadas = data.visitas;
+            } else if (data && typeof data.sesionesRealizadas === 'number') {
+                sesionesRealizadas = data.sesionesRealizadas;
+            }
+
+            const totalAsignadas = sesionesRestantes + sesionesRealizadas;
+
+            const badgeEl = document.getElementById('kmedidor-badge-' + id);
+            const subtextEl = document.getElementById('kmedidor-subtext-' + id);
+            const restantesEl = document.getElementById('kcontador-restantes-' + id);
+            const visitasEl = document.getElementById('khistorial-visitas-' + id);
+            const barraEl = document.getElementById('kbarra-avance-' + id);
+            const porcEl = document.getElementById('kporcentaje-avance-' + id);
+
+            if (!badgeEl) return;
+
+            if (totalAsignadas === 0) {
+                badgeEl.className = 'badge bg-warning text-dark fw-bold';
+                badgeEl.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> PENDIENTE';
+                if (subtextEl) {
+                    subtextEl.className = 'text-warning d-block mt-1';
+                    subtextEl.innerText = 'Sin sesiones asignadas';
+                }
+                if (restantesEl) restantesEl.innerText = '0 asignadas';
+                if (visitasEl) visitasEl.innerText = '0 visitas';
+                if (barraEl) {
+                    barraEl.style.width = '0%';
+                    barraEl.className = 'progress-bar bg-secondary';
+                }
+                if (porcEl) porcEl.innerText = '0%';
+            } else if (sesionesRestantes > 0) {
+                badgeEl.className = 'badge bg-success fw-bold text-white';
+                badgeEl.innerHTML = '<i class="bi bi-activity me-1"></i> ACTIVO';
+                if (subtextEl) {
+                    subtextEl.className = 'text-success d-block fw-bold mt-1';
+                    subtextEl.innerText = `Le faltan ${sesionesRestantes} ses.`;
+                }
+                if (restantesEl) restantesEl.innerText = `${sesionesRestantes} disponibles`;
+                if (visitasEl) visitasEl.innerText = `${sesionesRealizadas} realizadas`;
+                const porc = Math.min(100, Math.round((sesionesRealizadas / totalAsignadas) * 100));
+                if (barraEl) {
+                    barraEl.style.width = porc + '%';
+                    barraEl.className = 'progress-bar bg-success';
+                }
+                if (porcEl) porcEl.innerText = porc + '%';
+            } else {
+                badgeEl.className = 'badge bg-info fw-bold text-dark';
+                badgeEl.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> FINALIZADO';
+                if (subtextEl) {
+                    subtextEl.className = 'text-info d-block fw-bold mt-1';
+                    subtextEl.innerText = `Completó ${sesionesRealizadas} ses.`;
+                }
+                if (restantesEl) restantesEl.innerText = '0 (Plan completado)';
+                if (visitasEl) visitasEl.innerText = `${sesionesRealizadas} visitas`;
+                if (barraEl) {
+                    barraEl.style.width = '100%';
+                    barraEl.className = 'progress-bar bg-info';
+                }
+                if (porcEl) porcEl.innerText = '100%';
+            }
+        });
+    };
+
     // Función global para verificar y mostrar panel si ya existe sesión
     window.verificarYMostrarPanelSiAutenticado = function() {
         try {
@@ -837,6 +931,11 @@
                         </div>
                     </div>
                 </div>
+                <script>
+                    if (typeof window.actualizarMedidoresClientes === 'function') {
+                        try { window.actualizarMedidoresClientes(); } catch(e) {}
+                    }
+                </script>
             </div>
 
             <div class="tab-pane fade" id="tesoreria" role="tabpanel">
@@ -872,7 +971,7 @@
                                 <div class="grid-card p-2 d-flex justify-content-between align-items-center">
                                     <div>
                                         <div class="d-flex align-items-center gap-1">
-                                            <small class="text-white-50" th:text="${#temporals.format(v.fechaHora, 'dd/MM HH:mm')}">Fecha</small>
+                                            <small class="text-white-50" th:text="${v.fechaHora != null ? #temporals.format(v.fechaHora, 'dd/MM HH:mm') : '--/--'}">Fecha</small>
                                             <span th:if="${v.estado == 'PAGADO'}" class="badge bg-success" style="font-size: 0.55rem;">PAGADO</span>
                                             <span th:if="${v.estado == 'CONFIRMADO'}" class="badge bg-success" style="font-size: 0.55rem;">CONFIRMADO</span>
                                             <span th:if="${v.estado == 'RESERVADO'}" class="badge bg-info text-dark" style="font-size: 0.55rem;">RESERVADO</span>
@@ -886,7 +985,12 @@
                                             <div class="fw-bold text-success" th:text="'+$' + ${#numbers.formatInteger(v.montoTotal != null ? v.montoTotal : 0, 0, 'POINT')}">$0</div>
                                             <span class="badge bg-secondary" style="font-size: 0.6rem;" th:text="${v.tipoPago}">Tipo</span>
                                         </div>
-                                        <button class="btn btn-sm btn-outline-danger p-0 px-2 mt-1" style="font-size: 0.68rem;" th:onclick="'solicitarEliminarVentaSegura(' + ${v.id} + ', \'' + ${v.cliente != null ? #strings.escapeJavaScript(v.cliente.nombre) : 'Cliente'} + '\', ' + ${v.montoTotal} + ')'" title="Eliminar pago erróneo (Requiere PIN de 6 dígitos)">
+                                        <button class="btn btn-sm btn-outline-danger p-0 px-2 mt-1" style="font-size: 0.68rem;"
+                                                th:data-id="${v.id}"
+                                                th:data-cliente="${v.cliente != null ? v.cliente.nombre : 'Cliente General'}"
+                                                th:data-monto="${v.montoTotal != null ? v.montoTotal : 0}"
+                                                onclick="solicitarEliminarVentaSegura(this.getAttribute('data-id'), this.getAttribute('data-cliente'), this.getAttribute('data-monto'))"
+                                                title="Eliminar pago erróneo (Requiere PIN de 6 dígitos)">
                                             <i class="bi bi-trash me-1"></i>Eliminar
                                         </button>
                                     </div>
@@ -907,15 +1011,20 @@
                             <div class="col-12" th:each="e : ${egresos}">
                                 <div class="grid-card p-2 d-flex justify-content-between align-items-center">
                                     <div>
-                                        <small class="text-white-50 d-block" th:text="${#temporals.format(e.fechaHora, 'dd/MM HH:mm')}">Fecha</small>
+                                        <small class="text-white-50 d-block" th:text="${e.fechaHora != null ? #temporals.format(e.fechaHora, 'dd/MM HH:mm') : '--/--'}">Fecha</small>
                                         <span class="text-white text-truncate d-inline-block" style="max-width: 140px;" th:text="${e.descripcion}">Motivo</span>
                                     </div>
                                     <div class="text-end d-flex flex-column align-items-end justify-content-between">
                                         <div>
-                                            <div class="fw-bold text-danger" th:text="'-$' + ${#numbers.formatInteger(e.monto, 0, 'POINT')}">$0</div>
+                                            <div class="fw-bold text-danger" th:text="'-$' + ${#numbers.formatInteger(e.monto != null ? e.monto : 0, 0, 'POINT')}">$0</div>
                                             <span class="badge bg-secondary" style="font-size: 0.6rem;" th:text="${e.metodoSalida}">Tipo</span>
                                         </div>
-                                        <button class="btn btn-sm btn-outline-danger p-0 px-2 mt-1" style="font-size: 0.68rem;" th:onclick="'solicitarEliminarEgresoSeguro(' + ${e.id} + ', \'' + ${#strings.escapeJavaScript(e.descripcion)} + '\', ' + ${e.monto} + ')'" title="Eliminar gasto erróneo (Requiere PIN de 6 dígitos)">
+                                        <button class="btn btn-sm btn-outline-danger p-0 px-2 mt-1" style="font-size: 0.68rem;"
+                                                th:data-id="${e.id}"
+                                                th:data-desc="${e.descripcion != null ? e.descripcion : 'Gasto'}"
+                                                th:data-monto="${e.monto != null ? e.monto : 0}"
+                                                onclick="solicitarEliminarEgresoSeguro(this.getAttribute('data-id'), this.getAttribute('data-desc'), this.getAttribute('data-monto'))"
+                                                title="Eliminar gasto erróneo (Requiere PIN de 6 dígitos)">
                                             <i class="bi bi-trash me-1"></i>Eliminar
                                         </button>
                                     </div>
@@ -937,7 +1046,7 @@
                                 <div class="grid-card p-3">
                                     <div class="d-flex justify-content-between border-bottom border-info pb-2 mb-2">
                                         <span class="text-white-50 small"><i class="bi bi-file-earmark-bar-graph-fill text-info me-1"></i>Cierre Z #<span th:text="${cz.id}">1</span></span>
-                                        <span class="fw-bold text-white" th:text="${#temporals.format(cz.fechaGeneracion, 'dd/MM/yy HH:mm')}">Fecha</span>
+                                        <span class="fw-bold text-white" th:text="${cz.fechaGeneracion != null ? #temporals.format(cz.fechaGeneracion, 'dd/MM/yy HH:mm') : '--/--'}">Fecha</span>
                                     </div>
                                     <div class="d-flex justify-content-between mb-1">
                                         <small class="text-white-50">Efectivo:</small>

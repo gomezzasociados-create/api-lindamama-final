@@ -7,6 +7,7 @@ import com.gomezsystems.minierp.repository.EgresoRepository;
 import com.gomezsystems.minierp.repository.CorteZRepository;
 import com.gomezsystems.minierp.repository.VentaRepository;
 import com.gomezsystems.minierp.repository.SociaRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,7 +30,9 @@ public class AdminViewController {
 
     // LA PUERTA PRINCIPAL DEL CENTRO DE MANDO
     @GetMapping("/admin")
-    public String verPanelAdmin(Model model) {
+    public String verPanelAdmin(Model model, HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+        response.setHeader("Pragma", "no-cache");
         
         // Se revirtió el bloqueo estricto backend a petición del usuario.
         // Carga de datos MVC regular.
@@ -77,7 +80,9 @@ public class AdminViewController {
 
     // LA PUERTA DEL POS
     @GetMapping("/pos")
-    public String abrirPOS(Model model) {
+    public String abrirPOS(Model model, HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+        response.setHeader("Pragma", "no-cache");
         // 🔥 ESTO OBLIGA A MANDAR LOS PRODUCTOS SÍ O SÍ AL HTML
         model.addAttribute("servicios", tratamientoRepository.findAll());
 

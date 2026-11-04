@@ -1,6 +1,6 @@
 // sw.js - Service Worker Ultra-Acelerador Linda Mamá Spa
 // Implementa estrategia Stale-While-Revalidate para carga instantánea de recursos multimedia, fuentes y scripts
-const CACHE_NAME = 'spa-pwa-cache-v12';
+const CACHE_NAME = 'spa-pwa-cache-v15';
 const STATIC_ASSETS = [
   '/',
   '/catalogo',
@@ -44,24 +44,8 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // No interceptar peticiones de la API ni métodos no GET para evitar problemas con transacciones y ventas
-  if (url.pathname.startsWith('/api/') || event.request.method !== 'GET') {
-    return;
-  }
-
-  // A. Para páginas de administración o POS, estrategia Network-First (siempre datos frescos si hay red)
-  if (url.pathname === '/admin' || url.pathname === '/pos') {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
+  // No interceptar peticiones de la API, ni páginas dinámicas /admin y /pos, ni métodos no GET
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/admin') || url.pathname.startsWith('/pos') || event.request.method !== 'GET') {
     return;
   }
 
