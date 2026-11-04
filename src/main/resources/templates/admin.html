@@ -200,88 +200,6 @@
     var usuarioActual = "Crisley Paredes";
     var rolActual = "PROPIETARIA";
 
-    window.actualizarMedidoresClientes = function() {
-        const inputs = document.querySelectorAll('.input-kardex-data');
-        if (!inputs || inputs.length === 0) return;
-        inputs.forEach(inp => {
-            const id = inp.id.replace('kjson-', '');
-            const jsonStr = inp.value;
-            let data = null;
-            if (jsonStr && jsonStr.trim() !== '') {
-                try { data = JSON.parse(jsonStr); } catch(e) {}
-            }
-
-            let sesionesRestantes = 0;
-            if (data && data.tratamiento) {
-                for (let k in data.tratamiento) {
-                    let v = parseInt(data.tratamiento[k]);
-                    if (!isNaN(v) && v > 0) sesionesRestantes += v;
-                }
-            }
-
-            let sesionesRealizadas = 0;
-            if (data && Array.isArray(data.visitas)) {
-                sesionesRealizadas = data.visitas.length;
-            }
-
-            const totalAsignadas = sesionesRestantes + sesionesRealizadas;
-
-            const badgeEl = document.getElementById('kmedidor-badge-' + id);
-            const subtextEl = document.getElementById('kmedidor-subtext-' + id);
-            const restantesEl = document.getElementById('kcontador-restantes-' + id);
-            const visitasEl = document.getElementById('khistorial-visitas-' + id);
-            const barraEl = document.getElementById('kbarra-avance-' + id);
-            const porcEl = document.getElementById('kporcentaje-avance-' + id);
-
-            if (!badgeEl) return;
-
-            if (totalAsignadas === 0) {
-                badgeEl.className = 'badge bg-warning text-dark fw-bold';
-                badgeEl.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> PENDIENTE';
-                if (subtextEl) {
-                    subtextEl.className = 'text-warning d-block mt-1';
-                    subtextEl.innerText = 'Sin sesiones asignadas';
-                }
-                if (restantesEl) restantesEl.innerText = '0';
-                if (visitasEl) visitasEl.innerText = '0 visitas';
-                if (barraEl) {
-                    barraEl.style.width = '0%';
-                    barraEl.className = 'progress-bar bg-secondary';
-                }
-                if (porcEl) porcEl.innerText = '0%';
-            } else if (sesionesRestantes > 0) {
-                badgeEl.className = 'badge bg-success fw-bold text-white';
-                badgeEl.innerHTML = '<i class="bi bi-activity me-1"></i> ACTIVO';
-                if (subtextEl) {
-                    subtextEl.className = 'text-success d-block fw-bold mt-1';
-                    subtextEl.innerText = `Le faltan ${sesionesRestantes} ses.`;
-                }
-                if (restantesEl) restantesEl.innerText = `${sesionesRestantes}`;
-                if (visitasEl) visitasEl.innerText = `${sesionesRealizadas} visitas`;
-                const porc = Math.min(100, Math.round((sesionesRealizadas / totalAsignadas) * 100));
-                if (barraEl) {
-                    barraEl.style.width = porc + '%';
-                    barraEl.className = 'progress-bar bg-success';
-                }
-                if (porcEl) porcEl.innerText = porc + '%';
-            } else {
-                badgeEl.className = 'badge bg-info fw-bold text-dark';
-                badgeEl.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> FINALIZADO';
-                if (subtextEl) {
-                    subtextEl.className = 'text-info d-block fw-bold mt-1';
-                    subtextEl.innerText = `Completó ${sesionesRealizadas} ses.`;
-                }
-                if (restantesEl) restantesEl.innerText = '0 (Plan listo)';
-                if (visitasEl) visitasEl.innerText = `${sesionesRealizadas} visitas`;
-                if (barraEl) {
-                    barraEl.style.width = '100%';
-                    barraEl.className = 'progress-bar bg-info';
-                }
-                if (porcEl) porcEl.innerText = '100%';
-            }
-        });
-    };
-
     function iniciarSesionAdminExitosa() {
         try { localStorage.setItem('spa_usuario', usuarioActual); } catch(e) {}
         try { localStorage.setItem('spa_rol', rolActual); } catch(e) {}
@@ -469,7 +387,7 @@
             <li class="nav-item"><button class="nav-link" id="tesoreria-tab" data-bs-toggle="tab" data-bs-target="#tesoreria" type="button" onclick="reproducirClick(); if(typeof cargarDatosTesoreria==='function') cargarDatosTesoreria();"><i class="bi bi-safe-fill me-2"></i>Tesorería y Caja</button></li>
             <li class="nav-item"><button class="nav-link" id="socias-tab" data-bs-toggle="tab" data-bs-target="#socias" type="button" onclick="reproducirClick()"><i class="bi bi-person-badge me-2"></i>Gestión de Socias</button></li>
             <li class="nav-item"><button class="nav-link" id="ebitda-tab" data-bs-toggle="tab" data-bs-target="#ebitda" type="button" onclick="reproducirClick(); initEbitdaReport();"><i class="bi bi-graph-up-arrow me-2"></i>Análisis EBITDA</button></li>
-            <li class="nav-item"><button class="nav-link" id="contrasenas-tab" data-bs-toggle="tab" data-bs-target="#contrasenas" type="button" onclick="reproducirClick(); cargarModuloContrasenas();"><i class="bi bi-key-fill me-2 text-warning"></i>Contraseñas</button></li>
+            <li class="nav-item"><button class="nav-link" id="contrasenas-tab" data-bs-toggle="tab" data-bs-target="#contrasenas" type="button" onclick="reproducirClick(); if(typeof cargarModuloContrasenas==='function') setTimeout(cargarModuloContrasenas, 20);"><i class="bi bi-key-fill me-2 text-warning"></i>Contraseñas</button></li>
         </ul>
 
         <div class="tab-content" id="adminTabsContent">
@@ -840,8 +758,8 @@
                                     </div>
                                     <!-- ETIQUETA MEDIDORA SEGÚN CONTROL DE SESIONES DEL KARDEX -->
                                     <div class="text-end" th:id="'kmedidor-box-' + ${cli.id}">
-                                        <span class="badge bg-warning text-dark fw-bold" th:id="'kmedidor-badge-' + ${cli.id}"><i class="bi bi-hourglass-split me-1"></i> PENDIENTE</span>
-                                        <small class="text-warning d-block mt-1" th:id="'kmedidor-subtext-' + ${cli.id}" style="font-size:0.65rem;">Sin sesiones asignadas</small>
+                                        <span class="badge bg-secondary" th:id="'kmedidor-badge-' + ${cli.id}">Pendiente</span>
+                                        <small class="text-white-50 d-block mt-1" th:id="'kmedidor-subtext-' + ${cli.id}" style="font-size:0.65rem;">Calculando...</small>
                                     </div>
                                 </div>
                             </div>
@@ -2956,7 +2874,13 @@
 
         const jsonStr = document.getElementById('kjson-' + id).value;
         if(jsonStr && jsonStr.trim() !== '') {
-            try { llenarFormKardex(JSON.parse(jsonStr)); } catch(e) { console.error("Error JSON:", e); }
+            try { 
+                let pData = JSON.parse(jsonStr);
+                if (typeof pData === 'string') {
+                    try { pData = JSON.parse(pData); } catch(e2) {}
+                }
+                llenarFormKardex(pData); 
+            } catch(e) { console.error("Error JSON:", e); }
         }
 
         dibujarTablaVisitas();
@@ -7022,27 +6946,39 @@ function imprimirKardexRecibo() {
         }
     }
 
-    window.actualizarMedidoresClientes = function() {
+        window.actualizarMedidoresClientes = function() {
         const inputs = document.querySelectorAll('.input-kardex-data');
+        if (!inputs || inputs.length === 0) return;
         inputs.forEach(inp => {
             const id = inp.id.replace('kjson-', '');
             const jsonStr = inp.value;
             let data = null;
             if (jsonStr && jsonStr.trim() !== '') {
-                try { data = JSON.parse(jsonStr); } catch(e) {}
+                try { 
+                    data = JSON.parse(jsonStr); 
+                    if (typeof data === 'string') {
+                        try { data = JSON.parse(data); } catch(e2) {}
+                    }
+                } catch(e) {}
             }
 
             let sesionesRestantes = 0;
-            if (data && data.tratamiento) {
+            if (data && data.tratamiento && typeof data.tratamiento === 'object') {
                 for (let k in data.tratamiento) {
                     let v = parseInt(data.tratamiento[k]);
                     if (!isNaN(v) && v > 0) sesionesRestantes += v;
                 }
+            } else if (data && typeof data.sesionesRestantes === 'number') {
+                sesionesRestantes = data.sesionesRestantes;
             }
 
             let sesionesRealizadas = 0;
             if (data && Array.isArray(data.visitas)) {
                 sesionesRealizadas = data.visitas.length;
+            } else if (data && typeof data.visitas === 'number') {
+                sesionesRealizadas = data.visitas;
+            } else if (data && typeof data.sesionesRealizadas === 'number') {
+                sesionesRealizadas = data.sesionesRealizadas;
             }
 
             const totalAsignadas = sesionesRestantes + sesionesRealizadas;
@@ -7104,28 +7040,41 @@ function imprimirKardexRecibo() {
                 if (porcEl) porcEl.innerText = '100%';
             }
         });
-    }
+    };
 
-    function escapeHtml(str) {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
-
-    // =========================================================================
-    // 🔐 GESTIÓN DE SEGURIDAD, CONTRASEÑAS Y PIN MAESTRO DE 6 DÍGITOS
-    // =========================================================================
-    let pinMaestroCache = localStorage.getItem('spa_pin_maestro') || '777777';
-    let pinMaestroVisible = false;
-    let usuariosSeguridadCache = [];
-    let accionPendienteSegura = null;
+    // ==========================================
+    // 🔐 GESTIÓN DE SEGURIDAD, CLAVES Y PERMISOS
+    // ==========================================
+    var pinMaestroCache = '777777';
+    var pinMaestroVisible = false;
+    var modalUsuarioSeguridadInst = null;
+    var usuariosSeguridadCache = [
+        { id: 1, nombre: 'Crisley Paredes', username: 'crisley', rol: 'PROPIETARIA', accesoAdmin: true, accesoPos: true, pin: '7777', activo: true },
+        { id: 2, nombre: 'Janneth', username: 'janneth', rol: 'ADMINISTRADORA', accesoAdmin: true, accesoPos: true, pin: '1010', activo: true },
+        { id: 3, nombre: 'Daniela Camacho', username: 'daniela.camacho', rol: 'CAJERA', accesoAdmin: false, accesoPos: true, pin: '2020', activo: true },
+        { id: 4, nombre: 'Daniela Montaño', username: 'daniela.montano', rol: 'CAJERA', accesoAdmin: false, accesoPos: true, pin: '3030', activo: true }
+    ];
 
     window.cargarModuloContrasenas = function() {
-        // Cargar PIN Maestro de 6 dígitos
+        // 1. Mostrar inmediatamente con datos en caché para 0ms de pantalla vacía
+        const dispInmediato = document.getElementById('txt-pin-maestro-display');
+        if (dispInmediato) {
+            dispInmediato.textContent = pinMaestroVisible ? pinMaestroCache : '••••••';
+        }
+        const savedUsers = localStorage.getItem('spa_usuarios_seguridad');
+        if (savedUsers) {
+            try { 
+                const parsed = JSON.parse(savedUsers);
+                if (Array.isArray(parsed) && parsed.length > 0) usuariosSeguridadCache = parsed;
+            } catch(e) {}
+        }
+        const savedPin = localStorage.getItem('spa_pin_maestro');
+        if (savedPin && /^\d{6}$/.test(savedPin)) {
+            pinMaestroCache = savedPin;
+        }
+        renderizarTablaUsuariosSeguridad();
+
+        // 2. Sincronizar en segundo plano con la base de datos (PIN Maestro)
         fetch('/api/seguridad/pin-maestro')
             .then(res => res.json())
             .then(data => {
@@ -7139,49 +7088,21 @@ function imprimirKardexRecibo() {
                 }
             })
             .catch(err => {
-                console.error("Error al cargar PIN Maestro:", err);
-                const disp = document.getElementById('txt-pin-maestro-display');
-                if (disp) disp.textContent = pinMaestroVisible ? pinMaestroCache : '••••••';
+                console.warn("Aviso: usando PIN maestro local:", err);
             });
 
-        // Cargar Usuarios y Colaboradoras
+        // 3. Sincronizar en segundo plano con la base de datos (Usuarios)
         fetch('/api/seguridad/usuarios')
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data) && data.length > 0) {
                     usuariosSeguridadCache = data;
                     try { localStorage.setItem('spa_usuarios_seguridad', JSON.stringify(data)); } catch(e) {}
-                } else {
-                    const saved = localStorage.getItem('spa_usuarios_seguridad');
-                    if (saved) {
-                        try { usuariosSeguridadCache = JSON.parse(saved); } catch(e) {}
-                    }
-                    if (!usuariosSeguridadCache || usuariosSeguridadCache.length === 0) {
-                        usuariosSeguridadCache = [
-                            { id: 1, nombre: 'Crisley Paredes', username: 'crisley', rol: 'PROPIETARIA', accesoAdmin: true, accesoPos: true, pin: '7777', activo: true },
-                            { id: 2, nombre: 'Janneth', username: 'janneth', rol: 'ADMINISTRADORA', accesoAdmin: true, accesoPos: true, pin: '1010', activo: true },
-                            { id: 3, nombre: 'Daniela Camacho', username: 'daniela.camacho', rol: 'CAJERA', accesoAdmin: false, accesoPos: true, pin: '2020', activo: true },
-                            { id: 4, nombre: 'Daniela Montaño', username: 'daniela.montano', rol: 'CAJERA', accesoAdmin: false, accesoPos: true, pin: '3030', activo: true }
-                        ];
-                    }
+                    renderizarTablaUsuariosSeguridad();
                 }
-                renderizarTablaUsuariosSeguridad();
             })
             .catch(err => {
-                console.error("Error al cargar Usuarios de Seguridad:", err);
-                const saved = localStorage.getItem('spa_usuarios_seguridad');
-                if (saved) {
-                    try { usuariosSeguridadCache = JSON.parse(saved); } catch(e) {}
-                }
-                if (!usuariosSeguridadCache || usuariosSeguridadCache.length === 0) {
-                    usuariosSeguridadCache = [
-                        { id: 1, nombre: 'Crisley Paredes', username: 'crisley', rol: 'PROPIETARIA', accesoAdmin: true, accesoPos: true, pin: '7777', activo: true },
-                        { id: 2, nombre: 'Janneth', username: 'janneth', rol: 'ADMINISTRADORA', accesoAdmin: true, accesoPos: true, pin: '1010', activo: true },
-                        { id: 3, nombre: 'Daniela Camacho', username: 'daniela.camacho', rol: 'CAJERA', accesoAdmin: false, accesoPos: true, pin: '2020', activo: true },
-                        { id: 4, nombre: 'Daniela Montaño', username: 'daniela.montano', rol: 'CAJERA', accesoAdmin: false, accesoPos: true, pin: '3030', activo: true }
-                    ];
-                }
-                renderizarTablaUsuariosSeguridad();
+                console.warn("Aviso: usando lista de usuarios local:", err);
             });
     };
 
@@ -7604,11 +7525,26 @@ function imprimirKardexRecibo() {
         });
     };
 
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof actualizarMedidoresClientes === 'function') actualizarMedidoresClientes();
-        if (typeof cargarModuloContrasenas === 'function') cargarModuloContrasenas();
-        if (typeof cargarDatosTesoreria === 'function') cargarDatosTesoreria();
+        function iniciarModulosAdmin() {
+        if (typeof actualizarMedidoresClientes === 'function') {
+            try { actualizarMedidoresClientes(); } catch(e) { console.error("Error medidores:", e); }
+        }
+        if (typeof cargarModuloContrasenas === 'function') {
+            try { cargarModuloContrasenas(); } catch(e) { console.error("Error contrasenas:", e); }
+        }
+        if (typeof cargarDatosTesoreria === 'function') {
+            try { cargarDatosTesoreria(); } catch(e) { console.error("Error tesoreria:", e); }
+        }
+    }
 
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', iniciarModulosAdmin);
+    } else {
+        iniciarModulosAdmin();
+    }
+    window.addEventListener('load', iniciarModulosAdmin);
+
+    document.addEventListener('DOMContentLoaded', function() {
         const crmTab = document.getElementById('crm-tab');
         if (crmTab) {
             crmTab.addEventListener('shown.bs.tab', function() {
@@ -7633,11 +7569,10 @@ function imprimirKardexRecibo() {
         // Listener en inputs de sesiones para actualizar contadores en vivo
         document.querySelectorAll('#k-tratamiento .contador-pack').forEach(inp => {
             inp.addEventListener('input', function() {
-                actualizarContadoresKardexModal();
+                if (typeof actualizarContadoresKardexModal === 'function') actualizarContadoresKardexModal();
             });
         });
     });
-
 </script>
 
 </body>
