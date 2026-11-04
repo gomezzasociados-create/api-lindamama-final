@@ -262,6 +262,12 @@
         if (typeof window.cargarDatosTesoreria === 'function') {
             try { window.cargarDatosTesoreria(); } catch(e) {}
         }
+        if (typeof window.cargarSocias === 'function') {
+            try { window.cargarSocias(); } catch(e) {}
+        }
+        if (typeof window.initEbitdaReport === 'function') {
+            try { window.initEbitdaReport(); } catch(e) {}
+        }
     }
 
     function mostrarErrorLogin() {
@@ -2718,155 +2724,48 @@
     const sfxClick = document.getElementById('sfx-click');
 
     function reproducirClick() {
-    sfxClick.currentTime = 0;
-    sfxClick.play().catch(()=>{});
+        try {
+            if (sfxClick && typeof sfxClick.play === 'function') {
+                sfxClick.currentTime = 0;
+                sfxClick.play().catch(()=>{});
+            }
+        } catch(e) {}
     }
 
     function activarEfectoWaooo(botonEvent) {
-    if(botonEvent && botonEvent.currentTarget) {
-    let btn = botonEvent.currentTarget;
-    btn.classList.add('efecto-waooo');
-    setTimeout(() => btn.classList.remove('efecto-waooo'), 600);
-    }
-    sfxWaooo.currentTime = 0;
-    sfxWaooo.play().catch(()=>{});
+        if(botonEvent && botonEvent.currentTarget) {
+            let btn = botonEvent.currentTarget;
+            btn.classList.add('efecto-waooo');
+            setTimeout(() => btn.classList.remove('efecto-waooo'), 600);
+        }
+        try {
+            if (sfxWaooo && typeof sfxWaooo.play === 'function') {
+                sfxWaooo.currentTime = 0;
+                sfxWaooo.play().catch(()=>{});
+            }
+        } catch(e) {}
     }
 
     function reproducirError() {
-    sfxFail.currentTime = 0;
-    sfxFail.play().catch(()=>{});
+        try {
+            if (sfxFail && typeof sfxFail.play === 'function') {
+                sfxFail.currentTime = 0;
+                sfxFail.play().catch(()=>{});
+            }
+        } catch(e) {}
     }
 
     // ==========================================
     // LÓGICA DE SEGURIDAD Y ROLES (ADMIN)
     // ==========================================
-    let usuarioActual = "";
-    let rolActual = "";
-
-    function validarAcceso(event) {
-        if (event && event.preventDefault) event.preventDefault();
-        const pinInput = document.getElementById('input-pin');
-        if (!pinInput) return;
-        const pin = pinInput.value.trim();
-        if (!pin) return;
-
-        // 1. Acceso instantáneo e inmediato para Clave Maestra (6 dígitos) y Administradores Clave (0ms)
-        if (pin === '7777' || pin === '777777') {
-            usuarioActual = "Crisley Paredes";
-            rolActual = "PROPIETARIA";
-            iniciarSesionAdminExitosa();
-            fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pin: pin, origen: 'ADMIN' })
-            }).catch(() => {});
-            return;
-        } else if (pin === '1010') {
-            usuarioActual = "Janneth";
-            rolActual = "ADMINISTRADORA";
-            iniciarSesionAdminExitosa();
-            fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pin: pin, origen: 'ADMIN' })
-            }).catch(() => {});
-            return;
-        }
-
-        // 2. Validación en tiempo real contra base de datos (para nuevos usuarios y contraseñas delegadas)
-        fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pin: pin, origen: 'ADMIN' })
-        })
-        .then(res => {
-            if (res.ok) {
-                return res.json().then(data => {
-                    usuarioActual = data.user || 'Administradora';
-                    rolActual = data.rol || 'ADMINISTRADORA';
-                    iniciarSesionAdminExitosa();
-                });
-            } else if (res.status === 403) {
-                if (typeof reproducirError === 'function') reproducirError();
-                alert("⚠️ Acceso denegado: este usuario no tiene permisos asignados para ingresar al Centro de Mando (Admin).");
-            } else {
-                mostrarErrorLogin();
-            }
-        })
-        .catch(err => {
-            console.error("Error al autenticar:", err);
-            mostrarErrorLogin();
-        });
-    }
-
-    function mostrarErrorLogin() {
-        if (typeof reproducirError === 'function') reproducirError();
-        const loginBox = document.getElementById('login-box');
-        if (loginBox) {
-            loginBox.classList.add('shake-error');
-            setTimeout(() => loginBox.classList.remove('shake-error'), 400);
-        }
-    }
-
-    function iniciarSesionAdminExitosa() {
-        // Éxito en el login
-        try {
-            if (sfxOk) { sfxOk.currentTime = 0; sfxOk.play().catch(()=>{}); }
-        } catch(e) {}
-
-        try {
-            localStorage.setItem('spa_usuario', usuarioActual);
-            localStorage.setItem('spa_rol', rolActual);
-        } catch(e) {}
-
-        // Pantalla de Bienvenida
-        const loginScr = document.getElementById('login-screen');
-        if (loginScr) loginScr.style.display = 'none';
-
-        const welcomeScreen = document.getElementById('welcome-screen');
-        if (welcomeScreen) welcomeScreen.style.display = 'flex';
-
-        const primerNombre = usuarioActual.split(' ')[0];
-        const welcomeMsg = document.getElementById('welcome-message');
-        if (welcomeMsg) welcomeMsg.innerText = "¡Bienvenida " + primerNombre + "!";
-
-        // SALUDO DE VOZ
-        try {
-            if ('speechSynthesis' in window) {
-                const mensajeVoz = new SpeechSynthesisUtterance("Bienvenida " + primerNombre + ". Iniciando panel de administración.");
-                mensajeVoz.lang = 'es-ES';
-                window.speechSynthesis.speak(mensajeVoz);
-            }
-        } catch(e) {}
-
-        // Transición automática al panel
-        setTimeout(() => {
-            try {
-                if (sfxWaooo) { sfxWaooo.currentTime = 0; sfxWaooo.play().catch(()=>{}); }
-            } catch(e) {}
-            if (welcomeScreen) welcomeScreen.style.display = 'none';
-            const appDash = document.getElementById('app-dashboard');
-            if (appDash) appDash.style.display = 'block';
-            const labelUsr = document.getElementById('etiqueta-usuario');
-            if (labelUsr) labelUsr.innerHTML = `<i class="bi bi-person-circle"></i> ${usuarioActual}`;
-
-            if (rolActual === "ADMINISTRADORA") {
-                let ingresosEl = document.getElementById('monto-ingresos');
-                if (ingresosEl) {
-                    ingresosEl.innerText = "$****";
-                    ingresosEl.classList.remove('text-cyan-neon');
-                    ingresosEl.style.color = "#888";
-                }
-            }
-            if (typeof actualizarMedidoresClientes === 'function') {
-                actualizarMedidoresClientes();
-            }
-        }, 1200);
-    }
+    var usuarioActual = window.usuarioActual || "Crisley Paredes";
+    var rolActual = window.rolActual || "PROPIETARIA";
 
     window.cerrarSesionAdmin = function() {
-        localStorage.removeItem('spa_usuario');
-        localStorage.removeItem('spa_rol');
+        try {
+            localStorage.removeItem('spa_usuario');
+            localStorage.removeItem('spa_rol');
+        } catch(e) {}
         window.location.reload();
     };
 
@@ -2921,11 +2820,12 @@
         fetch(`/api/pos/ventas/cliente/${id}`)
             .then(res => res.json())
             .then(ventas => {
-                ventasRealesKardex = ventas;
+                ventasRealesKardex = Array.isArray(ventas) ? ventas : [];
                 dibujarTablaPagos(); // Redibujar con los datos reales
             })
             .catch(err => {
                 console.error("Error cargando abonos reales:", err);
+                ventasRealesKardex = [];
                 dibujarTablaPagos();
             });
 
@@ -3171,8 +3071,8 @@
         let totalAbonado = 0;
 
         // Combinar registros manuales con ventas reales de la base de datos
-        const manuales = pagosKardexTemporal || [];
-        const reales = (ventasRealesKardex || []).map(v => ({
+        const manuales = Array.isArray(pagosKardexTemporal) ? pagosKardexTemporal : [];
+        const reales = (Array.isArray(ventasRealesKardex) ? ventasRealesKardex : []).map(v => ({
             id: v.id,
             fecha: v.fechaHora ? v.fechaHora.split('T')[0] : '---',
             monto: v.totalPagado,
@@ -4498,7 +4398,7 @@ function imprimirKardexRecibo() {
     // ==========================================
     window.cargarDatosTesoreria = function(event) {
         if (event && event.stopPropagation) event.stopPropagation();
-        if (typeof reproducirClick === 'function') reproducirClick();
+        if (event && typeof reproducirClick === 'function') reproducirClick();
 
         fetch('/api/pos/tesoreria-datos')
             .then(res => {
@@ -5608,9 +5508,17 @@ function imprimirKardexRecibo() {
     };
 
     window.consultarEbitda = function() {
-        const inicio = document.getElementById('ebitda-inicio').value;
-        const fin = document.getElementById('ebitda-fin').value;
-        if (!inicio || !fin) return alert("⚠️ Seleccione fechas válidas.");
+        const elInicio = document.getElementById('ebitda-inicio');
+        const elFin = document.getElementById('ebitda-fin');
+        if (elInicio && elFin && (!elInicio.value || !elFin.value)) {
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            if (!elInicio.value) elInicio.value = firstDay.toISOString().split('T')[0];
+            if (!elFin.value) elFin.value = now.toISOString().split('T')[0];
+        }
+        const inicio = elInicio ? elInicio.value : '';
+        const fin = elFin ? elFin.value : '';
+        if (!inicio || !fin) return;
 
         fetch(`/api/finanzas/ebitda?inicio=${inicio}&fin=${fin}`)
             .then(res => res.json())
@@ -7076,6 +6984,18 @@ function imprimirKardexRecibo() {
     var pinMaestroCache = '777777';
     var pinMaestroVisible = false;
     var modalUsuarioSeguridadInst = null;
+    var accionPendienteSegura = null;
+
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     var usuariosSeguridadCache = [
         { id: 1, nombre: 'Crisley Paredes', username: 'crisley', rol: 'PROPIETARIA', accesoAdmin: true, accesoPos: true, pin: '7777', activo: true },
         { id: 2, nombre: 'Janneth', username: 'janneth', rol: 'ADMINISTRADORA', accesoAdmin: true, accesoPos: true, pin: '1010', activo: true },
@@ -7263,14 +7183,23 @@ function imprimirKardexRecibo() {
     };
 
     window.abrirModalNuevoUsuario = function() {
-        document.getElementById('usr-sec-id').value = '';
-        document.getElementById('usr-sec-nombre').value = '';
-        document.getElementById('usr-sec-username').value = '';
-        document.getElementById('usr-sec-pin').value = '';
-        document.getElementById('usr-sec-rol').value = 'ESTETICA';
-        document.getElementById('usr-sec-admin').checked = false;
-        document.getElementById('usr-sec-pos').checked = true;
-        document.getElementById('usr-sec-activo').checked = true;
+        const elId = document.getElementById('usr-sec-id');
+        const elNombre = document.getElementById('usr-sec-nombre');
+        const elUser = document.getElementById('usr-sec-username');
+        const elPin = document.getElementById('usr-sec-pin');
+        const elRol = document.getElementById('usr-sec-rol');
+        const elAdmin = document.getElementById('usr-sec-acceso-admin') || document.getElementById('usr-sec-admin');
+        const elPos = document.getElementById('usr-sec-acceso-pos') || document.getElementById('usr-sec-pos');
+        const elActivo = document.getElementById('usr-sec-activo');
+
+        if (elId) elId.value = '';
+        if (elNombre) elNombre.value = '';
+        if (elUser) elUser.value = '';
+        if (elPin) elPin.value = '';
+        if (elRol) elRol.value = 'ESTETICA';
+        if (elAdmin) elAdmin.checked = false;
+        if (elPos) elPos.checked = true;
+        if (elActivo) elActivo.checked = true;
 
         const tit = document.getElementById('modalUsuarioSeguridadTitulo');
         if (tit) tit.innerHTML = '<i class="bi bi-person-plus-fill me-2 text-primary"></i>Nuevo Colaborador / Usuario';
@@ -7286,14 +7215,23 @@ function imprimirKardexRecibo() {
         const u = usuariosSeguridadCache.find(x => x.id === id);
         if (!u) return;
 
-        document.getElementById('usr-sec-id').value = u.id;
-        document.getElementById('usr-sec-nombre').value = u.nombre || '';
-        document.getElementById('usr-sec-username').value = u.username || '';
-        document.getElementById('usr-sec-pin').value = u.pin || '';
-        document.getElementById('usr-sec-rol').value = u.rol || 'ESTETICA';
-        document.getElementById('usr-sec-admin').checked = !!u.accesoAdmin;
-        document.getElementById('usr-sec-pos').checked = !!u.accesoPos;
-        document.getElementById('usr-sec-activo').checked = u.activo !== false;
+        const elId = document.getElementById('usr-sec-id');
+        const elNombre = document.getElementById('usr-sec-nombre');
+        const elUser = document.getElementById('usr-sec-username');
+        const elPin = document.getElementById('usr-sec-pin');
+        const elRol = document.getElementById('usr-sec-rol');
+        const elAdmin = document.getElementById('usr-sec-acceso-admin') || document.getElementById('usr-sec-admin');
+        const elPos = document.getElementById('usr-sec-acceso-pos') || document.getElementById('usr-sec-pos');
+        const elActivo = document.getElementById('usr-sec-activo');
+
+        if (elId) elId.value = u.id;
+        if (elNombre) elNombre.value = u.nombre || '';
+        if (elUser) elUser.value = u.username || '';
+        if (elPin) elPin.value = u.pin || '';
+        if (elRol) elRol.value = u.rol || 'ESTETICA';
+        if (elAdmin) elAdmin.checked = !!u.accesoAdmin;
+        if (elPos) elPos.checked = !!u.accesoPos;
+        if (elActivo) elActivo.checked = u.activo !== false;
 
         const tit = document.getElementById('modalUsuarioSeguridadTitulo');
         if (tit) tit.innerHTML = '<i class="bi bi-pencil-fill me-2 text-primary"></i>Editar Usuario: ' + (u.nombre || '');
@@ -7306,14 +7244,17 @@ function imprimirKardexRecibo() {
     };
 
     window.guardarUsuarioSeguridad = function() {
-        const id = document.getElementById('usr-sec-id').value;
-        const nombre = (document.getElementById('usr-sec-nombre').value || '').trim();
-        const username = (document.getElementById('usr-sec-username').value || '').trim();
-        const pin = (document.getElementById('usr-sec-pin').value || '').trim();
-        const rol = document.getElementById('usr-sec-rol').value;
-        const accesoAdmin = document.getElementById('usr-sec-admin').checked;
-        const accesoPos = document.getElementById('usr-sec-pos').checked;
-        const activo = document.getElementById('usr-sec-activo').checked;
+        const id = document.getElementById('usr-sec-id')?.value || '';
+        const nombre = (document.getElementById('usr-sec-nombre')?.value || '').trim();
+        const username = (document.getElementById('usr-sec-username')?.value || '').trim();
+        const pin = (document.getElementById('usr-sec-pin')?.value || '').trim();
+        const rol = document.getElementById('usr-sec-rol')?.value || 'ESTETICA';
+        const elAdmin = document.getElementById('usr-sec-acceso-admin') || document.getElementById('usr-sec-admin');
+        const elPos = document.getElementById('usr-sec-acceso-pos') || document.getElementById('usr-sec-pos');
+        const elActivo = document.getElementById('usr-sec-activo');
+        const accesoAdmin = elAdmin ? elAdmin.checked : false;
+        const accesoPos = elPos ? elPos.checked : true;
+        const activo = elActivo ? elActivo.checked : true;
 
         if (!nombre) {
             alert("⚠️ Ingrese el nombre del usuario o colaboradora.");
@@ -7428,8 +7369,8 @@ function imprimirKardexRecibo() {
     };
 
     function configurarYAbrirModalPin6(titulo, detalle) {
-        const titEl = document.getElementById('modal-pin6-accion-titulo');
-        const detEl = document.getElementById('modal-pin6-accion-detalle');
+        const titEl = document.getElementById('modalPin6-descripcion') || document.getElementById('modal-pin6-accion-titulo');
+        const detEl = document.getElementById('modalPin6-detalle') || document.getElementById('modal-pin6-accion-detalle');
         const inp = document.getElementById('input-pin-autorizacion-6');
 
         if (titEl) titEl.textContent = titulo;

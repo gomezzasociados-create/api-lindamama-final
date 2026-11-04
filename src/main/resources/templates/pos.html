@@ -374,6 +374,8 @@
 </div>
 
 <script>
+    var vendedorActual = 'Caja General';
+
     function iniciarSesionPosExitosa(nombreUsuario) {
         vendedorActual = nombreUsuario || 'Crisley Paredes';
         try { localStorage.setItem('spa_usuario', vendedorActual); } catch(e) {}
@@ -724,99 +726,9 @@
     const sfxClick = document.getElementById('sfx-click');
     const sfxDelete = document.getElementById('sfx-delete');
 
-    let vendedorActual = 'Caja General';
+    var vendedorActual = window.vendedorActual || 'Caja General';
     let carrito = [];
     let listaClientes = [];
-
-    function validarAcceso(event) {
-        if (event && event.preventDefault) event.preventDefault();
-        const pinInput = document.getElementById('input-pin');
-        if (!pinInput) return;
-        const pin = pinInput.value.trim();
-        if (!pin) return;
-
-        // 1. Acceso instantáneo para claves maestras y colaboradoras conocidas (0ms)
-        const localPins = {
-            '7777': 'Crisley Paredes',
-            '777777': 'Crisley Paredes',
-            '1010': 'Janneth',
-            '2020': 'Daniela Camacho',
-            '3030': 'Daniela Montaño'
-        };
-        if (localPins[pin]) {
-            iniciarSesionPosExitosa(localPins[pin]);
-            fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pin: pin, origen: 'POS' })
-            }).catch(() => {});
-            return;
-        }
-
-        // 2. Validación dinámica en tiempo real contra base de datos (para nuevos usuarios de seguridad)
-        fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pin: pin, origen: 'POS' })
-        })
-        .then(res => {
-            if (res.ok) {
-                return res.json().then(data => {
-                    iniciarSesionPosExitosa(data.user || 'Cajera');
-                });
-            } else if (res.status === 403) {
-                sfxFail.play().catch(()=>{});
-                alert("⚠️ Acceso denegado: este usuario no tiene permisos asignados para el Punto de Venta (POS).");
-            } else {
-                sfxFail.play().catch(()=>{});
-                const loginBox = document.getElementById('login-box');
-                if (loginBox) {
-                    loginBox.classList.add('shake-error');
-                    setTimeout(() => loginBox.classList.remove('shake-error'), 400);
-                }
-            }
-        })
-        .catch(err => {
-            console.error("Error al autenticar POS:", err);
-            sfxFail.play().catch(()=>{});
-            const loginBox = document.getElementById('login-box');
-            if (loginBox) {
-                loginBox.classList.add('shake-error');
-                setTimeout(() => loginBox.classList.remove('shake-error'), 400);
-            }
-        });
-    }
-
-    function iniciarSesionPosExitosa(nombreUsuario) {
-        vendedorActual = nombreUsuario;
-        sfxOk.play().catch(()=>{});
-        localStorage.setItem('spa_usuario', vendedorActual);
-        
-        document.getElementById('login-screen').style.display = 'none';
-        const welcomeScreen = document.getElementById('welcome-screen');
-        welcomeScreen.style.display = 'flex';
-        
-        const primerNombre = vendedorActual.split(' ')[0];
-        document.getElementById('welcome-message').innerText = "¡Bienvenida " + primerNombre + "!";
-        
-        if ('speechSynthesis' in window) {
-            const mensajeVoz = new SpeechSynthesisUtterance("Bienvenida " + primerNombre + ". Iniciando sistema de caja.");
-            mensajeVoz.lang = 'es-ES';
-            mensajeVoz.rate = 1.0;
-            window.speechSynthesis.speak(mensajeVoz);
-        }
-        
-        setTimeout(() => {
-            sfxWaooo.play().catch(()=>{});
-            welcomeScreen.style.display = 'none';
-            document.getElementById('app-pos').style.display = 'block';
-            const ahora = new Date();
-            ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
-            if (document.getElementById('fecha-servicio')) {
-                document.getElementById('fecha-servicio').value = ahora.toISOString().slice(0, 16);
-            }
-        }, 1800);
-    }
 
     function filtrarPorCategoria(cat, btn) {
         sfxClick.play().catch(()=>{});
