@@ -74,12 +74,43 @@
         .navbar-cyber { background: rgba(28, 2, 41, 0.95); border-bottom: 2px solid var(--fucsia-neon); box-shadow: 0 0 20px rgba(255, 0, 255, 0.4); backdrop-filter: blur(10px); }
         .navbar-brand { font-family: 'Playfair Display', serif; font-weight: 900; color: var(--blanco-puro) !important; text-shadow: 0 0 10px var(--fucsia-neon); letter-spacing: 1px; }
 
-        .nav-tabs { border-bottom: 1px solid rgba(0, 229, 255, 0.3); flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; white-space: nowrap; padding-bottom: 5px; }
-        .nav-tabs::-webkit-scrollbar { height: 4px; }
-        .nav-tabs::-webkit-scrollbar-thumb { background: var(--cyan-neon); border-radius: 4px; }
-        .nav-tabs .nav-link { color: #cccccc; border: none; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; padding: 10px 15px; }
-        .nav-tabs .nav-link:hover { color: var(--cyan-neon); }
-        .nav-tabs .nav-link.active { background-color: transparent; color: var(--cyan-neon); border-bottom: 3px solid var(--cyan-neon); text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
+        .nav-tabs { 
+            border-bottom: 1px solid rgba(0, 229, 255, 0.3); 
+            display: flex;
+            flex-wrap: wrap !important; 
+            gap: 6px; 
+            padding-bottom: 8px; 
+            overflow: visible !important;
+            white-space: normal !important;
+        }
+        .nav-tabs .nav-item {
+            margin-bottom: 4px;
+        }
+        .nav-tabs .nav-link { 
+            color: #d1d5db; 
+            border: 1px solid rgba(255, 255, 255, 0.12) !important; 
+            border-radius: 8px !important;
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.6px; 
+            transition: all 0.2s ease; 
+            padding: 8px 14px; 
+            font-size: 0.82rem;
+            background: rgba(255, 255, 255, 0.03);
+            display: inline-flex;
+            align-items: center;
+        }
+        .nav-tabs .nav-link:hover { 
+            color: var(--cyan-neon); 
+            border-color: rgba(0, 229, 255, 0.4) !important;
+            background: rgba(0, 229, 255, 0.08); 
+        }
+        .nav-tabs .nav-link.active { 
+            background: rgba(0, 229, 255, 0.16) !important; 
+            color: var(--cyan-neon) !important; 
+            border-color: var(--cyan-neon) !important; 
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
+        }
 
         .card-stat { background: linear-gradient(145deg, var(--violeta-tarjeta), #2a0342); border: 1px solid rgba(255, 0, 255, 0.2); border-radius: 15px; transition: 0.3s; height: 100%; }
         .card-stat:hover { transform: translateY(-5px); border-color: var(--cyan-neon); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
@@ -382,12 +413,12 @@
             <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" onclick="reproducirClick()"><i class="bi bi-speedometer2 me-2"></i>Dashboard</button></li>
             <li class="nav-item"><button class="nav-link" id="catalogo-tab" data-bs-toggle="tab" data-bs-target="#catalogo" type="button" onclick="reproducirClick()"><i class="bi bi-box-seam me-2"></i>Catálogo</button></li>
             <li class="nav-item"><button class="nav-link" id="citas-tab" data-bs-toggle="tab" data-bs-target="#citas" type="button" onclick="reproducirClick()"><i class="bi bi-hourglass-split me-2"></i>Citas Pendientes</button></li>
-            <li class="nav-item"><button class="nav-link" id="agenda-tab" data-bs-toggle="tab" data-bs-target="#agenda" type="button" onclick="reproducirClick(); initAgendaCalendar();"><i class="bi bi-calendar3 me-2"></i>Agenda</button></li>
+            <li class="nav-item"><button class="nav-link" id="agenda-tab" data-bs-toggle="tab" data-bs-target="#agenda" type="button" onclick="reproducirClick(); if(typeof initAgendaCalendar==='function') initAgendaCalendar();"><i class="bi bi-calendar3 me-2"></i>Agenda</button></li>
             <li class="nav-item"><button class="nav-link" id="crm-tab" data-bs-toggle="tab" data-bs-target="#crm" type="button" onclick="reproducirClick(); if(typeof actualizarMedidoresClientes==='function') actualizarMedidoresClientes();"><i class="bi bi-people-fill me-2"></i>CRM Clientes</button></li>
-            <li class="nav-item"><button class="nav-link" id="tesoreria-tab" data-bs-toggle="tab" data-bs-target="#tesoreria" type="button" onclick="reproducirClick(); if(typeof cargarDatosTesoreria==='function') cargarDatosTesoreria();"><i class="bi bi-safe-fill me-2"></i>Tesorería y Caja</button></li>
-            <li class="nav-item"><button class="nav-link" id="socias-tab" data-bs-toggle="tab" data-bs-target="#socias" type="button" onclick="reproducirClick()"><i class="bi bi-person-badge me-2"></i>Gestión de Socias</button></li>
-            <li class="nav-item"><button class="nav-link" id="ebitda-tab" data-bs-toggle="tab" data-bs-target="#ebitda" type="button" onclick="reproducirClick(); initEbitdaReport();"><i class="bi bi-graph-up-arrow me-2"></i>Análisis EBITDA</button></li>
-            <li class="nav-item"><button class="nav-link" id="contrasenas-tab" data-bs-toggle="tab" data-bs-target="#contrasenas" type="button" onclick="reproducirClick(); if(typeof cargarModuloContrasenas==='function') setTimeout(cargarModuloContrasenas, 20);"><i class="bi bi-key-fill me-2 text-warning"></i>Contraseñas</button></li>
+            <li class="nav-item"><button class="nav-link" id="tesoreria-tab" data-bs-toggle="tab" data-bs-target="#tesoreria" type="button" onclick="reproducirClick(); if(typeof cargarDatosTesoreria==='function') cargarDatosTesoreria();"><i class="bi bi-safe-fill me-2 text-info"></i>Tesorería y Caja</button></li>
+            <li class="nav-item"><button class="nav-link" id="socias-tab" data-bs-toggle="tab" data-bs-target="#socias" type="button" onclick="reproducirClick(); if(typeof cargarSocias==='function') cargarSocias();"><i class="bi bi-person-badge me-2 text-primary"></i>Gestión de Socias</button></li>
+            <li class="nav-item"><button class="nav-link" id="ebitda-tab" data-bs-toggle="tab" data-bs-target="#ebitda" type="button" onclick="reproducirClick(); if(typeof initEbitdaReport==='function') initEbitdaReport();"><i class="bi bi-graph-up-arrow me-2 text-success"></i>Análisis EBITDA</button></li>
+            <li class="nav-item"><button class="nav-link" id="contrasenas-tab" data-bs-toggle="tab" data-bs-target="#contrasenas" type="button" onclick="reproducirClick(); if(typeof cargarModuloContrasenas==='function') cargarModuloContrasenas();"><i class="bi bi-key-fill me-2 text-warning"></i>Contraseñas</button></li>
         </ul>
 
         <div class="tab-content" id="adminTabsContent">
@@ -4801,12 +4832,9 @@ function imprimirKardexRecibo() {
     // 🔥 GESTIÓN DE SOCIAS (10 CUPOS MAX) 🔥
     // ==========================================
     let modalSociaInst = null;
-    
-    document.getElementById('socias-tab').addEventListener('click', cargarSocias);
-
     window.sociasActuales = [];
 
-    function cargarSocias() {
+    window.cargarSocias = function() {
         fetch('/api/socias')
             .then(res => res.json())
             .then(socias => {
@@ -5463,13 +5491,13 @@ function imprimirKardexRecibo() {
     }
 
     window.initEbitdaReport = function() {
-        if (!document.getElementById('ebitda-inicio').value) {
-            const hoy = new Date();
-            const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-            document.getElementById('ebitda-inicio').value = getLocalDateString(primerDia);
-            document.getElementById('ebitda-fin').value = getLocalDateString(hoy);
-        }
-        window.consultarEbitda();
+        const in1 = document.getElementById('ebitda-inicio');
+        const in2 = document.getElementById('ebitda-fin');
+        const hoy = new Date();
+        const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        if (in1 && !in1.value) in1.value = getLocalDateString(primerDia);
+        if (in2 && !in2.value) in2.value = getLocalDateString(hoy);
+        if (typeof window.consultarEbitda === 'function') window.consultarEbitda();
     };
 
     window.setEbitdaRange = function(range) {
@@ -7535,6 +7563,12 @@ function imprimirKardexRecibo() {
         if (typeof cargarDatosTesoreria === 'function') {
             try { cargarDatosTesoreria(); } catch(e) { console.error("Error tesoreria:", e); }
         }
+        if (typeof cargarSocias === 'function') {
+            try { cargarSocias(); } catch(e) { console.error("Error socias:", e); }
+        }
+        if (typeof initEbitdaReport === 'function') {
+            try { initEbitdaReport(); } catch(e) { console.error("Error ebitda:", e); }
+        }
     }
 
     if (document.readyState === 'loading') {
@@ -7556,6 +7590,20 @@ function imprimirKardexRecibo() {
         if (tesoreriaTab) {
             tesoreriaTab.addEventListener('shown.bs.tab', function() {
                 if (typeof cargarDatosTesoreria === 'function') cargarDatosTesoreria();
+            });
+        }
+
+        const sociasTab = document.getElementById('socias-tab');
+        if (sociasTab) {
+            sociasTab.addEventListener('shown.bs.tab', function() {
+                if (typeof cargarSocias === 'function') cargarSocias();
+            });
+        }
+
+        const ebitdaTab = document.getElementById('ebitda-tab');
+        if (ebitdaTab) {
+            ebitdaTab.addEventListener('shown.bs.tab', function() {
+                if (typeof initEbitdaReport === 'function') initEbitdaReport();
             });
         }
 

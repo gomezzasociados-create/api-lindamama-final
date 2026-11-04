@@ -45,7 +45,7 @@ public class FinanzasRestController {
             List<Map<String, Object>> ventasMapped = ventas.stream().map(v -> {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", v.getId());
-                map.put("fecha", v.getFechaHora().toString());
+                map.put("fecha", v.getFechaHora() != null ? v.getFechaHora().toString() : LocalDateTime.now().toString());
                 map.put("clienteNombre", v.getCliente() != null ? v.getCliente().getNombre() : "Cliente General");
                 map.put("sociaNombre", v.getSocia() != null ? v.getSocia().getNombre() : "Sin profesional");
                 map.put("detalle", v.getDetalle());
@@ -64,7 +64,7 @@ public class FinanzasRestController {
             List<Map<String, Object>> egresosMapped = egresos.stream().map(e -> {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", e.getId());
-                map.put("fecha", e.getFechaHora().toString());
+                map.put("fecha", e.getFechaHora() != null ? e.getFechaHora().toString() : LocalDateTime.now().toString());
                 map.put("descripcion", e.getDescripcion());
                 map.put("monto", e.getMonto() != null ? e.getMonto() : 0.0);
                 map.put("metodoSalida", e.getMetodoSalida());
@@ -80,7 +80,7 @@ public class FinanzasRestController {
             List<Map<String, Object>> pagosMapped = pagosComisiones.stream().map(p -> {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", p.getId());
-                map.put("fecha", p.getFechaHora().toString());
+                map.put("fecha", p.getFechaHora() != null ? p.getFechaHora().toString() : LocalDateTime.now().toString());
                 map.put("sociaNombre", p.getSocia() != null ? p.getSocia().getNombre() : "Socia General");
                 map.put("monto", p.getMonto() != null ? p.getMonto() : 0.0);
                 map.put("medioPago", p.getMedioPago());
@@ -141,6 +141,7 @@ public class FinanzasRestController {
             List<Egreso> todasInversiones = egresoRepository.findByEsInversionTrue();
 
             for (Egreso inv : todasInversiones) {
+                if (inv == null || inv.getFechaHora() == null) continue;
                 if (inv.getVidaUtilMeses() == null || inv.getVidaUtilMeses() <= 0) continue;
 
                 LocalDate fechaAdq = inv.getFechaHora().toLocalDate();
@@ -217,7 +218,7 @@ public class FinanzasRestController {
             List<Map<String, Object>> cortesMapped = cortes.stream().map(c -> {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", c.getId());
-                map.put("fecha", c.getFechaGeneracion().toString());
+                map.put("fecha", c.getFechaGeneracion() != null ? c.getFechaGeneracion().toString() : LocalDateTime.now().toString());
                 map.put("totalEfectivo", c.getTotalEfectivo() != null ? c.getTotalEfectivo() : 0.0);
                 map.put("totalTarjeta", c.getTotalTarjeta() != null ? c.getTotalTarjeta() : 0.0);
                 map.put("totalTransferencia", c.getTotalTransferencia() != null ? c.getTotalTransferencia() : 0.0);
@@ -277,9 +278,35 @@ public class FinanzasRestController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            Map<String, Object> err = new HashMap<>();
-            err.put("error", e.getMessage());
-            return ResponseEntity.internalServerError().body(err);
+            Map<String, Object> fallback = new HashMap<>();
+            fallback.put("ventas", new ArrayList<>());
+            fallback.put("egresos", new ArrayList<>());
+            fallback.put("pagosComisiones", new ArrayList<>());
+            fallback.put("inversionesDepreciacion", new ArrayList<>());
+            fallback.put("cortes", new ArrayList<>());
+            fallback.put("opexPorCategoria", new HashMap<>());
+            fallback.put("capexPorCategoria", new HashMap<>());
+            Map<String, Object> summary = new HashMap<>();
+            summary.put("totalVentasGross", 0.0);
+            summary.put("totalVentasSpa", 0.0);
+            summary.put("totalVentasSocia", 0.0);
+            summary.put("totalPropinas", 0.0);
+            summary.put("totalEgresos", 0.0);
+            summary.put("totalOpex", 0.0);
+            summary.put("totalCapex", 0.0);
+            summary.put("totalComisionesPagadas", 0.0);
+            summary.put("totalDepreciacion", 0.0);
+            summary.put("ebitdaDevengado", 0.0);
+            summary.put("ebitdaCaja", 0.0);
+            summary.put("ebitDevengado", 0.0);
+            summary.put("numCortesZ", 0);
+            summary.put("totalCortesVentas", 0.0);
+            summary.put("totalCortesEfectivo", 0.0);
+            summary.put("totalCortesNeto", 0.0);
+            summary.put("totalCortesEgresos", 0.0);
+            fallback.put("summary", summary);
+            fallback.put("error", e.getMessage());
+            return ResponseEntity.ok(fallback);
         }
     }
 

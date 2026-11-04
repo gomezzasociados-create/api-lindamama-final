@@ -316,11 +316,31 @@ public class VentasRestController {
     @GetMapping("/tesoreria-datos")
     public java.util.Map<String, Object> obtenerDatosTesoreriaCompleta() {
         java.util.Map<String, Object> res = new java.util.HashMap<>();
-        res.put("ventasTurno", ventaRepository.findByCierreAplicadoFalseOrderByFechaHoraDesc());
-        res.put("ventasHistorial", ventaRepository.findTop50ByOrderByFechaHoraDesc());
-        res.put("egresosTurno", egresoRepository.findByCierreAplicadoFalseOrderByFechaHoraDesc());
-        res.put("egresosHistorial", egresoRepository.findAllByOrderByFechaHoraDesc());
-        res.put("cortes", corteZRepository.findAllByOrderByFechaGeneracionDesc());
+        try {
+            res.put("ventasTurno", ventaRepository.findByCierreAplicadoFalseOrderByFechaHoraDesc());
+        } catch (Exception e) {
+            res.put("ventasTurno", new java.util.ArrayList<>());
+        }
+        try {
+            res.put("ventasHistorial", ventaRepository.findTop50ByOrderByFechaHoraDesc());
+        } catch (Exception e) {
+            res.put("ventasHistorial", new java.util.ArrayList<>());
+        }
+        try {
+            res.put("egresosTurno", egresoRepository.findByCierreAplicadoFalseOrderByFechaHoraDesc());
+        } catch (Exception e) {
+            res.put("egresosTurno", new java.util.ArrayList<>());
+        }
+        try {
+            res.put("egresosHistorial", egresoRepository.findAllByOrderByFechaHoraDesc());
+        } catch (Exception e) {
+            res.put("egresosHistorial", new java.util.ArrayList<>());
+        }
+        try {
+            res.put("cortes", corteZRepository.findAllByOrderByFechaGeneracionDesc());
+        } catch (Exception e) {
+            res.put("cortes", new java.util.ArrayList<>());
+        }
         return res;
     }
 
